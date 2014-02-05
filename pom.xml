@@ -11,6 +11,13 @@
         <module>cloudify-widget-hpcloud</module>
     </modules>
 
+    <repositories>
+        <!-- We need this repo for the softlayer jclouds fix -->
+        <repository>
+            <id>my.mvn.repo</id>
+            <url>https://github.com/iliapolo/maven-repo/raw/master</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -22,20 +29,29 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
+            <version>${slf4jVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.2</version>
+            <version>${slf4jVersion}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-all</artifactId>
-            <version>1.6.2-incubating</version>
+            <artifactId>jclouds-core</artifactId>
+            <version>${jCloudsVersion}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.jclouds</groupId>
+            <artifactId>jclouds-compute</artifactId>
+            <version>${jCloudsVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>softlayer-fixed</artifactId>
+            <version>${jCloudsVersion}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,10 +73,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <skipTests>true</skipTests>
-    </properties>
-
     <profiles>
         <profile>
             <id>tests</id>
@@ -71,15 +83,21 @@
                 <dependency>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
-                    <version>1.0.9</version>
+                    <version>${logbackVersion}</version>
                 </dependency>
                 <dependency>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-core</artifactId>
-                    <version>1.0.9</version>
+                    <version>${logbackVersion}</version>
                 </dependency>
             </dependencies>
         </profile>
-
     </profiles>
+
+    <properties>
+        <skipTests>true</skipTests>
+        <jCloudsVersion>1.6.2-incubating</jCloudsVersion>
+        <slf4jVersion>1.7.2</slf4jVersion>
+        <logbackVersion>1.0.9</logbackVersion>
+    </properties>
 </project>
