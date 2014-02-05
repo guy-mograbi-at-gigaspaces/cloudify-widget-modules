@@ -1,13 +1,66 @@
 package cloudify.widget.softlayer;
 
 
+import cloudify.widget.api.clouds.CloudProvider;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import org.jclouds.ContextBuilder;
+import org.jclouds.compute.ComputeServiceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
- * Softlayer Cloud utility methods
- * @author evgenyf
- * Date: 10/10/13
+ * User: eliranm
+ * Date: 2/5/14
+ * Time: 3:41 PM
  */
-public class SoftlayerCloudUtils{}
+public class SoftlayerCloudUtils {
+
+    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudUtils.class);
+
+    private SoftlayerCloudUtils() {
+    }
+
+    public static ComputeServiceContext createJCloudsContext(CloudProvider cloudProvider, String project, String key, String secretKey) {
+        return computeServiceContext(cloudProvider.label, project + ":" + key, secretKey, true);
+    }
+
+    public static ComputeServiceContext computeServiceContext(String provider, String identity, String credential, boolean api) {
+
+        logger.info("creating compute service context");
+        Set<Module> modules = new HashSet<Module>();
+
+        // TODO uncomment this once the class import is resolved
+/*
+        modules.add(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
+            }
+        });
+*/
+
+        ComputeServiceContext context;
+        Properties overrides = new Properties();
+        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        if (api) {
+            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        }
+
+        logger.info("building new context");
+        context = ContextBuilder.newBuilder(provider)
+                .credentials(identity, credential)
+                .overrides(overrides)
+                .modules(modules)
+                .buildView(ComputeServiceContext.class);
+        return context;
+    }
+
+}
 //{
 //
 //	public static final String SOFTLAYER_PROPERTIES_FILE_NAME = CloudProvider.SOFTLAYER.label + "-cloud.properties";
