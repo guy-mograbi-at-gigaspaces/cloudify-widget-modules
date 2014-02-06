@@ -18,5 +18,26 @@
             <artifactId>api</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>cloudify.widget</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.api</groupId>
+            <artifactId>openstack-nova</artifactId>
+            <version>1.6.2-incubating</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>hpcloud-compute</artifactId>
+            <version>1.6.2-incubating</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.jclouds.driver</groupId>
+            <artifactId>jclouds-sshj</artifactId>
+            <version>1.6.2-incubating</version>
+        </dependency>
     </dependencies>
 </project>
