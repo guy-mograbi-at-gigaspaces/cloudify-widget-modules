@@ -1,9 +1,5 @@
 package cloudify.widget.api.clouds;
 
-import java.util.Map;
-
-import com.google.common.collect.Multimap;
-
 /**
  * @author evnmgenyf
  *         Date: 10/7/13

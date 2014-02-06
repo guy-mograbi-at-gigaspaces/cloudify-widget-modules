@@ -25,16 +25,11 @@ public class SoftlayerCloudUtils {
     private SoftlayerCloudUtils() {
     }
 
-    public static ComputeServiceContext createJCloudsContext(CloudProvider cloudProvider, String project, String key, String secretKey) {
-        return computeServiceContext(cloudProvider.label, project + ":" + key, secretKey, true);
-    }
-
-    public static ComputeServiceContext computeServiceContext(String provider, String identity, String credential, boolean api) {
+    public static ComputeServiceContext computeServiceContext(String identity, String credential, boolean api) {
 
         logger.info("creating compute service context");
         Set<Module> modules = new HashSet<Module>();
 
-        // TODO uncomment this once the class import is resolved
         modules.add(new AbstractModule() {
             @Override
             protected void configure() {
@@ -49,12 +44,14 @@ public class SoftlayerCloudUtils {
             overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
         }
 
-        logger.info("building new context");
-        context = ContextBuilder.newBuilder(provider)
+        String cloudProvider = CloudProvider.SOFTLAYER.label;
+        logger.info("building new context for provider [{}]", cloudProvider);
+        context = ContextBuilder.newBuilder(cloudProvider)
                 .credentials(identity, credential)
                 .overrides(overrides)
                 .modules(modules)
                 .buildView(ComputeServiceContext.class);
+
         return context;
     }
 

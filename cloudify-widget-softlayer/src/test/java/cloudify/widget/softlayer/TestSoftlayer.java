@@ -11,12 +11,18 @@ import org.jclouds.compute.predicates.ImagePredicates;
 import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.features.VirtualGuestClient;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
 
@@ -29,20 +35,23 @@ import static org.junit.Assert.*;
  * Date: 2/4/14
  * Time: 1:09 PM
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:softlayer-context.xml"})
 public class TestSoftlayer {
 
     private static Logger logger = LoggerFactory.getLogger(TestSoftlayer.class);
     private ComputeService computeService;
     private ComputeServiceContext context;
 
+    @Autowired
+    private SoftlayerCloudCredentials softlayerCloudCredentials;
 
     @Before
     public void setup() {
-        // TODO to external config!
-//        computeService = ContextBuilder.newBuilder("stub").buildView(ComputeServiceContext.class).getComputeService();
-//        context = SoftlayerCloudUtils.computeServiceContext("stub", "", "", true);
-        context = SoftlayerCloudUtils.computeServiceContext("softlayer", "USER", "API_KEY", true);
+        logger.info("before setup...");
+        context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials.getUser(), softlayerCloudCredentials.getApiKey(), true);
         computeService = context.getComputeService();
+        logger.info("setup finished: \n\tcontext is [{}] \n\tcompute service is [{}]", context, computeService);
     }
 
     @Ignore

@@ -77,8 +77,13 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public void createSecurityGroup() {
+    public void createSecurityGroup(ISecurityGroupDetails securityGroupDetails) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
