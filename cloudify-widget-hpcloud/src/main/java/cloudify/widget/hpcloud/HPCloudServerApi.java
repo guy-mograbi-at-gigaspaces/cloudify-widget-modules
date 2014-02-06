@@ -80,7 +80,7 @@ public class HPCloudServerApi {}
 //		}
 //		ServerCreated serverCreated = serverApi.create( name, imageRef, flavorRef,
 //							optionsList.toArray( new CreateServerOptions[ optionsList.size() ] ) );
-//		return new HPCloudServerCreated( serverCreated );
+//		return new HpCloudServerCreated( serverCreated );
 //	}
 //
 //	@Override

@@ -56,9 +56,14 @@ public interface CloudServerApi {
 
 
     /**
+     *
      * creates a security group
      */
-    public void createSecurityGroup();
+    public void createSecurityGroup( ISecurityGroupDetails securityGroupDetails);
+
+    public CloudExecResponse runScriptOnMachine( String script, String serverIp, ISshDetails sshDetails );
+
+
 
     @Deprecated // please use create(MachineOptions);
 	public CloudServerCreated create( String name, String imageRef, String flavorRef, CloudCreateServerOptions... options ) throws RunNodesException;
