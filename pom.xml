@@ -11,14 +11,6 @@
         <module>cloudify-widget-hpcloud</module>
     </modules>
 
-    <repositories>
-        <!-- We need this repo for the softlayer jclouds fix -->
-        <repository>
-            <id>my.mvn.repo</id>
-            <url>https://github.com/iliapolo/maven-repo/raw/master</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -35,22 +27,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4jVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-core</artifactId>
-            <version>${jCloudsVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-compute</artifactId>
-            <version>${jCloudsVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>softlayer-fixed</artifactId>
-            <version>${jCloudsVersion}</version>
         </dependency>
     </dependencies>
 

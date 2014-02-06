@@ -41,6 +41,7 @@ public class TestSoftlayer {
         // TODO to external config!
 //        computeService = ContextBuilder.newBuilder("stub").buildView(ComputeServiceContext.class).getComputeService();
 //        context = SoftlayerCloudUtils.computeServiceContext("stub", "", "", true);
+        context = SoftlayerCloudUtils.computeServiceContext("softlayer", "USER", "API_KEY", true);
         computeService = context.getComputeService();
     }
 

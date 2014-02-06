@@ -35,14 +35,12 @@ public class SoftlayerCloudUtils {
         Set<Module> modules = new HashSet<Module>();
 
         // TODO uncomment this once the class import is resolved
-/*
         modules.add(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
             }
         });
-*/
 
         ComputeServiceContext context;
         Properties overrides = new Properties();
