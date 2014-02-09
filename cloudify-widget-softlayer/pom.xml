@@ -12,28 +12,6 @@
         <version>1.0.0</version>
     </parent>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*-context.xml</include>
-                </includes>
-                <targetPath>${project.parent.basedir}/conf/dev</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/*-context.xml</exclude>
-                </excludes>
-                <targetPath>${project.parent.basedir}/conf/dev</targetPath>
-            </resource>
-        </resources>
-    </build>
-
-
     <dependencies>
         <dependency>
             <groupId>cloudify.widget</groupId>

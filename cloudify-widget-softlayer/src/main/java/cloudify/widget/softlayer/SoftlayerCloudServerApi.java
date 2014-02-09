@@ -1,9 +1,14 @@
 package cloudify.widget.softlayer;
 
+import static com.google.common.collect.Collections2.*;
+
 import cloudify.widget.api.clouds.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.*;
+import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.domain.VirtualGuest;
 import org.slf4j.Logger;
@@ -29,15 +34,21 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(String tag) {
-        List<CloudServer> cloudServers = new LinkedList<CloudServer>();
-        for (ComputeMetadata computeMetadata : computeService.listNodes()) {
-            computeService.getNodeMetadata(computeMetadata.getId());
-            if (computeMetadata.getTags().contains(tag)) {
+    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
+
+        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
+            @Override
+            public boolean apply(@Nullable ComputeMetadata computeMetadata) {
+                return computeMetadata.getName().startsWith(tag);
             }
-            cloudServers.add(new SoftlayerCloudServer(computeMetadata));
-        }
-        return cloudServers;
+        });
+
+        return transform(nodeMetadatas, new Function<NodeMetadata, CloudServer>() {
+            @Override
+            public SoftlayerCloudServer apply(@Nullable NodeMetadata o) {
+                return new SoftlayerCloudServer(computeService, o);
+            }
+        });
     }
 
     @Override
