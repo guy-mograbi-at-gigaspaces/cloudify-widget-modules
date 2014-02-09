@@ -52,21 +52,9 @@
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>softlayer-fixed</artifactId>
+            <artifactId>softlayer-cci-embedded</artifactId>
             <version>${jCloudsVersion}</version>
-            <scope>system</scope>
-            <systemPath>/home/eliranm/dev/cloudify-widget-modules/lib/softlayer-fixed-1.6.2-incubating.jar</systemPath>
         </dependency>
     </dependencies>
-
-    <!--
-<repositories>
-&lt;!&ndash; We need this repo for the softlayer jclouds fix &ndash;&gt;
-<repository>
-    <id>my.mvn.repo</id>
-    <url>https://github.com/iliapolo/maven-repo/raw/master</url>
-</repository>
-</repositories>
--->
 
 </project>
