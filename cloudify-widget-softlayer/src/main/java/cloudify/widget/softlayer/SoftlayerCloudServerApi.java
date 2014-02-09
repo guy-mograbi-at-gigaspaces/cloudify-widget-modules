@@ -1,16 +1,15 @@
 package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
+import org.apache.commons.lang3.StringUtils;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.domain.ComputeMetadata;
+import org.jclouds.compute.domain.*;
 import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.domain.VirtualGuest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: eliranm
@@ -67,8 +66,48 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudServerCreated create(MachineOptions machineOpts) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Collection<CloudServerCreated> create( MachineOptions machineOpts ) {
+
+        SoftlayerMachineOptions softlayerMachineOptions = ( SoftlayerMachineOptions )machineOpts;
+        String name = softlayerMachineOptions.name();
+        int machinesCount = softlayerMachineOptions.machinesCount();
+        Template template = createTemplate(softlayerMachineOptions);
+        Set<? extends NodeMetadata> newNodes;
+        try {
+            newNodes = computeService.createNodesInGroup( name, machinesCount, template );
+        }
+        catch (org.jclouds.compute.RunNodesException e) {
+            if( logger.isErrorEnabled() ){
+                logger.error( "Create softlayer node failed", e );
+            }
+            throw new RuntimeException( e );
+        }
+
+        List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
+        for( NodeMetadata newNode : newNodes ){
+            newNodesList.add( new SoftlayerCloudServerCreated( newNode ) );
+        }
+
+        return newNodesList;
+    }
+
+    private Template createTemplate( SoftlayerMachineOptions machineOptions ) {
+        TemplateBuilder templateBuilder = computeService.templateBuilder();
+
+        String hardwareId = machineOptions.hardwareId();
+        String locationId = machineOptions.locationId();
+        OsFamily osFamily = machineOptions.osFamily();
+        if( osFamily != null ){
+            templateBuilder.osFamily(osFamily);
+        }
+        if( !StringUtils.isEmpty(hardwareId)){
+            templateBuilder.hardwareId( hardwareId );
+        }
+        if( !StringUtils.isEmpty( locationId ) ){
+            templateBuilder.locationId(locationId);
+        }
+
+        return templateBuilder.build();
     }
 
     @Override

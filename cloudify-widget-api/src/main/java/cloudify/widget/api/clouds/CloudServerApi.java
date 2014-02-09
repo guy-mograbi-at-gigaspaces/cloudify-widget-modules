@@ -46,7 +46,7 @@ public interface CloudServerApi {
      * @param machineOpts  - options for machine
      * @return an instance that holds the new machine's id.
      */
-    public CloudServerCreated create( MachineOptions machineOpts );
+    public Collection<CloudServerCreated> create( MachineOptions machineOpts );
 
     /**
      * returns a PEM file content

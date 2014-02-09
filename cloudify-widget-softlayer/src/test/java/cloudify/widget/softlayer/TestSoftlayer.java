@@ -1,33 +1,25 @@
 package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServer;
+import cloudify.widget.api.clouds.CloudServerCreated;
 import com.google.common.collect.Iterables;
-import org.hamcrest.CoreMatchers;
-import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.predicates.ImagePredicates;
-import org.jclouds.softlayer.SoftLayerApi;
-import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.features.VirtualGuestClient;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created with IntelliJ IDEA.
@@ -88,4 +80,23 @@ public class TestSoftlayer {
         }
     }
 
+    @Test
+    public void testCreateMachine() {
+
+//        SoftLayerClient softlayerClient = ContextBuilder.newBuilder("softlayer").buildApi(SoftLayerClient.class);
+        logger.info("Start test create softlayer machine");
+        SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions( "testsoft" );
+        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" );
+        logger.info("machine options created");
+        SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
+        logger.info("softlayerCloudServerApi created");
+        Collection<CloudServerCreated> cloudServerCreatedCollection = softlayerCloudServerApi.create( machineOptions );
+        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        int i = 0;
+        for( CloudServerCreated cloudServerCreated : cloudServerCreatedCollection ){
+            logger.info( "machine created, [{}] ", i++, ( ( SoftlayerCloudServerCreated )cloudServerCreated ).getNewNode() );
+        }
+
+        logger.info("Start test create softlayer machine, completed");
+    }
 }
