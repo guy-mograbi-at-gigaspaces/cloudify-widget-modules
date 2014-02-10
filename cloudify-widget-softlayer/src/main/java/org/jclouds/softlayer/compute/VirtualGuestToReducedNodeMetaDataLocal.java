@@ -52,14 +52,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Singleton
-public class VirtualGuestToReducedNodeMetaData extends VirtualGuestToNodeMetadata {
+public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMetadata {
 
     private final GroupNamingConvention nodeNamingConvention;
 
     private static Logger logger = LoggerFactory.getLogger(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
 
     @Inject
-    public VirtualGuestToReducedNodeMetaData(
+    public VirtualGuestToReducedNodeMetaDataLocal(
             @Memoized Supplier<Set<? extends Location>> locations,
             GetHardwareForVirtualGuest hardware,
             GetImageForVirtualGuest images, GroupNamingConvention.Factory namingConvention) {

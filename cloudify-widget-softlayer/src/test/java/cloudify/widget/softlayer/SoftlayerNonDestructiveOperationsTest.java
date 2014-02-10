@@ -6,6 +6,8 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OperatingSystem;
+import org.jclouds.compute.domain.OsFamily;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -87,15 +89,20 @@ public class SoftlayerNonDestructiveOperationsTest {
         Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
         for( ComputeMetadata computeMetadata : computeMetadatas ){
             NodeMetadata nodeMetadata = (NodeMetadata)computeMetadata;
-            Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-            if( !publicAddresses.isEmpty() ){
-                SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
-                String publicAddress = publicAddresses.iterator().next();
-                CloudExecResponseImpl cloudExecResponse =
+            logger.info( "Machine " + nodeMetadata.getHostname() + " user name:" + nodeMetadata.getCredentials().getUser() );
+            //prevent using Windows machines , comparing user name since OS is not initialized
+            if( !nodeMetadata.getCredentials().getUser().contains( "Administrator" ) ){
+                logger.info( "Proceeding machine..." );
+                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                if( !publicAddresses.isEmpty() ){
+                    SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
+                    String publicAddress = publicAddresses.iterator().next();
+                    CloudExecResponseImpl cloudExecResponse =
                         (CloudExecResponseImpl)softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
-                logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
-                assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
-                break;
+                    logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+                    assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
+                    break;
+                }
             }
         }
     }
