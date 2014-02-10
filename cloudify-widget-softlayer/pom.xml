@@ -51,6 +51,11 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.jclouds.driver</groupId>
+            <artifactId>jclouds-sshj</artifactId>
+            <version>1.6.2-incubating</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
             <artifactId>softlayer-cci-embedded</artifactId>
             <version>${jCloudsVersion}</version>

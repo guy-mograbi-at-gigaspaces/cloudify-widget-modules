@@ -1,12 +1,18 @@
 package cloudify.widget.softlayer;
 
+import cloudify.widget.api.clouds.CloudExecResponse;
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.collect.Iterables;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.Image;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.predicates.ImagePredicates;
+import org.jclouds.domain.Location;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,8 +24,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
+import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.
@@ -86,7 +94,7 @@ public class TestSoftlayer {
 //        SoftLayerClient softlayerClient = ContextBuilder.newBuilder("softlayer").buildApi(SoftLayerClient.class);
         logger.info("Start test create softlayer machine");
         SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions( "testsoft" );
-        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" );
+        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" ).osFamily(OsFamily.CENTOS);
         logger.info("machine options created");
         SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
         logger.info("softlayerCloudServerApi created");
@@ -98,5 +106,26 @@ public class TestSoftlayer {
         }
 
         logger.info("Start test create softlayer machine, completed");
+    }
+
+    @Test
+    public void runScriptOnNodeTest(){
+
+        final String echoString = "hello world";
+
+        Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
+        for( ComputeMetadata computeMetadata : computeMetadatas ){
+            NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
+            Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+              if( !publicAddresses.isEmpty() ){
+                  SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
+                  String publicAddress = publicAddresses.iterator().next();
+                  CloudExecResponseImpl cloudExecResponse =
+                          ( CloudExecResponseImpl )softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
+                  logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+                  assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
+                  break;
+            }
+        }
     }
 }
