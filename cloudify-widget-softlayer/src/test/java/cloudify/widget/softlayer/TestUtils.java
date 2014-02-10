@@ -2,6 +2,7 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServerCreated;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.domain.OsFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,12 @@ public class TestUtils {
     private TestUtils() {
     }
 
-    public static Collection<CloudServerCreated> createCloudServer(ComputeService computeService, String name) {
+    public static Collection<? extends CloudServerCreated> createCloudServer(ComputeService computeService, String name) {
         logger.info("creating new machine with name [{}]", name);
         SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions(name)
                 .hardwareId("1640,2238,13899")
-                .locationId("37473");
+                .locationId("37473")
+                .osFamily(OsFamily.CENTOS);
         return new SoftlayerCloudServerApi(computeService, null).create(machineOptions);
     }
 

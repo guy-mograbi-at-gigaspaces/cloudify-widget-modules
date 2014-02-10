@@ -47,10 +47,10 @@ public class SoftlayerDestructiveOperationsTest {
     public void testCreateMachine() {
         logger.info("starting test - create softlayer machine");
 
-        final Collection<CloudServerCreated> cloudServerCreatedCollection = TestUtils.createCloudServer(computeService, "testsoft");
-        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        final Collection<? extends CloudServerCreated> cloudServerCreatedsCollection = TestUtils.createCloudServer(computeService, "testsoft");
+        logger.info("machine(s) created, count=" + cloudServerCreatedsCollection.size());
         int i = 0;
-        for( CloudServerCreated cloudServerCreated : cloudServerCreatedCollection ){
+        for( CloudServerCreated cloudServerCreated : cloudServerCreatedsCollection ){
             logger.info( "machine created, [{}] - [{}]", i++, ( ( SoftlayerCloudServerCreated )cloudServerCreated ).getNewNode() );
         }
 

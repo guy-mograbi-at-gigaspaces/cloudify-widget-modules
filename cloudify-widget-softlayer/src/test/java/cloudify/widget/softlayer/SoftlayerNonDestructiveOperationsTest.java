@@ -2,9 +2,14 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.common.CloudExecResponseImpl;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
-import org.junit.*;
+import org.jclouds.compute.domain.ComputeMetadata;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +42,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
     @Autowired
     private SoftlayerCloudCredentials softlayerCloudCredentials;
+    private Collection<Collection<? extends CloudServerCreated>> machines;
 
     public SoftlayerNonDestructiveOperationsTest() {
         machineNames = new TreeSet<String>(machineCommonNames);
@@ -46,7 +52,7 @@ public class SoftlayerNonDestructiveOperationsTest {
     // TODO create machines BeforeClass
 
     @Before
-    public void bootstrapClass() {
+    public void bootstrap() {
         logger.info("starting test setup...");
 
         context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials, true);
@@ -54,14 +60,16 @@ public class SoftlayerNonDestructiveOperationsTest {
         computeService = context.getComputeService();
         logger.info("created compute service [{}]", computeService);
         // TODO uncomment for prod
-//        createMachines();
+        machines = createMachines();
         logger.info("test setup finished");
     }
 
-    private void createMachines() {
+    private Collection<Collection<? extends CloudServerCreated>> createMachines() {
+        final Collection<Collection<? extends CloudServerCreated>> cloudServerCreatedsCollection = new ArrayList<Collection<? extends CloudServerCreated>>();
         for (String name : machineNames) {
-            TestUtils.createCloudServer(computeService, name);
+            cloudServerCreatedsCollection.add(TestUtils.createCloudServer(computeService, name));
         }
+        return cloudServerCreatedsCollection;
     }
 
     // TODO test softlayer cloud server get status
