@@ -35,29 +35,26 @@ public class SoftlayerDestructiveOperationsTest {
 
     @Before
     public void bootstrap() {
-        logger.info("before setup...");
-        context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials.getUser(), softlayerCloudCredentials.getApiKey(), true);
+        logger.info("before test setup...");
+        context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials, true);
+        logger.info("created context [{}]", context);
         computeService = context.getComputeService();
-        logger.info("setup finished: \n\tcontext is [{}] \n\tcompute service is [{}]", context, computeService);
+        logger.info("created compute service [{}]", computeService);
+        logger.info("test setup finished");
     }
 
     @Test
     public void testCreateMachine() {
+        logger.info("starting test - create softlayer machine");
 
-        logger.info("Start test create softlayer machine");
-        SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions( "testsoft" );
-        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" );
-        logger.info("machine options created");
-        SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
-        logger.info("softlayerCloudServerApi created");
-        Collection<CloudServerCreated> cloudServerCreatedCollection = softlayerCloudServerApi.create( machineOptions );
+        final Collection<CloudServerCreated> cloudServerCreatedCollection = TestUtils.createCloudServer(computeService, "testsoft");
         logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
         int i = 0;
         for( CloudServerCreated cloudServerCreated : cloudServerCreatedCollection ){
-            logger.info( "machine created, [{}] ", i++, ( ( SoftlayerCloudServerCreated )cloudServerCreated ).getNewNode() );
+            logger.info( "machine created, [{}] - [{}]", i++, ( ( SoftlayerCloudServerCreated )cloudServerCreated ).getNewNode() );
         }
 
-        logger.info("Start test create softlayer machine, completed");
+        logger.info("completed test - create softlayer machine");
     }
 
     @After

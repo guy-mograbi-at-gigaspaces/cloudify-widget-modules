@@ -25,7 +25,7 @@ public class SoftlayerCloudUtils {
     private SoftlayerCloudUtils() {
     }
 
-    public static ComputeServiceContext computeServiceContext(String identity, String credential, boolean api) {
+    public static ComputeServiceContext computeServiceContext(SoftlayerCloudCredentials softlayerCloudCredentials, boolean api) {
 
         logger.info("creating compute service context");
         Set<Module> modules = new HashSet<Module>();
@@ -47,7 +47,7 @@ public class SoftlayerCloudUtils {
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);
         context = ContextBuilder.newBuilder(cloudProvider)
-                .credentials(identity, credential)
+                .credentials(softlayerCloudCredentials.getUser(), softlayerCloudCredentials.getApiKey())
                 .overrides(overrides)
                 .modules(modules)
                 .buildView(ComputeServiceContext.class);

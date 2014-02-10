@@ -54,15 +54,10 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public CloudServer get(String serverId) {
         CloudServer cloudServer = null;
-
-        VirtualGuest virtualGuest = softLayerApi.getVirtualGuestClient().getVirtualGuest(0);
-        logger.info("virtual guest: [{}]", virtualGuest);
-/*
-        Server server = softLayerApi.get(serverId);
-        if (server != null) {
-            cloudServer = new SoftlayerCloudServer(server);
+        NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
+        if (nodeMetadata != null) {
+            cloudServer = new SoftlayerCloudServer(computeService, nodeMetadata);
         }
-*/
         return cloudServer;
     }
 
