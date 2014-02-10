@@ -3,6 +3,7 @@ package cloudify.widget.softlayer;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.domain.OsFamily;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class SoftlayerDestructiveOperationsTest {
 
         logger.info("Start test create softlayer machine");
         SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions( "testsoft" );
-        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" );
+        machineOptions.hardwareId( "1640,2238,13899" ).locationId( "37473" ).osFamily(OsFamily.CENTOS);
         logger.info("machine options created");
         SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
         logger.info("softlayerCloudServerApi created");

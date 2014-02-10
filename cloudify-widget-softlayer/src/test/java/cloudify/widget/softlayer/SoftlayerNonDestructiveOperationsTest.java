@@ -1,9 +1,11 @@
 package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.common.CloudExecResponseImpl;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.domain.ComputeMetadata;
+import org.jclouds.compute.domain.NodeMetadata;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,8 +18,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
+import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: eliranm
@@ -47,19 +51,6 @@ public class SoftlayerNonDestructiveOperationsTest {
 
     }
 
-    private void createNewMachine() {
-        logger.info("creating new machine");
-        SoftlayerMachineOptions machineOptions = new SoftlayerMachineOptions( "testsoft" )
-                .hardwareId("1640,2238,13899")
-                .locationId("37473");
-        Collection<CloudServerCreated> cloudServerCreatedCollection = new SoftlayerCloudServerApi(computeService, null).create(machineOptions);
-        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
-        int i = 0;
-        for( CloudServerCreated cloudServerCreated : cloudServerCreatedCollection ){
-            logger.info( "machine created, [{}] ", i++, ( (SoftlayerCloudServerCreated)cloudServerCreated ).getNewNode() );
-        }
-    }
-
     @Test
     public void testContext() {
         logger.info("testing context [{}]", context);
@@ -85,6 +76,27 @@ public class SoftlayerNonDestructiveOperationsTest {
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server name [{}]", cloudServer.getName());
+        }
+    }
+
+    @Test
+    public void runScriptOnNodeTest(){
+
+        final String echoString = "hello world";
+
+        Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
+        for( ComputeMetadata computeMetadata : computeMetadatas ){
+            NodeMetadata nodeMetadata = (NodeMetadata)computeMetadata;
+            Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+            if( !publicAddresses.isEmpty() ){
+                SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
+                String publicAddress = publicAddresses.iterator().next();
+                CloudExecResponseImpl cloudExecResponse =
+                        (CloudExecResponseImpl)softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
+                logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+                assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
+                break;
+            }
         }
     }
 
