@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,7 +96,7 @@ public class HpCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudServerCreated create(MachineOptions machineOpts) {
+    public Collection<? extends CloudServerCreated> create(MachineOptions machineOpts) {
 
         if (!(machineOpts instanceof HpMachineOptions)) {
             throw new RuntimeException("expected HpMachineOptions implementation");
@@ -120,7 +121,7 @@ public class HpCloudServerApi implements CloudServerApi {
         optionsList.add(serverOptions);
         ServerCreated serverCreated = serverApi.create(hpMachineOptions.name, hpMachineOptions.imageRef, hpMachineOptions.flavorRef,
                 optionsList.toArray(new CreateServerOptions[optionsList.size()]));
-        return new HpCloudServerCreated(serverCreated);
+        return Collections.singletonList(new HpCloudServerCreated(serverCreated));
     }
 
     @Override

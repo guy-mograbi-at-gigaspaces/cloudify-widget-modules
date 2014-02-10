@@ -3,17 +3,27 @@ package cloudify.widget.softlayer;
 import static com.google.common.collect.Collections2.*;
 
 import cloudify.widget.api.clouds.*;
+import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.net.HostAndPort;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.*;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
+import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.domain.VirtualGuest;
+import org.jclouds.ssh.SshClient;
+import org.jclouds.sshj.config.SshjSshClientModule;
+import org.jclouds.util.Strings2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.util.*;
 
 /**
@@ -72,7 +82,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServerCreated> create( MachineOptions machineOpts ) {
+    public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
 
         SoftlayerMachineOptions softlayerMachineOptions = ( SoftlayerMachineOptions )machineOpts;
         String name = softlayerMachineOptions.name();
@@ -128,7 +138,61 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+
+        SoftlayerSshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
+        //retrieve missing ssh details
+        String user = softlayerSshDetails.user();
+        String password = softlayerSshDetails.password();
+        int port = softlayerSshDetails.port();
+
+        logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
+        Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
+        SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
+        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).password(password).build();
+        //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
+
+        SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
+                loginCredentials );
+        ExecResponse execResponse = null;
+        try{
+            sshConnection.connect();
+            logger.info("ssh connected, executing");
+            execResponse = sshConnection.exec(script);
+            logger.info("finished execution");
+        }
+        finally{
+            if (sshConnection != null)
+                sshConnection.disconnect();
+        }
+
+        return new CloudExecResponseImpl( execResponse );
+    }
+
+
+    private SoftlayerSshDetails getMachineCredentialsByIp( final String ip ){
+
+        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
+            @Override
+            public boolean apply(ComputeMetadata computeMetadata) {
+                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
+                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                return publicAddresses.contains(ip);
+            }
+        });
+
+//        NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
+        if( nodeMetadatas.isEmpty() ){
+            throw new RuntimeException( "Machine [" + ip + "] was not found" );
+        }
+
+        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
+
+        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
+        String user = loginCredentials.getUser();
+        String password = loginCredentials.getPassword();
+        int port = nodeMetadata.getLoginPort();
+
+        return new SoftlayerSshDetails( port, user, password );
     }
 
     @Override
