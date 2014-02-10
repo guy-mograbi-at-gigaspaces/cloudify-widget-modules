@@ -3,12 +3,18 @@ package cloudify.widget.softlayer;
 import static com.google.common.collect.Collections2.*;
 
 import cloudify.widget.api.clouds.*;
+import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.net.HostAndPort;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.*;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
+import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.domain.VirtualGuest;
 import org.jclouds.ssh.SshClient;
@@ -145,12 +151,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         int port = softlayerSshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
-        Injector i = Guice.createInjector( new SshjSshClientModule(), new NullLoggingModule() );
+        Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
         SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
         LoginCredentials loginCredentials = LoginCredentials.builder().user(user).password(password).build();
         //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
 
-        SshClient sshConnection = factory.create(HostAndPort.fromParts( serverIp, port ),
+        SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
                 loginCredentials );
         ExecResponse execResponse = null;
         try{
