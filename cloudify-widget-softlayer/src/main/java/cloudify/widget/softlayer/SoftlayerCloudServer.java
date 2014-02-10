@@ -3,9 +3,9 @@ package cloudify.widget.softlayer;
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerStatus;
 import cloudify.widget.api.clouds.ServerIp;
+import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
-
-import java.util.Map;
+import org.jclouds.compute.domain.NodeMetadata;
 
 /**
  * User: eliranm
@@ -15,29 +15,27 @@ import java.util.Map;
 public class SoftlayerCloudServer implements CloudServer {
 
     private final ComputeMetadata computeMetadata;
+    private final ComputeService computeService;
 
-    public SoftlayerCloudServer (ComputeMetadata computeMetadata) {
+    public SoftlayerCloudServer(ComputeService computeService, ComputeMetadata computeMetadata) {
+        this.computeService = computeService;
         this.computeMetadata = computeMetadata;
     }
 
-//    @Override
-//    public Multimap<String, CloudAddress> getAddresses() {
-//        return null;
-//    }
-
     @Override
     public String getId() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return computeMetadata.getId();
     }
 
     @Override
     public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return computeMetadata.getName();
     }
 
     @Override
     public CloudServerStatus getStatus() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        NodeMetadata.Status status = computeService.getNodeMetadata(computeMetadata.getId()).getStatus();
+        return CloudServerStatus.fromValue(status.toString());
     }
 
     @Override

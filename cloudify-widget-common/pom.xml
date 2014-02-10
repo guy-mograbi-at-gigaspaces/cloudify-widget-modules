@@ -21,9 +21,9 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>hpcloud-compute</artifactId>
-            <version>1.6.2-incubating</version>
+            <groupId>org.apache.jclouds</groupId>
+            <artifactId>jclouds-compute</artifactId>
+            <version>${jCloudsVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
