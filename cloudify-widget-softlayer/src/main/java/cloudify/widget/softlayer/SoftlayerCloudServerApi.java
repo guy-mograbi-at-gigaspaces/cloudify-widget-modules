@@ -87,7 +87,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServerCreated> create( MachineOptions machineOpts ) {
+    public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
 
         SoftlayerMachineOptions softlayerMachineOptions = ( SoftlayerMachineOptions )machineOpts;
         String name = softlayerMachineOptions.name();
