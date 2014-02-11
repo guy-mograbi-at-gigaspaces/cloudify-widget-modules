@@ -11,9 +11,8 @@
     </parent>
 
     <groupId>cloudify.widget</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>cloudify-widget-cli</artifactId>
     <version>1.0.0</version>
-    <name>${project.artifactId}</name>
 
     <dependencies>
         <dependency>
@@ -21,22 +20,5 @@
             <artifactId>api</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-compute</artifactId>
-            <version>${jCloudsVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
-        </dependency>
-
     </dependencies>
-
 </project>

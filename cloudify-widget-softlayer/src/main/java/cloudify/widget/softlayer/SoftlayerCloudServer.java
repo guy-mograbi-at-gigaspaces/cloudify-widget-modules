@@ -37,6 +37,15 @@ public class SoftlayerCloudServer implements CloudServer {
     }
 
     @Override
+    public boolean isRunning(){
+        return getStatus() == CloudServerStatus.RUNNING;
+    }
+
+    @Override
+    public boolean isStopped(){
+        return getStatus() == CloudServerStatus.STOPPED || getStatus() == CloudServerStatus.UNRECOGNIZED;
+    }
+
     public CloudServerStatus getStatus() {
         NodeMetadata nodeMetadata = computeService.getNodeMetadata(computeMetadata.getId());
         NodeMetadata.Status status = null;

@@ -22,7 +22,9 @@ public interface CloudServer {
 
     public String getName();
 
-    public CloudServerStatus getStatus();
+    public boolean isRunning();
+
+    public boolean isStopped();
 
     public ServerIp getServerIp();
 

@@ -8,5 +8,5 @@ package cloudify.widget.api.clouds;
  */
 public interface CloudExecResponse {
 
-
+    public String getOutput();
 }
