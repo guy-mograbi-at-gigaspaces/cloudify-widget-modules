@@ -35,17 +35,28 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServerApi.class);
 
-    private final ComputeService computeService;
-    private final SoftLayerApi softLayerApi;
+    private ComputeService computeService = null;
 
-    public SoftlayerCloudServerApi(ComputeService computeService, SoftLayerApi softLayerApi) {
-        this.computeService = computeService;
-        this.softLayerApi = softLayerApi;
+
+    public SoftlayerCloudServerApi(){
+
+    }
+
+
+
+    @Override
+    public void connect(IConnectDetails connectDetails) {
+        logger.info("connecting");
+        if (!( connectDetails instanceof SoftlayerConnectDetails )){
+            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        }
+        SoftlayerConnectDetails scd = (SoftlayerConnectDetails) connectDetails;
+        computeService = SoftlayerCloudUtils.computeServiceContext( scd.username, scd.key, scd.isApiKey ).getComputeService();
     }
 
     @Override
     public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-
+        logger.info("getting all machines with tag [{}]",tag);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
@@ -63,21 +74,23 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public CloudServer get(String serverId) {
-        CloudServer cloudServer = null;
-
-        VirtualGuest virtualGuest = softLayerApi.getVirtualGuestClient().getVirtualGuest(0);
-        logger.info("virtual guest: [{}]", virtualGuest);
+        logger.info("getting server [{}] ", serverId );
+//        CloudServer cloudServer = null;
+//
+//        VirtualGuest virtualGuest = softLayerApi.getVirtualGuestClient().getVirtualGuest(0);
+//        logger.info("virtual guest: [{}]", virtualGuest);
 /*
         Server server = softLayerApi.get(serverId);
         if (server != null) {
             cloudServer = new SoftlayerCloudServer(server);
         }
 */
-        return cloudServer;
+        return null;
     }
 
     @Override
     public boolean delete(String id) {
+
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -133,11 +146,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public String createCertificate() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("create certificate is unsupported");
     }
 
     @Override
     public void createSecurityGroup(ISecurityGroupDetails securityGroupDetails) {
+        throw new UnsupportedOperationException("create security group is unsupported in this implementation");
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

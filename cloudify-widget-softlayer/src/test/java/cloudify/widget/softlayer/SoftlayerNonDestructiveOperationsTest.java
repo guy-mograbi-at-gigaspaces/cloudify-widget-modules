@@ -1,11 +1,19 @@
 package cloudify.widget.softlayer;
 
+import cloudify.widget.api.clouds.CloudExecResponse;
 import cloudify.widget.api.clouds.CloudServer;
+import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.api.clouds.IConnectDetails;
+import cloudify.widget.api.clouds.MachineOptions;
 import cloudify.widget.common.CloudExecResponseImpl;
+import cloudify.widget.common.CollectionUtils;
+import junit.framework.Assert;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OsFamily;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,77 +41,52 @@ import static org.junit.Assert.assertTrue;
 public class SoftlayerNonDestructiveOperationsTest {
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerNonDestructiveOperationsTest.class);
-    private ComputeService computeService;
-    private ComputeServiceContext context;
 
     @Autowired
-    private SoftlayerCloudCredentials softlayerCloudCredentials;
+    private CloudServerApi cloudServerApi;
 
-    @Before
-    public void bootstrap() {
-        logger.info("before setup...");
-        context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials.getUser(), softlayerCloudCredentials.getApiKey(), true);
-        computeService = context.getComputeService();
-        logger.info("setup finished: \n\tcontext is [{}] \n\tcompute service is [{}]", context, computeService);
+    @Autowired
+    private IConnectDetails connectDetails;
 
-        // TODO use this after implementing deleteMachine()
-//        createNewMachine();
+    @Autowired
+    private SoftlayerMachineOptions machineOptions;
 
-    }
 
     @Test
-    public void testContext() {
-        logger.info("testing context [{}]", context);
-        assertNotNull("context is null!", context);
-    }
+    public void testSoftlayerDriver() {
 
-    @Test
-    public void testComputeService() {
-        logger.info("testing compute service [{}]", computeService);
-        assertNotNull("compute service is null!", computeService);
-    }
 
-    @Ignore
-    public void getMachine() {
-        // TODO test softlayer cloud server get status
-    }
+        logger.info("Start test create softlayer machine");
 
-    @Test
-    public void testGetAllMachinesWithTag() {
+        logger.info("softlayerCloudServerApi created");
+        Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
+        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
 
-        SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
-        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag("testsoft-4");
+
+        logger.info("Start test create softlayer machine, completed");
+        cloudServerApi.connect( connectDetails );
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server name [{}]", cloudServer.getName());
         }
-    }
 
-    @Test
-    public void runScriptOnNodeTest(){
 
         final String echoString = "hello world";
+        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag("testsoft-4");
 
-        Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
-        for( ComputeMetadata computeMetadata : computeMetadatas ){
-            NodeMetadata nodeMetadata = (NodeMetadata)computeMetadata;
-            Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-            if( !publicAddresses.isEmpty() ){
-                SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
-                String publicAddress = publicAddresses.iterator().next();
-                CloudExecResponseImpl cloudExecResponse =
-                        (CloudExecResponseImpl)softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
-                logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
-                assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
-                break;
-            }
+        for (CloudServer machine : machines) {
+            String publicIp = machine.getServerIp().publicIp;
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
+            logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+            assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
     }
 
-    @After
-    public void teardown() {
 
-        // TODO teardown machines created during bootstrap
+    public void setCloudServer(CloudServerApi cloudServer) {
+        this.cloudServerApi = cloudServer;
     }
-
 }

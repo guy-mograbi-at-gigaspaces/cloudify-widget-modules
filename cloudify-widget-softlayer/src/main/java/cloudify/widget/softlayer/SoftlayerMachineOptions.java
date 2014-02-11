@@ -9,26 +9,26 @@ import org.jclouds.compute.domain.OsFamily;
  */
 public class SoftlayerMachineOptions implements MachineOptions {
 
-    private final String name;
+    private String name;
     private int machinesCount;
     private OsFamily osFamily;
     private String locationId;
     private String hardwareId;
 
-    public SoftlayerMachineOptions( String name ){
-        this( name, 1 );
-    }
+   public SoftlayerMachineOptions(){
 
-    public SoftlayerMachineOptions( String name, int machinesCount ){
+   }
+
+    public SoftlayerMachineOptions setName(String name) {
         this.name = name;
-        this.machinesCount = machinesCount;
+        return this;
     }
 
     public String name() {
         return name;
     }
 
-    public SoftlayerMachineOptions machinesCount( int machinesCount ){
+    public SoftlayerMachineOptions setMachinesCount( int machinesCount ){
         this.machinesCount = machinesCount;
         return this;
     }
@@ -37,7 +37,7 @@ public class SoftlayerMachineOptions implements MachineOptions {
         return machinesCount;
     }
 
-    public SoftlayerMachineOptions locationId( String locationId ){
+    public SoftlayerMachineOptions setLocationId( String locationId ){
         this.locationId = locationId;
         return this;
     }
@@ -46,7 +46,7 @@ public class SoftlayerMachineOptions implements MachineOptions {
         return locationId;
     }
 
-    public SoftlayerMachineOptions hardwareId( String hardwareId ){
+    public SoftlayerMachineOptions setHardwareId( String hardwareId ){
         this.hardwareId = hardwareId;
         return this;
     }
@@ -55,7 +55,7 @@ public class SoftlayerMachineOptions implements MachineOptions {
         return hardwareId;
     }
 
-    public SoftlayerMachineOptions osFamily( OsFamily osFamily ){
+    public SoftlayerMachineOptions setOsFamily( OsFamily osFamily ){
         this.osFamily = osFamily;
         return this;
     }
