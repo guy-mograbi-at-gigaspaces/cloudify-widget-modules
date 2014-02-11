@@ -71,9 +71,31 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         return cloudServer;
     }
 
+    // TODO discuss the API - should we really return boolean, or is it better to return a metadata object?
     @Override
     public boolean delete(String id) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        boolean deleted = false;
+        CloudServer cloudServer = null;
+        if (id != null) {
+            cloudServer = get(id);
+        }
+        if (cloudServer != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("calling destroyNode, status is [{}]", cloudServer.getStatus());
+            }
+            try {
+                computeService.destroyNode(id);
+                deleted = true;
+            } catch (RuntimeException e) {
+                throw new SoftlayerCloudServerApiOperationFailureException(
+                        String.format("delete operation failed for server with id [%s].", id), e);
+            }
+        }
+        if (!deleted) {
+            throw new SoftlayerCloudServerApiOperationFailureException(
+                    String.format("delete operation failed for server with id [%s].", id));
+        }
+        return deleted;
     }
 
     @Override

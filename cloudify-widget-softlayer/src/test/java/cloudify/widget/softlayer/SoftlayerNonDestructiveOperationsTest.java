@@ -43,6 +43,7 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Autowired
     private SoftlayerCloudCredentials softlayerCloudCredentials;
     private Collection<Collection<? extends CloudServerCreated>> machines;
+    private SoftlayerCloudServerApi softlayerCloudServerApi;
 
     public SoftlayerNonDestructiveOperationsTest() {
         machineNames = new TreeSet<String>(machineCommonNames);
@@ -59,6 +60,8 @@ public class SoftlayerNonDestructiveOperationsTest {
         logger.info("created context [{}]", context);
         computeService = context.getComputeService();
         logger.info("created compute service [{}]", computeService);
+        softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
+        logger.info("created cloud server api [{}]", softlayerCloudServerApi);
         // TODO uncomment for prod
         machines = createMachines();
         logger.info("test setup finished");
@@ -67,7 +70,7 @@ public class SoftlayerNonDestructiveOperationsTest {
     private Collection<Collection<? extends CloudServerCreated>> createMachines() {
         final Collection<Collection<? extends CloudServerCreated>> cloudServerCreatedsCollection = new ArrayList<Collection<? extends CloudServerCreated>>();
         for (String name : machineNames) {
-            cloudServerCreatedsCollection.add(TestUtils.createCloudServer(computeService, name));
+            cloudServerCreatedsCollection.add(TestUtils.createCloudServer(name, softlayerCloudServerApi));
         }
         return cloudServerCreatedsCollection;
     }
@@ -77,8 +80,6 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Test
     public void testGetAllMachinesWithTag() {
 
-
-        SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
         Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(tagMask);
         assertNotNull(machinesWithTag);
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
@@ -98,12 +99,11 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Test
     public void testGetMachineById() {
 
-        SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
         Collection<CloudServer> cloudServers = softlayerCloudServerApi.getAllMachinesWithTag(tagMask);
         for (CloudServer cloudServer : cloudServers) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = softlayerCloudServerApi.get(cloudServer.getId());
-            assertNotNull("expecting machine not to be null", cs);
+            assertNotNull("expecting server not to be null", cs);
         }
     }
 
@@ -121,7 +121,6 @@ public class SoftlayerNonDestructiveOperationsTest {
                 logger.info( "Proceeding machine..." );
                 Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
                 if( !publicAddresses.isEmpty() ){
-                    SoftlayerCloudServerApi softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
                     String publicAddress = publicAddresses.iterator().next();
                     CloudExecResponseImpl cloudExecResponse =
                             (CloudExecResponseImpl)softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
