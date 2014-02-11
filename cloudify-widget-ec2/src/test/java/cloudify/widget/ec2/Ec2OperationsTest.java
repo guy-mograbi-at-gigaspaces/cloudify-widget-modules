@@ -62,6 +62,10 @@ public class Ec2OperationsTest {
     @Test
     public void testSoftlayerDriver() {
 
+        logger.info("Start test, before connect");
+
+        cloudServerApi.connect( connectDetails );
+
         logger.info("Start test create ec2 machine");
 
         Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
@@ -70,7 +74,7 @@ public class Ec2OperationsTest {
         Assert.assertEquals("should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection));
 
         logger.info("Start test create ec2 machine, completed");
-        cloudServerApi.connect( connectDetails );
+
         Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());

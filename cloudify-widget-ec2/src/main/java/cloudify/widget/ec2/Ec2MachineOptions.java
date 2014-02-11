@@ -1,7 +1,11 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.common.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jclouds.compute.domain.OsFamily;
+
+import java.util.Arrays;
 
 /**
  * User: evgenyf
@@ -15,7 +19,7 @@ public class Ec2MachineOptions implements MachineOptions {
     private String locationId;
     private String hardwareId;
     private String imageId;
-    private Iterable<String> tags;
+    private String tags;
 
     public Ec2MachineOptions(){}
 
@@ -37,13 +41,14 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
-    public Ec2MachineOptions setTags( Iterable<String> tags ){
+    public Ec2MachineOptions setTags( String tags ){
         this.tags = tags;
         return this;
     }
 
     public Iterable<String> tags() {
-        return tags;
+        String[] split = tags.split(",");
+        return Arrays.asList( split );
     }
 
     public Ec2MachineOptions setMachinesCount( int machinesCount ){

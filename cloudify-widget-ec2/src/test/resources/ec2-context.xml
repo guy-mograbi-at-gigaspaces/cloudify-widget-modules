@@ -19,6 +19,7 @@
         <property name="name" value="testawsec2"/>
         <property name="tags" value="testtag1,testtag2"/>
         <property name="hardwareId" value="m1.small"/>
+        <!--property name="imageId" value="ami-75342c01"/-->
         <property name="osFamily" value="CENTOS"/>
         <property name="machinesCount" value="1"/>
     </bean>
