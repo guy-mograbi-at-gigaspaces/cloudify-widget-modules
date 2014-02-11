@@ -27,6 +27,7 @@ import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata;
+import org.jclouds.softlayer.domain.OperatingSystem;
 import org.jclouds.softlayer.domain.Password;
 import org.jclouds.softlayer.domain.VirtualGuest;
 import org.slf4j.Logger;
@@ -52,26 +53,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 @Singleton
-public class VirtualGuestToReducedNodeMetaData extends VirtualGuestToNodeMetadata {
+public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMetadata {
 
     private final GroupNamingConvention nodeNamingConvention;
 
     private static Logger logger = LoggerFactory.getLogger(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
 
     @Inject
-    public VirtualGuestToReducedNodeMetaData(
+    public VirtualGuestToReducedNodeMetaDataLocal(
             @Memoized Supplier<Set<? extends Location>> locations,
             GetHardwareForVirtualGuest hardware,
             GetImageForVirtualGuest images, GroupNamingConvention.Factory namingConvention) {
 
         super(locations, hardware, images, namingConvention);
-        logger.info("using new VirtualGuestToReducedNodeMetaData");
+        logger.trace("using new VirtualGuestToReducedNodeMetaData");
         this.nodeNamingConvention = checkNotNull(namingConvention, "namingConvention").createWithoutPrefix();
     }
 
     @Override
     public NodeMetadata apply(final VirtualGuest from) {
-        logger.info("applying VirtualGuest - start....");
+        if (logger.isDebugEnabled()) {
+            logger.debug("applying VirtualGuest - start....");
+        }
         // convert the result object to a jclouds NodeMetadata
         NodeMetadataBuilder builder = new NodeMetadataBuilder();
         builder.ids(from.getId() + "");
@@ -82,18 +85,23 @@ public class VirtualGuestToReducedNodeMetaData extends VirtualGuestToNodeMetadat
 
         // These are null for 'bad' guest orders in the HALTED state.
         if (from.getPrimaryIpAddress() != null)
-            builder.publicAddresses(ImmutableSet.<String> of(from.getPrimaryIpAddress()));
+            builder.publicAddresses(ImmutableSet.<String>of(from.getPrimaryIpAddress()));
         if (from.getPrimaryBackendIpAddress() != null)
-            builder.privateAddresses(ImmutableSet.<String> of(from.getPrimaryBackendIpAddress()));
+            builder.privateAddresses(ImmutableSet.<String>of(from.getPrimaryBackendIpAddress()));
 
-        Set<Password> passwords = from.getOperatingSystem().getPasswords();
-        if( !passwords.isEmpty() ){
-            Password pw = passwords.iterator().next();
-            builder.credentials( LoginCredentials.builder().password( pw.getPassword() ).user( pw.getUsername() ).build() );
+        OperatingSystem operatingSystem = from.getOperatingSystem();
+        if (operatingSystem != null) {
+            Set<Password> passwords = operatingSystem.getPasswords();
+            if (!passwords.isEmpty()) {
+                Password pw = passwords.iterator().next();
+                builder.credentials(LoginCredentials.builder().password(pw.getPassword()).user(pw.getUsername()).build());
+            }
         }
 
         NodeMetadata nodeMetadata = builder.build();
-        logger.info("applying - end....");
+        if (logger.isDebugEnabled()) {
+            logger.debug("applying - end....");
+        }
         return nodeMetadata;
     }
 }

@@ -45,6 +45,8 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Autowired
     private CloudServerApi cloudServerApi;
 
+    private String tagMask = "test-machine-";
+
     @Autowired
     private IConnectDetails connectDetails;
 
@@ -73,7 +75,15 @@ public class SoftlayerNonDestructiveOperationsTest {
             logger.info("cloud server name [{}]", cloudServer.getName());
         }
 
+        /** get machine by id **/
+        Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag(tagMask);
+        for (CloudServer cloudServer : cloudServers) {
+            logger.info("cloud server found with id [{}]", cloudServer.getId());
+            CloudServer cs = cloudServerApi.get(cloudServer.getId());
+            assertNotNull("expecting server not to be null", cs);
+        }
 
+        /** run script on machine **/ 
         final String echoString = "hello world";
         Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag("testsoft-4");
 

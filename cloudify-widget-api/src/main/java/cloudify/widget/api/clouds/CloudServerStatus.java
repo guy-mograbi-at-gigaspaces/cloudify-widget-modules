@@ -7,7 +7,8 @@ package cloudify.widget.api.clouds;
  */
 public enum CloudServerStatus {
 
-    ACTIVE, BUILD, REBUILD, SUSPENDED, PAUSED, RESIZE, VERIFY_RESIZE, REVERT_RESIZE, 
+    RUNNING, PENDING, // softlayer statuses
+    ACTIVE, BUILD, REBUILD, SUSPENDED, PAUSED, RESIZE, VERIFY_RESIZE, REVERT_RESIZE,
     PASSWORD, REBOOT, HARD_REBOOT, DELETED, UNKNOWN, ERROR, STOPPED, UNRECOGNIZED;
 
     public String value() {

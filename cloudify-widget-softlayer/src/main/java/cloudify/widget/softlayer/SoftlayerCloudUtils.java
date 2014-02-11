@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class SoftlayerCloudUtils {
     private SoftlayerCloudUtils() {
     }
 
-    public static ComputeServiceContext computeServiceContext(String identity, String credential, boolean api) {
+    public static ComputeServiceContext computeServiceContext(SoftlayerCloudCredentials softlayerCloudCredentials, boolean api) {
 
         logger.info("creating compute service context");
         Set<Module> modules = new HashSet<Module>();
@@ -33,7 +34,7 @@ public class SoftlayerCloudUtils {
         modules.add(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
+                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
             }
         });
 
@@ -47,7 +48,7 @@ public class SoftlayerCloudUtils {
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);
         context = ContextBuilder.newBuilder(cloudProvider)
-                .credentials(identity, credential)
+                .credentials(softlayerCloudCredentials.getUser(), softlayerCloudCredentials.getApiKey())
                 .overrides(overrides)
                 .modules(modules)
                 .buildView(ComputeServiceContext.class);

@@ -74,24 +74,38 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public CloudServer get(String serverId) {
-        logger.info("getting server [{}] ", serverId );
-//        CloudServer cloudServer = null;
-//
-//        VirtualGuest virtualGuest = softLayerApi.getVirtualGuestClient().getVirtualGuest(0);
-//        logger.info("virtual guest: [{}]", virtualGuest);
-/*
-        Server server = softLayerApi.get(serverId);
-        if (server != null) {
-            cloudServer = new SoftlayerCloudServer(server);
+        CloudServer cloudServer = null;
+        NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
+        if (nodeMetadata != null) {
+            cloudServer = new SoftlayerCloudServer(computeService, nodeMetadata);
         }
-*/
-        return null;
+        return cloudServer;
     }
 
     @Override
     public boolean delete(String id) {
-
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        boolean deleted = false;
+        CloudServer cloudServer = null;
+        if (id != null) {
+            cloudServer = get(id);
+        }
+        if (cloudServer != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("calling destroyNode, status is [{}]", cloudServer.getStatus());
+            }
+            try {
+                computeService.destroyNode(id);
+                deleted = true;
+            } catch (RuntimeException e) {
+                throw new SoftlayerCloudServerApiOperationFailureException(
+                        String.format("delete operation failed for server with id [%s].", id), e);
+            }
+        }
+        if (!deleted) {
+            throw new SoftlayerCloudServerApiOperationFailureException(
+                    String.format("delete operation failed for server with id [%s].", id));
+        }
+        return deleted;
     }
 
     @Override

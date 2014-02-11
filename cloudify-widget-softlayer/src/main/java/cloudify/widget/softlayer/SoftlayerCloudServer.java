@@ -6,6 +6,8 @@ import cloudify.widget.api.clouds.ServerIp;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: eliranm
@@ -16,6 +18,8 @@ public class SoftlayerCloudServer implements CloudServer {
 
     private final ComputeMetadata computeMetadata;
     private final ComputeService computeService;
+
+    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServer.class);
 
     public SoftlayerCloudServer(ComputeService computeService, ComputeMetadata computeMetadata) {
         this.computeService = computeService;
@@ -34,8 +38,17 @@ public class SoftlayerCloudServer implements CloudServer {
 
     @Override
     public CloudServerStatus getStatus() {
-        NodeMetadata.Status status = computeService.getNodeMetadata(computeMetadata.getId()).getStatus();
-        return CloudServerStatus.fromValue(status.toString());
+        NodeMetadata nodeMetadata = computeService.getNodeMetadata(computeMetadata.getId());
+        NodeMetadata.Status status = null;
+        if (nodeMetadata != null) {
+            status = nodeMetadata.getStatus();
+        }
+        String statusStr = "";
+        if (status != null) {
+            statusStr = status.toString();
+        }
+        logger.info("extracted status from node metadata. status object is [{}], status string is [{}]", status, statusStr);
+        return CloudServerStatus.fromValue(statusStr);
     }
 
     @Override
