@@ -55,6 +55,7 @@ public interface CloudServerApi {
     public String createCertificate();
 
 
+    public void connect( IConnectDetails connectDetails );
     /**
      *
      * creates a security group
