@@ -37,6 +37,8 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private ComputeService computeService = null;
 
+    private SoftlayerConnectDetails connectDetails;
+
 
     public SoftlayerCloudServerApi(){
 
@@ -46,12 +48,8 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect(IConnectDetails connectDetails) {
-        logger.info("connecting");
-        if (!( connectDetails instanceof SoftlayerConnectDetails )){
-            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
-        }
-        SoftlayerConnectDetails scd = (SoftlayerConnectDetails) connectDetails;
-        computeService = SoftlayerCloudUtils.computeServiceContext( scd.username, scd.key, scd.isApiKey ).getComputeService();
+       setConnectDetails( connectDetails);
+        connect();
     }
 
     @Override
@@ -111,6 +109,21 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void rebuild(String id) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setConnectDetails(IConnectDetails connectDetails) {
+        logger.info("connecting");
+        if (!( connectDetails instanceof SoftlayerConnectDetails )){
+            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        }
+        this.connectDetails = (SoftlayerConnectDetails) connectDetails;
+
+    }
+
+    @Override
+    public void connect() {
+        computeService = SoftlayerCloudUtils.computeServiceContext( connectDetails.username, connectDetails.key, connectDetails.isApiKey ).getComputeService();
     }
 
     @Override
