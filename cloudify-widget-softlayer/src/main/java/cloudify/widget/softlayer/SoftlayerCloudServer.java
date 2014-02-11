@@ -38,15 +38,15 @@ public class SoftlayerCloudServer implements CloudServer {
 
     @Override
     public boolean isRunning(){
-        return getStatus() == CloudServerStatus.RUNNING;
+        return getStatus() == SoftlayerCloudServerStatus.RUNNING;
     }
 
     @Override
     public boolean isStopped(){
-        return getStatus() == CloudServerStatus.STOPPED || getStatus() == CloudServerStatus.UNRECOGNIZED;
+        return getStatus() == SoftlayerCloudServerStatus.STOPPED || getStatus() == SoftlayerCloudServerStatus.UNRECOGNIZED;
     }
 
-    public CloudServerStatus getStatus() {
+    public SoftlayerCloudServerStatus getStatus() {
         NodeMetadata nodeMetadata = computeService.getNodeMetadata(computeMetadata.getId());
         NodeMetadata.Status status = null;
         if (nodeMetadata != null) {
@@ -56,8 +56,10 @@ public class SoftlayerCloudServer implements CloudServer {
         if (status != null) {
             statusStr = status.toString();
         }
-        logger.info("extracted status from node metadata. status object is [{}], status string is [{}]", status, statusStr);
-        return CloudServerStatus.fromValue(statusStr);
+        if (logger.isDebugEnabled()) {
+            logger.debug("extracted status from node metadata. status object is [{}], status string is [{}]", status, statusStr);
+        }
+        return SoftlayerCloudServerStatus.fromValue(statusStr);
     }
 
     @Override
