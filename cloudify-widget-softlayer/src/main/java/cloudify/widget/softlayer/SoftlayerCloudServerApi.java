@@ -85,9 +85,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public boolean delete(String id) {
         boolean deleted = false;
-        CloudServer cloudServer = null;
+        SoftlayerCloudServer cloudServer = null;
         if (id != null) {
-            cloudServer = get(id);
+            cloudServer = (SoftlayerCloudServer) get(id);
         }
         if (cloudServer != null) {
             if (logger.isDebugEnabled()) {
