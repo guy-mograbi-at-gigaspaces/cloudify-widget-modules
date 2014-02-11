@@ -56,6 +56,19 @@ public interface CloudServerApi {
 
 
     public void connect( IConnectDetails connectDetails );
+
+    /**
+     * setter for connect details.
+     * important for spring beans.
+     * @return
+     */
+    public void setConnectDetails( IConnectDetails connectDetails);
+
+    /**
+     * uses the connect details.
+     * important for spring beans.
+     */
+    public void connect();
     /**
      *
      * creates a security group

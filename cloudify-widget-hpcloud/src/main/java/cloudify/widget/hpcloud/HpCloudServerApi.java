@@ -96,6 +96,16 @@ public class HpCloudServerApi implements CloudServerApi {
     }
 
     @Override
+    public void setConnectDetails(IConnectDetails connectDetails) {
+
+    }
+
+    @Override
+    public void connect() {
+
+    }
+
+    @Override
     public Collection<? extends CloudServerCreated> create(MachineOptions machineOpts) {
 
         if (!(machineOpts instanceof HpMachineOptions)) {
