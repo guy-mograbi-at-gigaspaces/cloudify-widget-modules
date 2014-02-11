@@ -84,10 +84,8 @@ public class HpCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public boolean delete(String id) {
-
+    public void delete(String id) {
         computeService.destroyNode(id);
-        return true;
     }
 
     @Override

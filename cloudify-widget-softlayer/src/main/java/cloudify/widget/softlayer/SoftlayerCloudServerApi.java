@@ -1,7 +1,5 @@
 package cloudify.widget.softlayer;
 
-import static com.google.common.collect.Collections2.*;
-
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
@@ -16,15 +14,17 @@ import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.softlayer.SoftLayerApi;
-import org.jclouds.softlayer.domain.VirtualGuest;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
-import org.jclouds.util.Strings2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.collect.Collections2.transform;
 
 /**
  * User: eliranm
@@ -71,10 +71,8 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         return cloudServer;
     }
 
-    // TODO discuss the API - should we really return boolean, or is it better to return a metadata object?
     @Override
-    public boolean delete(String id) {
-        boolean deleted = false;
+    public void delete(String id) {
         CloudServer cloudServer = null;
         if (id != null) {
             cloudServer = get(id);
@@ -85,17 +83,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
             }
             try {
                 computeService.destroyNode(id);
-                deleted = true;
             } catch (RuntimeException e) {
                 throw new SoftlayerCloudServerApiOperationFailureException(
                         String.format("delete operation failed for server with id [%s].", id), e);
             }
         }
-        if (!deleted) {
-            throw new SoftlayerCloudServerApiOperationFailureException(
-                    String.format("delete operation failed for server with id [%s].", id));
-        }
-        return deleted;
     }
 
     @Override
@@ -151,6 +143,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public String createCertificate() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void connect(IConnectDetails connectDetails) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

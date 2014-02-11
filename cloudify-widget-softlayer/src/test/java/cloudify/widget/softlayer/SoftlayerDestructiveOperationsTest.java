@@ -100,8 +100,7 @@ public class SoftlayerDestructiveOperationsTest {
 
 
         logger.info("deleting machine with id [{}]...", id);
-        final boolean deleted = softlayerCloudServerApi.delete(id);
-        assertTrue("api should return true for successful delete operation", deleted);
+        softlayerCloudServerApi.delete(id);
 
         logger.info("waiting for status [{}] before deletion attempt", CloudServerStatus.UNRECOGNIZED);
         TestUtils.waitForStatus(cloudServer, CloudServerStatus.UNRECOGNIZED, 60 * 2);
