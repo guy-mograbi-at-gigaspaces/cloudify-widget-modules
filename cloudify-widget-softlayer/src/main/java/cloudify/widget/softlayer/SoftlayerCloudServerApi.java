@@ -92,7 +92,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void rebuild(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        computeService.rebootNode(id);
     }
 
     @Override
