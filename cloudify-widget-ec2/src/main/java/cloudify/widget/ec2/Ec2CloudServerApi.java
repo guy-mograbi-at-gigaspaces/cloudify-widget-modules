@@ -124,12 +124,12 @@ public class Ec2CloudServerApi implements CloudServerApi {
             templateBuilder.osFamily(osFamily);
         }
         if( !StringUtils.isEmpty(hardwareId)){
-            templateBuilder.hardwareId( hardwareId );
+            templateBuilder.hardwareId(hardwareId);
         }
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }
-        if( !StringUtils.isEmpty( locationId ) ){
+        if( !StringUtils.isEmpty( imageId ) ){
             templateBuilder.imageId(imageId);
         }
 
