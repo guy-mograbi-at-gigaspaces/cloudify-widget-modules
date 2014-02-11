@@ -40,6 +40,7 @@ public class Ec2OperationsTest {
     private static Logger logger = LoggerFactory.getLogger(Ec2OperationsTest.class);
     private ComputeService computeService;
     private ComputeServiceContext context;
+    private final String[] TAGS = { "ec2TestTag1", "ec2TestTag2" };
 
     @Autowired
     private Ec2CloudCredentials ec2CloudCredentials;
@@ -72,8 +73,8 @@ public class Ec2OperationsTest {
     public void createNewMachine() {
 
         Ec2CloudServerApi softlayerCloudServerApi = new Ec2CloudServerApi(computeService, null);
-        Ec2MachineOptions machineOptions = new Ec2MachineOptions( "myEc2Test", 1 ).
-        tags( Arrays.asList( "ec2TestTag1", "ec2TestTag2" ) ).hardwareId(InstanceType.M1_SMALL).osFamily(OsFamily.CENTOS);
+        Ec2MachineOptions machineOptions = new Ec2MachineOptions( "evgenyec2test", 1 ).
+        tags( Arrays.asList( TAGS ) ).hardwareId(InstanceType.M1_SMALL).osFamily(OsFamily.CENTOS);
         Collection<? extends CloudServerCreated> cloudServers = softlayerCloudServerApi.create(machineOptions);
         logger.info("machines returned, size is [{}]", cloudServers.size());
         for (CloudServerCreated cloudServerCreated : cloudServers) {
@@ -86,7 +87,7 @@ public class Ec2OperationsTest {
     public void testGetAllMachinesWithTag() {
 
         Ec2CloudServerApi softlayerCloudServerApi = new Ec2CloudServerApi(computeService, null);
-        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(null);
+        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(TAGS[0]);
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server name [{}]", cloudServer.getName());
