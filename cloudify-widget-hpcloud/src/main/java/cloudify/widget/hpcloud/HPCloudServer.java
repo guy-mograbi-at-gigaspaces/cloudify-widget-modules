@@ -54,58 +54,58 @@ public class HPCloudServer {}
 //	}
 //
 //	@Override
-//	public CloudServerStatus getStatus() {
+//	public HpCloudServerStatus getStatus() {
 //		Status status = server.getStatus();
-//		CloudServerStatus retValue = null;
+//		HpCloudServerStatus retValue = null;
 //		switch( status ){
 //		case ACTIVE:
-//			retValue = CloudServerStatus.ACTIVE;
+//			retValue = HpCloudServerStatus.ACTIVE;
 //			break;
 //		case BUILD:
-//			retValue = CloudServerStatus.BUILD;
+//			retValue = HpCloudServerStatus.BUILD;
 //			break;
 //		case DELETED:
-//			retValue = CloudServerStatus.DELETED;
+//			retValue = HpCloudServerStatus.DELETED;
 //			break;
 //		case ERROR:
-//			retValue = CloudServerStatus.ERROR;
+//			retValue = HpCloudServerStatus.ERROR;
 //			break;
 //		case HARD_REBOOT:
-//			retValue = CloudServerStatus.HARD_REBOOT;
+//			retValue = HpCloudServerStatus.HARD_REBOOT;
 //			break;
 //		case PASSWORD:
-//			retValue = CloudServerStatus.PASSWORD;
+//			retValue = HpCloudServerStatus.PASSWORD;
 //			break;
 //		case PAUSED:
-//			retValue = CloudServerStatus.PAUSED;
+//			retValue = HpCloudServerStatus.PAUSED;
 //			break;
 //		case REBOOT:
-//			retValue = CloudServerStatus.REBOOT;
+//			retValue = HpCloudServerStatus.REBOOT;
 //			break;
 //		case REBUILD:
-//			retValue = CloudServerStatus.REBUILD;
+//			retValue = HpCloudServerStatus.REBUILD;
 //			break;
 //		case RESIZE:
-//			retValue = CloudServerStatus.RESIZE;
+//			retValue = HpCloudServerStatus.RESIZE;
 //			break;
 //		case REVERT_RESIZE:
-//			retValue = CloudServerStatus.REVERT_RESIZE;
+//			retValue = HpCloudServerStatus.REVERT_RESIZE;
 //			break;
 //		case STOPPED:
-//			retValue = CloudServerStatus.STOPPED;
+//			retValue = HpCloudServerStatus.STOPPED;
 //			break;
 //		case SUSPENDED:
-//			retValue = CloudServerStatus.SUSPENDED;
+//			retValue = HpCloudServerStatus.SUSPENDED;
 //			break;
 //		case UNKNOWN:
-//			retValue = CloudServerStatus.UNKNOWN;
+//			retValue = HpCloudServerStatus.UNKNOWN;
 //			break;
 //		case VERIFY_RESIZE:
-//			retValue = CloudServerStatus.VERIFY_RESIZE;
+//			retValue = HpCloudServerStatus.VERIFY_RESIZE;
 //			break;
 //		case UNRECOGNIZED:
 //		default:
-//			retValue = CloudServerStatus.UNRECOGNIZED;
+//			retValue = HpCloudServerStatus.UNRECOGNIZED;
 //			break;
 //
 //		}

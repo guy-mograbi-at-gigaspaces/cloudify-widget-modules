@@ -1,7 +1,6 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerStatus;
 import cloudify.widget.api.clouds.ServerIp;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
@@ -33,9 +32,22 @@ public class Ec2CloudServer implements CloudServer {
     }
 
     @Override
-    public CloudServerStatus getStatus() {
+    public boolean isRunning(){
+//        return getStatus() == Ec2CloudServerStatus.RUNNING;
+        // TODO implement functionality
+        return false;
+    }
+
+    @Override
+    public boolean isStopped(){
+//        return getStatus() == Ec2CloudServerStatus.STOPPED || getStatus() == Ec2CloudServerStatus.UNRECOGNIZED;
+        // TODO implement functionality
+        return false;
+    }
+
+    private Ec2CloudServerStatus getStatus() {
         NodeMetadata.Status status = computeService.getNodeMetadata(computeMetadata.getId()).getStatus();
-        return CloudServerStatus.fromValue(status.toString());
+        return Ec2CloudServerStatus.fromValue(status.toString());
     }
 
     @Override

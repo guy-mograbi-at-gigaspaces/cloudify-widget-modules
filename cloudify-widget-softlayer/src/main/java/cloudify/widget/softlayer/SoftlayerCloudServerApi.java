@@ -7,23 +7,24 @@ import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.net.HostAndPort;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
+import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.softlayer.SoftLayerApi;
-import org.jclouds.softlayer.domain.VirtualGuest;
+import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
-import org.jclouds.util.Strings2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.util.*;
 
 /**
@@ -116,7 +117,37 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
-        computeService = SoftlayerCloudUtils.computeServiceContext( connectDetails.username, connectDetails.key, connectDetails.isApiKey ).getComputeService();
+        computeService = computeServiceContext( connectDetails ).getComputeService();
+    }
+
+    private ComputeServiceContext computeServiceContext( SoftlayerConnectDetails connectDetails) {
+
+        logger.info("creating compute service context");
+        Set<Module> modules = new HashSet<Module>();
+
+        modules.add(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
+            }
+        });
+
+        ComputeServiceContext context;
+        Properties overrides = new Properties();
+        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        if (connectDetails.isApiKey()) {
+            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        }
+
+        String cloudProvider = CloudProvider.SOFTLAYER.label;
+        logger.info("building new context for provider [{}]", cloudProvider);
+        context = ContextBuilder.newBuilder(cloudProvider)
+                .credentials(connectDetails.getUsername(), connectDetails.getKey())
+                .overrides(overrides)
+                .modules(modules)
+                .buildView(ComputeServiceContext.class);
+
+        return context;
     }
 
     @Override
