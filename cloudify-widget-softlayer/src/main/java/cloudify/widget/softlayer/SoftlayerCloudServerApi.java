@@ -228,8 +228,4 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         return new SoftlayerSshDetails( port, user, password );
     }
 
-    @Override
-    public CloudServerCreated create(String name, String imageRef, String flavorRef, CloudCreateServerOptions... options) throws RunNodesException {
-        throw new UnsupportedOperationException("this method is no longer supported, please use create(MachineOptions machineOpts) instead.");
-    }
 }
