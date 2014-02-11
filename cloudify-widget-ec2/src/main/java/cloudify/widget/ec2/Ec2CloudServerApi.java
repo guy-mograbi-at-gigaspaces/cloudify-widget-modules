@@ -35,13 +35,11 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
     private static Logger logger = LoggerFactory.getLogger(Ec2CloudServerApi.class);
 
-    private final ComputeService computeService;
-    private final AWSEC2Api ec2Api;
-//    private final Ec2Api ec2Api;
+    private ComputeService computeService;
+    private Ec2ConnectDetails connectDetails;
+//    private final AWSEC2Api ec2Api;
 
-    public Ec2CloudServerApi(ComputeService computeService, AWSEC2Api ec2Api ) {
-        this.computeService = computeService;
-        this.ec2Api = ec2Api;
+    public Ec2CloudServerApi() {
     }
 
     @Override
@@ -78,8 +76,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public boolean delete(String id) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public void delete(String id) {
+
     }
 
     @Override
@@ -152,6 +150,21 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
+    public void setConnectDetails(IConnectDetails connectDetails) {
+        logger.info("connecting");
+        if (!( connectDetails instanceof Ec2ConnectDetails )){
+            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        }
+        this.connectDetails = (Ec2ConnectDetails) connectDetails;
+
+    }
+
+    @Override
+    public void connect() {
+        computeService = Ec2CloudUtils.computeServiceContext( connectDetails ).getComputeService();
+    }
+
+    @Override
     public void createSecurityGroup(ISecurityGroupDetails securityGroupDetails) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -213,10 +226,5 @@ public class Ec2CloudServerApi implements CloudServerApi {
         int port = nodeMetadata.getLoginPort();
 
         return new Ec2SshDetails( port, user, password );
-    }
-
-    @Override
-    public CloudServerCreated create(String name, String imageRef, String flavorRef, CloudCreateServerOptions... options) throws RunNodesException {
-        throw new UnsupportedOperationException("this method is no longer supported, please use create(MachineOptions machineOpts) instead.");
     }
 }

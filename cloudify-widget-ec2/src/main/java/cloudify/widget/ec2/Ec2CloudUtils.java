@@ -22,10 +22,10 @@ public class Ec2CloudUtils {
     private Ec2CloudUtils() {
     }
 
-    public static ComputeServiceContext computeServiceContext(Ec2CloudCredentials cloudCredentials) {
+    public static ComputeServiceContext computeServiceContext(Ec2ConnectDetails connectDetails) {
 
-        String accessId = cloudCredentials.getAccessId();
-        String secretAccessKey = cloudCredentials.getSecretAccessKey();
+        String accessId = connectDetails.getAccessId();
+        String secretAccessKey = connectDetails.getSecretAccessKey();
 
         logger.info("creating compute service context");
 
