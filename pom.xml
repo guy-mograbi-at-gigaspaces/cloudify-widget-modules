@@ -10,6 +10,7 @@
         <module>cloudify-widget-common</module>
         <module>cloudify-widget-softlayer</module>
         <module>cloudify-widget-hpcloud</module>
+        <module>cloudify-widget-cli</module>
     </modules>
 
     <dependencies>
