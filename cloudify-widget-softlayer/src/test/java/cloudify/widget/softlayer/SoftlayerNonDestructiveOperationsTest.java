@@ -58,6 +58,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         logger.info("softlayerCloudServerApi created");
         Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
+        assertNotNull("cloud server created collection should not be null", cloudServerCreatedCollection);
         logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
         Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
 
