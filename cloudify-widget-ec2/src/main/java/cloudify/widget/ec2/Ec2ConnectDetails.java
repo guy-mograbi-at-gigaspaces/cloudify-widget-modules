@@ -1,18 +1,18 @@
 package cloudify.widget.ec2;
 
-import cloudify.widget.api.clouds.CloudCredentials;
+import cloudify.widget.api.clouds.IConnectDetails;
 
 /**
- * User: evgeny
- * Date: 2/10/14
- * Time: 6:55 PM
+ * Created with IntelliJ IDEA.
+ * User: guym
+ * Date: 2/11/14
+ * Time: 10:31 AM
  */
-public class Ec2CloudCredentials implements CloudCredentials {
-
+public class Ec2ConnectDetails implements IConnectDetails {
     private String accessId;
     private String secretAccessKey;
 
-    public Ec2CloudCredentials(String accessId, String secretAccessKey) {
+    public Ec2ConnectDetails(String accessId, String secretAccessKey) {
         this.accessId = accessId;
         this.secretAccessKey = secretAccessKey;
     }
