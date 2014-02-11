@@ -73,8 +73,8 @@ public class SoftlayerDestructiveOperationsTest {
     @Test
     public void testDeleteMachine() {
 
-//        String deleteCandidateName = "testsoft-delete";
-        String deleteCandidateName = "testsoft-5d4";
+        String deleteCandidateName = "testsoft-delete";
+//        String deleteCandidateName = "testsoft-5d4";
 
         // TODO uncomment in prod
         logger.info("creating machine for deletion, with name [{}]", deleteCandidateName);
