@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <groupId>cloudify.widget</groupId>
-    <artifactId>softlayer</artifactId>
+    <artifactId>ec2</artifactId>
     <version>1.0.0</version>
     <name>${project.artifactId}</name>
 
@@ -30,9 +30,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>softlayer-cci-embedded</artifactId>
+            <artifactId>aws-ec2</artifactId>
             <version>${jCloudsVersion}</version>
         </dependency>
+
     </dependencies>
 
 </project>

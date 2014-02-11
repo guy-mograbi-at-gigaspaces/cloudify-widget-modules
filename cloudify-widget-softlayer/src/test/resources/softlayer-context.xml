@@ -8,8 +8,25 @@
 
     <context:property-placeholder location="conf/dev/me.conf"/>
 
-    <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerCloudCredentials">
-        <constructor-arg index="0" value="${softlayer_user}"/>
-        <constructor-arg index="1" value="${softlayer_api_key}"/>
+    <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
+        <property name="apiKey" value="true"/>
+        <property name="key" value="${softlayer_api_key}"/>
+        <property name="username" value="${softlayer_user}"/>
     </bean>
+
+    <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
+
+    </bean>
+
+
+    <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
+        <property name="name" value="testSoft"/>
+        <property name="hardwareId" value="1640,2238,13899"/>
+        <property name="locationId" value="37473"/>
+        <property name="osFamily" value="CENTOS"/>
+        <property name="machinesCount" value="1"/>
+    </bean>
+
+    <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.softlayer.WaitTimeout"/>
+    <bean id="waitMachineIsStoppedTimeout" class="cloudify.widget.softlayer.WaitTimeout"/>
 </beans>

@@ -31,8 +31,9 @@ public interface CloudServerApi {
     /**
      * Machine should be removed from the cloud
      * @param id - id of node
+     * @return true if were successful, otherwise throw runtime error
      */
-	public void delete(String id);
+	public boolean delete(String id);
 
     /**
      * rebuild the machine
@@ -63,8 +64,4 @@ public interface CloudServerApi {
 
     public CloudExecResponse runScriptOnMachine( String script, String serverIp, ISshDetails sshDetails );
 
-
-
-    @Deprecated // please use create(MachineOptions);
-	public CloudServerCreated create( String name, String imageRef, String flavorRef, CloudCreateServerOptions... options ) throws RunNodesException;
 }

@@ -1,6 +1,4 @@
-package cloudify.widget.softlayer;
-
-import static com.google.common.collect.Collections2.*;
+package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
@@ -10,64 +8,56 @@ import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.lang3.StringUtils;
+import org.jclouds.aws.ec2.AWSEC2Api;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.softlayer.SoftLayerApi;
-import org.jclouds.softlayer.domain.VirtualGuest;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
-import org.jclouds.util.Strings2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.collect.Collections2.transform;
 
 /**
- * User: eliranm
- * Date: 2/4/14
- * Time: 3:41 PM
+ * User: evgeny
+ * Date: 2/10/14
+ * Time: 6:55 PM
  */
-public class SoftlayerCloudServerApi implements CloudServerApi {
+public class Ec2CloudServerApi implements CloudServerApi {
 
-    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServerApi.class);
+    private static Logger logger = LoggerFactory.getLogger(Ec2CloudServerApi.class);
 
-    private ComputeService computeService = null;
+    private final ComputeService computeService;
+    private final AWSEC2Api ec2Api;
+//    private final Ec2Api ec2Api;
 
-
-    public SoftlayerCloudServerApi(){
-
-    }
-
-
-
-    @Override
-    public void connect(IConnectDetails connectDetails) {
-        logger.info("connecting");
-        if (!( connectDetails instanceof SoftlayerConnectDetails )){
-            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
-        }
-        SoftlayerConnectDetails scd = (SoftlayerConnectDetails) connectDetails;
-        computeService = SoftlayerCloudUtils.computeServiceContext( scd.username, scd.key, scd.isApiKey ).getComputeService();
+    public Ec2CloudServerApi(ComputeService computeService, AWSEC2Api ec2Api ) {
+        this.computeService = computeService;
+        this.ec2Api = ec2Api;
     }
 
     @Override
     public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-        logger.info("getting all machines with tag [{}]",tag);
+
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return computeMetadata.getName().startsWith(tag);
+                return tag == null ? true : computeMetadata.getTags().contains(tag);
             }
         });
 
         return transform(nodeMetadatas, new Function<NodeMetadata, CloudServer>() {
             @Override
-            public SoftlayerCloudServer apply(@Nullable NodeMetadata o) {
-                return new SoftlayerCloudServer(computeService, o);
+            public Ec2CloudServer apply(@Nullable NodeMetadata o) {
+                return new Ec2CloudServer(computeService, o);
             }
         });
     }
@@ -75,104 +65,101 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public CloudServer get(String serverId) {
         CloudServer cloudServer = null;
-        NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
-        if (nodeMetadata != null) {
-            cloudServer = new SoftlayerCloudServer(computeService, nodeMetadata);
-        }
+
+//        VirtualGuest virtualGuest = ec2Api.getVirtualGuestClient().getVirtualGuest(0);
+//        logger.info("virtual guest: [{}]", virtualGuest);
+
+/*        Server server = softLayerApi.get(serverId);
+        if (server != null) {
+            cloudServer = new SoftlayerCloudServer(server);
+        }*/
+
         return cloudServer;
     }
 
     @Override
     public boolean delete(String id) {
-        boolean deleted = false;
-        SoftlayerCloudServer cloudServer = null;
-        if (id != null) {
-            cloudServer = (SoftlayerCloudServer) get(id);
-        }
-        if (cloudServer != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("calling destroyNode, status is [{}]", cloudServer.getStatus());
-            }
-            try {
-                computeService.destroyNode(id);
-                deleted = true;
-            } catch (RuntimeException e) {
-                throw new SoftlayerCloudServerApiOperationFailureException(
-                        String.format("delete operation failed for server with id [%s].", id), e);
-            }
-        }
-        if (!deleted) {
-            throw new SoftlayerCloudServerApiOperationFailureException(
-                    String.format("delete operation failed for server with id [%s].", id));
-        }
-        return deleted;
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void rebuild(String id) {
-        computeService.rebootNode(id);
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
 
-        SoftlayerMachineOptions softlayerMachineOptions = ( SoftlayerMachineOptions )machineOpts;
-        String name = softlayerMachineOptions.name();
-        int machinesCount = softlayerMachineOptions.machinesCount();
-        Template template = createTemplate(softlayerMachineOptions);
+        Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
+        String name = ec2MachineOptions.name();
+        int machinesCount = ec2MachineOptions.machinesCount();
+        Template template = createTemplate(ec2MachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
             newNodes = computeService.createNodesInGroup( name, machinesCount, template );
         }
         catch (org.jclouds.compute.RunNodesException e) {
             if( logger.isErrorEnabled() ){
-                logger.error( "Create softlayer node failed", e );
+                logger.error( "Create EC2 node failed", e );
             }
             throw new RuntimeException( e );
         }
 
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
-            newNodesList.add( new SoftlayerCloudServerCreated( newNode ) );
+            newNodesList.add( new Ec2CloudServerCreated( newNode ) );
         }
 
         return newNodesList;
     }
 
-    private Template createTemplate( SoftlayerMachineOptions machineOptions ) {
+    private Template createTemplate( Ec2MachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
         String hardwareId = machineOptions.hardwareId();
         String locationId = machineOptions.locationId();
+        String imageId = machineOptions.locationId();
         OsFamily osFamily = machineOptions.osFamily();
         if( osFamily != null ){
             templateBuilder.osFamily(osFamily);
         }
         if( !StringUtils.isEmpty(hardwareId)){
-            templateBuilder.hardwareId( hardwareId );
+            templateBuilder.hardwareId(hardwareId);
         }
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }
+        if( !StringUtils.isEmpty( imageId ) ){
+            templateBuilder.imageId(imageId);
+        }
 
-        return templateBuilder.build();
+        Template template = templateBuilder.build();
+        if( machineOptions.tags() != null ){
+            template.getOptions().tags( machineOptions.tags() );
+        }
+
+        return template;
     }
 
     @Override
     public String createCertificate() {
-        throw new UnsupportedOperationException("create certificate is unsupported");
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void connect(IConnectDetails connectDetails) {
+
     }
 
     @Override
     public void createSecurityGroup(ISecurityGroupDetails securityGroupDetails) {
-        throw new UnsupportedOperationException("create security group is unsupported in this implementation");
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
 
-        SoftlayerSshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
+        Ec2SshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
         String user = softlayerSshDetails.user();
         String password = softlayerSshDetails.password();
@@ -202,7 +189,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
 
-    private SoftlayerSshDetails getMachineCredentialsByIp( final String ip ){
+    private Ec2SshDetails getMachineCredentialsByIp( final String ip ){
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
@@ -225,7 +212,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         String password = loginCredentials.getPassword();
         int port = nodeMetadata.getLoginPort();
 
-        return new SoftlayerSshDetails( port, user, password );
+        return new Ec2SshDetails( port, user, password );
     }
 
+    @Override
+    public CloudServerCreated create(String name, String imageRef, String flavorRef, CloudCreateServerOptions... options) throws RunNodesException {
+        throw new UnsupportedOperationException("this method is no longer supported, please use create(MachineOptions machineOpts) instead.");
+    }
 }

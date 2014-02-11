@@ -1,14 +1,12 @@
 package cloudify.widget.softlayer;
 
+import cloudify.widget.api.clouds.CloudExecResponse;
 import cloudify.widget.api.clouds.CloudServer;
+import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.common.CloudExecResponseImpl;
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.domain.ComputeMetadata;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.junit.After;
-import org.junit.Before;
+import cloudify.widget.api.clouds.IConnectDetails;
+import cloudify.widget.common.CollectionUtils;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -17,9 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.*;
+import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: eliranm
@@ -31,111 +30,156 @@ import static org.junit.Assert.*;
 public class SoftlayerNonDestructiveOperationsTest {
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerNonDestructiveOperationsTest.class);
-    private ComputeService computeService;
-    private ComputeServiceContext context;
-    private String tagMask = "test-machine-";
-    private String otherName = "other-test-machine";
-    private SortedSet<String> machineCommonNames = new TreeSet<String>(Arrays.asList(
-            tagMask + "1" ,tagMask + "2"
-    ));
-    private SortedSet<String> machineNames;
 
     @Autowired
-    private SoftlayerCloudCredentials softlayerCloudCredentials;
-    private Collection<Collection<? extends CloudServerCreated>> machines;
-    private SoftlayerCloudServerApi softlayerCloudServerApi;
+    private CloudServerApi cloudServerApi;
 
-    public SoftlayerNonDestructiveOperationsTest() {
-        machineNames = new TreeSet<String>(machineCommonNames);
-        machineNames.add(otherName);
-    }
+    private String tagMask = "test-machine-";
 
-    // TODO create machines BeforeClass
+    @Autowired
+    private IConnectDetails connectDetails;
 
-    @Before
-    public void bootstrap() {
-        logger.info("starting test setup...");
+    @Autowired
+    private SoftlayerMachineOptions machineOptions;
 
-        context = SoftlayerCloudUtils.computeServiceContext(softlayerCloudCredentials, true);
-        logger.info("created context [{}]", context);
-        computeService = context.getComputeService();
-        logger.info("created compute service [{}]", computeService);
-        softlayerCloudServerApi = new SoftlayerCloudServerApi(computeService, null);
-        logger.info("created cloud server api [{}]", softlayerCloudServerApi);
-        // TODO uncomment for prod
-        machines = createMachines();
-        logger.info("test setup finished");
-    }
+    @Autowired
+    public WaitTimeout waitMachineIsRunningTimeout;
 
-    private Collection<Collection<? extends CloudServerCreated>> createMachines() {
-        final Collection<Collection<? extends CloudServerCreated>> cloudServerCreatedsCollection = new ArrayList<Collection<? extends CloudServerCreated>>();
-        for (String name : machineNames) {
-            cloudServerCreatedsCollection.add(TestUtils.createCloudServer(name, softlayerCloudServerApi));
-        }
-        return cloudServerCreatedsCollection;
-    }
+    @Autowired
+    public WaitTimeout waitMachineIsStoppedTimeout;
 
-    // TODO test softlayer cloud server get status
+
 
     @Test
-    public void testGetAllMachinesWithTag() {
+    public void testSoftlayerDriver() {
 
-        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(tagMask);
-        assertNotNull(machinesWithTag);
+
+        logger.info("Start test create softlayer machine");
+
+        logger.info("softlayerCloudServerApi created");
+        Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
+        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
+
+
+        logger.info("Start test create softlayer machine, completed");
+        cloudServerApi.connect( connectDetails );
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
-
-        // assert that we got the desired number of machines
-        assertEquals("expecting machines size to be 2", 2, machinesWithTag.size());
-
-        for (CloudServer server : machinesWithTag) {
-            final String name = server.getName();
-            // assert that we got the desired machines
-            assertTrue(String.format("expecting machine [%s] to be contained in machine names collection", name),
-                    machineNames.contains(name));
-            assertNotSame(String.format("expecting machine name [%s] not to be one that was not requested [%s]", name, otherName), otherName, name);
+        for (CloudServer cloudServer : machinesWithTag) {
+            logger.info("cloud server name [{}]", cloudServer.getName());
         }
-    }
 
-    @Test
-    public void testGetMachineById() {
-
-        Collection<CloudServer> cloudServers = softlayerCloudServerApi.getAllMachinesWithTag(tagMask);
+        /** get machine by id **/
+        Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag(tagMask);
         for (CloudServer cloudServer : cloudServers) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
-            CloudServer cs = softlayerCloudServerApi.get(cloudServer.getId());
+            CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);
         }
-    }
 
-    @Test
-    public void runScriptOnNodeTest(){
-
+        /** run script on machine **/ 
         final String echoString = "hello world";
+        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag("testsoft-4");
 
-        Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
-        for( ComputeMetadata computeMetadata : computeMetadatas ){
-            NodeMetadata nodeMetadata = (NodeMetadata)computeMetadata;
-            logger.info( "Machine " + nodeMetadata.getHostname() + " user name:" + nodeMetadata.getCredentials().getUser() );
-            //prevent using Windows machines , comparing user name since OS is not initialized
-            if( !nodeMetadata.getCredentials().getUser().contains( "Administrator" ) ){
-                logger.info( "Proceeding machine..." );
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                if( !publicAddresses.isEmpty() ){
-                    String publicAddress = publicAddresses.iterator().next();
-                    CloudExecResponseImpl cloudExecResponse =
-                            (CloudExecResponseImpl)softlayerCloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
-                    logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
-                    assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
-                    break;
+        for (CloudServer machine : machines) {
+            String publicIp = machine.getServerIp().publicIp;
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
+            logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+            assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
+        }
+
+
+        /**
+         * teardown
+         */
+
+         logger.info("deleting all machines");
+
+        for (CloudServer machine : machines) {
+            logger.info("waiting for machine to run");
+            MachineIsRunningCondition runCondition = new MachineIsRunningCondition();
+            runCondition.setMachine(machine);
+
+            waitMachineIsRunningTimeout.setCondition(runCondition);
+            waitMachineIsRunningTimeout.waitFor();
+
+            logger.info("deleting machine with id [{}]...", machine.getId());
+            cloudServerApi.delete(machine.getId());
+
+            logger.info("waiting for machine to stop");
+            MachineIsStoppedCondition stopCondition = new MachineIsStoppedCondition();
+            stopCondition.setMachine(machine);
+
+
+            waitMachineIsStoppedTimeout.setCondition( stopCondition );
+            waitMachineIsStoppedTimeout.waitFor();
+
+            Exception expectedException= null;
+            try {
+                cloudServerApi.delete(machine.getId());
+            } catch (RuntimeException e) {
+                logger.info("exception thrown:\n [{}]", e);
+                expectedException = e;
+            } finally {
+                assertNotNull("exception should have been thrown on delete attempt failure", expectedException);
+                boolean assignableFrom = SoftlayerCloudServerApiOperationFailureException.class.isAssignableFrom(expectedException.getClass());
+                if (!assignableFrom) {
+                    logger.info("exception thrown is not expected. stack trace is:\n[{}]", expectedException.getStackTrace());
                 }
+                assertTrue(String.format("[%s] should be assignable from exception type thrown on delete attempt failure [%s]", SoftlayerCloudServerApiOperationFailureException.class, expectedException.getClass()),
+                        assignableFrom);
             }
         }
     }
 
-    @After
-    public void teardown() {
-        logger.info("tearing down...");
-        // TODO teardown machines created during bootstrap
+    public void setCloudServer(CloudServerApi cloudServer) {
+        this.cloudServerApi = cloudServer;
     }
 
+
+    public void setWaitMachineIsRunningTimeout( WaitTimeout waitTimeout ){
+        this.waitMachineIsRunningTimeout = waitTimeout;
+    }
+
+    public static class MachineIsRunningCondition implements WaitTimeout.Condition {
+        public CloudServer machine;
+
+        @Override
+        public boolean apply() {
+            return machine.isRunning();
+        }
+
+        public void setMachine(CloudServer machine) {
+            this.machine = machine;
+        }
+
+        @Override
+        public String toString() {
+            return "MachineIsRunningCondition{" +
+                    "machine=" + machine +
+                    '}';
+        }
+    }
+
+    public static class MachineIsStoppedCondition implements WaitTimeout.Condition{
+        public CloudServer machine;
+
+        @Override
+        public boolean apply() {
+            return machine.isStopped();
+        }
+
+        public void setMachine(CloudServer machine) {
+            this.machine = machine;
+        }
+
+        @Override
+        public String toString() {
+            return "MachineIsStoppedCondition{" +
+                    "machine=" + machine +
+                    '}';
+        }
+    }
 }

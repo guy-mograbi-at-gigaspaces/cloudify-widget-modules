@@ -23,7 +23,4 @@ public class SoftlayerCloudServerApiOperationFailureException extends RuntimeExc
         super(cause);
     }
 
-    protected SoftlayerCloudServerApiOperationFailureException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

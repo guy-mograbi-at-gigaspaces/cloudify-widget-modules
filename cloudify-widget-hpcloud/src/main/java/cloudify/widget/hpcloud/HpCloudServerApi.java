@@ -84,8 +84,10 @@ public class HpCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public void delete(String id) {
+    public boolean delete(String id) {
+
         computeService.destroyNode(id);
+        return true;
     }
 
     @Override
@@ -189,8 +191,4 @@ public class HpCloudServerApi implements CloudServerApi {
         }
     }
 
-    @Override
-    public CloudServerCreated create(String name, String imageRef, String flavorRef, CloudCreateServerOptions... options) throws RunNodesException {
-        throw new UnsupportedOperationException("deprecated");
-    }
 }
