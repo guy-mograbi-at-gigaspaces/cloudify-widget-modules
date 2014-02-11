@@ -81,8 +81,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public boolean delete(String id) {
-        boolean deleted = false;
+    public void delete(String id) {
         SoftlayerCloudServer cloudServer = null;
         if (id != null) {
             cloudServer = (SoftlayerCloudServer) get(id);
@@ -93,17 +92,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
             }
             try {
                 computeService.destroyNode(id);
-                deleted = true;
             } catch (RuntimeException e) {
                 throw new SoftlayerCloudServerApiOperationFailureException(
                         String.format("delete operation failed for server with id [%s].", id), e);
             }
         }
-        if (!deleted) {
-            throw new SoftlayerCloudServerApiOperationFailureException(
-                    String.format("delete operation failed for server with id [%s].", id));
-        }
-        return deleted;
     }
 
     @Override
