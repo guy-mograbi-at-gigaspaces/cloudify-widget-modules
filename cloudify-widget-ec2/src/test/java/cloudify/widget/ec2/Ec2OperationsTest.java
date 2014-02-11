@@ -75,7 +75,7 @@ public class Ec2OperationsTest {
 
         logger.info("Start test create ec2 machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testtag2");
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -83,8 +83,9 @@ public class Ec2OperationsTest {
         }
 
         /** get machine by id **/
-        Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag("testtag1");
-        for (CloudServer cloudServer : cloudServers) {
+        machinesWithTag = cloudServerApi.getAllMachinesWithTag("testtag1");
+        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
+        for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);

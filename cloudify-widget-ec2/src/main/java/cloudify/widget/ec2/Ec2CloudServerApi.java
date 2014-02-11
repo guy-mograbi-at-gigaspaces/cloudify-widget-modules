@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.prefs.Preferences;
 
 import static com.google.common.collect.Collections2.transform;
 
@@ -51,7 +52,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return tag == null ? true : computeMetadata.getTags().contains(tag);
+                NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
+                return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
+                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
             }
         });
 
