@@ -1,9 +1,10 @@
 package cloudify.widget.ec2;
 
-import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
+import cloudify.widget.common.CollectionUtils;
+import cloudify.widget.common.WaitTimeout;
+import junit.framework.Assert;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.ComputeMetadata;
@@ -38,37 +39,54 @@ import static org.junit.Assert.assertTrue;
 public class Ec2OperationsTest {
 
     private static Logger logger = LoggerFactory.getLogger(Ec2OperationsTest.class);
-    private ComputeService computeService;
-    private ComputeServiceContext context;
     private final String[] TAGS = { "ec2TestTag1", "ec2TestTag2" };
 
+//    @Autowired
+//    private Ec2ConnectDetails ec2ConnectDetails;
+
     @Autowired
-    private Ec2CloudCredentials ec2CloudCredentials;
+    private CloudServerApi cloudServerApi;
 
-    @Before
-    public void bootstrap() {
-        logger.info("before setup...");
-        context = Ec2CloudUtils.computeServiceContext( ec2CloudCredentials );
-        computeService = context.getComputeService();
-        logger.info("setup finished: \n\tcontext is [{}] \n\tcompute service is [{}]", context, computeService);
+    @Autowired
+    private IConnectDetails connectDetails;
 
-        // TODO use this after implementing deleteMachine()
-//        createNewMachine();
+    @Autowired
+    private Ec2MachineOptions machineOptions;
 
-    }
+    @Autowired
+    public WaitTimeout waitMachineIsRunningTimeout;
 
-    @Test
-    public void testContext() {
-        logger.info("testing context [{}]", context);
-        assertNotNull("context is null!", context);
-    }
+    @Autowired
+    public WaitTimeout waitMachineIsStoppedTimeout;
 
     @Test
-    public void testComputeService() {
-        logger.info("testing compute service [{}]", computeService);
-        assertNotNull("compute service is null!", computeService);
-    }
+    public void testSoftlayerDriver() {
 
+        logger.info("Start test create ec2 machine");
+
+        Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
+        logger.info("ec2CloudServerApi created");
+        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        Assert.assertEquals("should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection));
+
+        logger.info("Start test create ec2 machine, completed");
+        cloudServerApi.connect( connectDetails );
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
+        logger.info("machines returned, size is [{}]", machinesWithTag.size());
+        for (CloudServer cloudServer : machinesWithTag) {
+            logger.info("cloud server name [{}]", cloudServer.getName());
+        }
+
+        /** get machine by id **/
+        Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag("testtag1");
+        for (CloudServer cloudServer : cloudServers) {
+            logger.info("cloud server found with id [{}]", cloudServer.getId());
+            CloudServer cs = cloudServerApi.get(cloudServer.getId());
+            assertNotNull("expecting server not to be null", cs);
+        }
+    }
+                                                               /*
     @Test
     public void createNewMachine() {
 
@@ -80,8 +98,8 @@ public class Ec2OperationsTest {
         for (CloudServerCreated cloudServerCreated : cloudServers) {
             logger.info("EC2 cloud server id [{}]", cloudServerCreated.getId());
         }
-    }
-
+    }                                                        */
+                   /*
 
     @Test
     public void testGetAllMachinesWithTag() {
@@ -93,7 +111,8 @@ public class Ec2OperationsTest {
             logger.info("cloud server name [{}]", cloudServer.getName());
         }
     }
-
+                 */
+    /*
     @Ignore
     public void runScriptOnNodeTest(){
 
@@ -118,12 +137,5 @@ public class Ec2OperationsTest {
                 }
             }
         }
-    }
-
-    @After
-    public void teardown() {
-
-        // TODO teardown machines created during bootstrap
-    }
-
+    }    */
 }

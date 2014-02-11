@@ -8,8 +8,21 @@
 
     <context:property-placeholder location="conf/dev/me.conf"/>
 
-    <bean id="softlayerCloudCredentials" class="cloudify.widget.ec2.Ec2CloudCredentials">
+    <bean id="ec2ConnectDetails" class="cloudify.widget.ec2.Ec2ConnectDetails">
         <constructor-arg index="0" value="${ec2_access_id}"/>
         <constructor-arg index="1" value="${ec2_secret_access_key}"/>
     </bean>
+
+    <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi"/>
+
+    <bean id="machineOptions" class="cloudify.widget.ec2.Ec2MachineOptions">
+        <property name="name" value="testawsec2"/>
+        <property name="tags" value="testtag1,testtag2"/>
+        <property name="hardwareId" value="m1.small"/>
+        <property name="osFamily" value="CENTOS"/>
+        <property name="machinesCount" value="1"/>
+    </bean>
+
+    <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.common.WaitTimeout"/>
+    <bean id="waitMachineIsStoppedTimeout" class="cloudify.widget.common.WaitTimeout"/>
 </beans>
