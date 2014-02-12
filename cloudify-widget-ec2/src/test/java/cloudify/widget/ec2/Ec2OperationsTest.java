@@ -1,17 +1,11 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.*;
-import cloudify.widget.common.*;
+import cloudify.widget.common.CollectionUtils;
+import cloudify.widget.common.MachineIsNotRunningCondition;
+import cloudify.widget.common.MachineIsRunningCondition;
+import cloudify.widget.common.WaitTimeout;
 import junit.framework.Assert;
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.domain.ComputeMetadata;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.ec2.domain.InstanceType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -101,6 +93,11 @@ public class Ec2OperationsTest {
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
 
+        logger.info("rebuild machine");
+        for (CloudServer machine : machinesWithTag) {
+            cloudServerApi.rebuild(machine.getId());
+        }
+
 
         logger.info("deleting all machines");
 
@@ -124,7 +121,7 @@ public class Ec2OperationsTest {
 
             Exception expectedException= null;
             try {
-                cloudServerApi.delete(machine.getId());
+                cloudServerApi.delete(machine.getId() + "myTest");
             } catch (RuntimeException e) {
                 logger.info("exception thrown:\n [{}]", e);
                 expectedException = e;
@@ -140,56 +137,4 @@ public class Ec2OperationsTest {
         }
 
     }
-                                                               /*
-    @Test
-    public void createNewMachine() {
-
-        Ec2CloudServerApi softlayerCloudServerApi = new Ec2CloudServerApi(computeService, null);
-        Ec2MachineOptions machineOptions = new Ec2MachineOptions( "evgenyec2test", 1 ).
-        tags( Arrays.asList( TAGS ) ).hardwareId(InstanceType.M1_SMALL).osFamily(OsFamily.CENTOS);
-        Collection<? extends CloudServerCreated> cloudServers = softlayerCloudServerApi.create(machineOptions);
-        logger.info("machines returned, size is [{}]", cloudServers.size());
-        for (CloudServerCreated cloudServerCreated : cloudServers) {
-            logger.info("EC2 cloud server id [{}]", cloudServerCreated.getId());
-        }
-    }                                                        */
-                   /*
-
-    @Test
-    public void testGetAllMachinesWithTag() {
-
-        Ec2CloudServerApi softlayerCloudServerApi = new Ec2CloudServerApi(computeService, null);
-        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(TAGS[0]);
-        logger.info("machines returned, size is [{}]", machinesWithTag.size());
-        for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server name [{}]", cloudServer.getName());
-        }
-    }
-                 */
-    /*
-    @Ignore
-    public void runScriptOnNodeTest(){
-
-        final String echoString = "hello world";
-
-        Set<? extends ComputeMetadata> computeMetadatas = computeService.listNodes();
-        for( ComputeMetadata computeMetadata : computeMetadatas ){
-            NodeMetadata nodeMetadata = (NodeMetadata)computeMetadata;
-            logger.info( "Machine " + nodeMetadata.getHostname() + " user name:" + nodeMetadata.getCredentials().getUser() );
-            //prevent using Windows machines , comparing user name since OS is not initialized
-            if( !nodeMetadata.getCredentials().getUser().contains( "Administrator" ) ){
-                logger.info( "Proceeding machine..." );
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                if( !publicAddresses.isEmpty() ){
-                    Ec2CloudServerApi ec2CloudServerApi = new Ec2CloudServerApi(computeService, null);
-                    String publicAddress = publicAddresses.iterator().next();
-                    CloudExecResponseImpl cloudExecResponse =
-                        (CloudExecResponseImpl)ec2CloudServerApi.runScriptOnMachine("echo " + echoString, publicAddress, null);
-                    logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
-                    assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
-                    break;
-                }
-            }
-        }
-    }    */
 }

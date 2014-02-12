@@ -4,14 +4,11 @@ import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
-import org.jclouds.aws.ec2.AWSEC2Api;
 import org.jclouds.aws.ec2.reference.AWSEC2Constants;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -19,14 +16,12 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.logging.log4j.config.Log4JLoggingModule;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.prefs.Preferences;
 
 import static com.google.common.collect.Collections2.transform;
 
@@ -77,21 +72,15 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public void delete( String id ) {
+    public void delete(String id) {
 
-        if( id != null ) {
-            Ec2CloudServer cloudServer = ( Ec2CloudServer )get(id);
-            if( cloudServer != null ) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("calling destroyNode for ec2, status is [{}]", cloudServer.getStatus() );
-                }
-                try {
-                    computeService.destroyNode(id);
-                }
-                catch(Throwable e) {
-                    throw new Ec2CloudServerApiOperationFailureException(
+        if (id != null) {
+            try {
+                computeService.destroyNode(id);
+            }
+            catch (Throwable e) {
+                throw new Ec2CloudServerApiOperationFailureException(
                         String.format("delete operation failed for server with id [%s].", id), e);
-                }
             }
         }
     }
@@ -149,8 +138,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
         logger.info("connecting");
-        if (!( connectDetails instanceof Ec2ConnectDetails )){
-            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        if (!(connectDetails instanceof Ec2ConnectDetails)) {
+            throw new RuntimeException("expected Ec2ConnectDetails implementation");
         }
         this.connectDetails = (Ec2ConnectDetails) connectDetails;
 
@@ -175,7 +164,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         String cloudProvider = CloudProvider.AWS_EC2.label;
         logger.info("building new context for provider [{}]", cloudProvider);
         ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
-                //.overrides(overrides)
+                .overrides(overrides)
                 .credentials(accessId, secretAccessKey)
 //                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
                 .buildView(ComputeServiceContext.class);
@@ -226,17 +215,16 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
 
-        Ec2SshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
+        Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = softlayerSshDetails.user();
-        String password = softlayerSshDetails.password();
-        int port = softlayerSshDetails.port();
+        String user = ec2SshDetails.user();
+        String privateKey = ec2SshDetails.privateKey();
+        int port = ec2SshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
         SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
-        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).password(password).build();
-        //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
+        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).privateKey(privateKey).build();
 
         SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
                 loginCredentials );
@@ -267,7 +255,6 @@ public class Ec2CloudServerApi implements CloudServerApi {
             }
         });
 
-//        NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
         if( nodeMetadatas.isEmpty() ){
             throw new RuntimeException( "Machine [" + ip + "] was not found" );
         }
@@ -276,9 +263,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         LoginCredentials loginCredentials = nodeMetadata.getCredentials();
         String user = loginCredentials.getUser();
-        String password = loginCredentials.getPassword();
+        String privateKey = loginCredentials.getPrivateKey();
         int port = nodeMetadata.getLoginPort();
 
-        return new Ec2SshDetails( port, user, password );
+        return new Ec2SshDetails( port, user, privateKey );
     }
 }

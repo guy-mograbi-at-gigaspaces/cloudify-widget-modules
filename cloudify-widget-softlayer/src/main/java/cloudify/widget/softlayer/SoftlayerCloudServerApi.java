@@ -55,7 +55,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-        logger.info("getting all machines with tag [{}]",tag);
+        logger.info("getting all machines with tag [{}]", tag);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
@@ -83,20 +83,14 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void delete(String id) {
-        SoftlayerCloudServer cloudServer = null;
-        if (id != null) {
-            cloudServer = (SoftlayerCloudServer) get(id);
+        if (logger.isDebugEnabled()) {
+            logger.debug("calling destroyNode, id is [{}]", id);
         }
-        if (cloudServer != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("calling destroyNode, status is [{}]", cloudServer.getStatus());
-            }
-            try {
-                computeService.destroyNode(id);
-            } catch (RuntimeException e) {
-                throw new SoftlayerCloudServerApiOperationFailureException(
-                        String.format("delete operation failed for server with id [%s].", id), e);
-            }
+        try {
+            computeService.destroyNode(id);
+        } catch (Throwable e) {
+            throw new SoftlayerCloudServerApiOperationFailureException(
+                    String.format("delete operation failed for server with id [%s].", id), e);
         }
     }
 

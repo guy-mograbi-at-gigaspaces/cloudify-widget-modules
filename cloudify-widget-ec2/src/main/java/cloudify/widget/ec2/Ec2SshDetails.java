@@ -11,12 +11,12 @@ public class Ec2SshDetails implements ISshDetails {
 
     private final int port;
     private final String user;
-    private final String password;
+    private final String privateKey;
 
-    public Ec2SshDetails( int port, String user, String password ){
+    public Ec2SshDetails( int port, String user, String privateKey ){
         this.port = port;
         this.user = user;
-        this.password = password;
+        this.privateKey = privateKey;
     }
 
     public int port(){
@@ -27,7 +27,7 @@ public class Ec2SshDetails implements ISshDetails {
         return user;
     }
 
-    public String password(){
-        return password;
+    public String privateKey(){
+        return privateKey;
     }
 }
