@@ -66,28 +66,32 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
             GetImageForVirtualGuest images, GroupNamingConvention.Factory namingConvention) {
 
         super(locations, hardware, images, namingConvention);
-        logger.trace("using new VirtualGuestToReducedNodeMetaData");
+        logger.trace("using new VirtualGuestToReducedNodeMetaDataLocal");
         this.nodeNamingConvention = checkNotNull(namingConvention, "namingConvention").createWithoutPrefix();
     }
+
 
     @Override
     public NodeMetadata apply(final VirtualGuest from) {
         if (logger.isDebugEnabled()) {
-            logger.debug("applying VirtualGuest - start....");
+            logger.debug("applying VirtualGuestLocal - start....");
         }
         // convert the result object to a jclouds NodeMetadata
         NodeMetadataBuilder builder = new NodeMetadataBuilder();
         builder.ids(from.getId() + "");
         builder.name(from.getHostname());
+
         builder.hostname(from.getHostname());
         builder.status(serverStateToNodeStatus.get(from.getPowerState().getKeyName()));
         builder.group(nodeNamingConvention.groupInUniqueNameOrNull(from.getHostname()));
 
         // These are null for 'bad' guest orders in the HALTED state.
-        if (from.getPrimaryIpAddress() != null)
+        if (from.getPrimaryIpAddress() != null){
             builder.publicAddresses(ImmutableSet.<String>of(from.getPrimaryIpAddress()));
-        if (from.getPrimaryBackendIpAddress() != null)
+        }
+        if (from.getPrimaryBackendIpAddress() != null){
             builder.privateAddresses(ImmutableSet.<String>of(from.getPrimaryBackendIpAddress()));
+        }
 
         OperatingSystem operatingSystem = from.getOperatingSystem();
         if (operatingSystem != null) {

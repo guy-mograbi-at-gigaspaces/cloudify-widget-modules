@@ -2,11 +2,14 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.ServerIp;
+import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * User: eliranm
@@ -15,12 +18,12 @@ import org.slf4j.LoggerFactory;
  */
 public class SoftlayerCloudServer implements CloudServer {
 
-    private final ComputeMetadata computeMetadata;
+    private final NodeMetadata computeMetadata;
     private final ComputeService computeService;
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServer.class);
 
-    public SoftlayerCloudServer(ComputeService computeService, ComputeMetadata computeMetadata) {
+    public SoftlayerCloudServer(ComputeService computeService, NodeMetadata computeMetadata) {
         this.computeService = computeService;
         this.computeMetadata = computeMetadata;
     }
@@ -46,10 +49,9 @@ public class SoftlayerCloudServer implements CloudServer {
     }
 
     public SoftlayerCloudServerStatus getStatus() {
-        NodeMetadata nodeMetadata = computeService.getNodeMetadata(computeMetadata.getId());
         NodeMetadata.Status status = null;
-        if (nodeMetadata != null) {
-            status = nodeMetadata.getStatus();
+        if (computeMetadata != null) {
+            status = computeMetadata.getStatus();
         }
         String statusStr = "";
         if (status != null) {
@@ -64,7 +66,14 @@ public class SoftlayerCloudServer implements CloudServer {
     @Override
     public ServerIp getServerIp() {
         ServerIp serverIp = new ServerIp();
-        serverIp.privateIp = computeMetadata.getProviderId();
+        Set<String> publicAddresses = computeMetadata.getPublicAddresses();
+        Set<String> privateAddresses = computeMetadata.getPrivateAddresses();
+        if( !CollectionUtils.isEmpty( publicAddresses ) ){
+            serverIp.publicIp = CollectionUtils.first( publicAddresses ) ;
+        }
+        if( !CollectionUtils.isEmpty( privateAddresses ) ){
+            serverIp.privateIp = CollectionUtils.first( privateAddresses ) ;
+        }
         return serverIp;
     }
 }

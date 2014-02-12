@@ -27,21 +27,33 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4jVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4jVersion}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>4.0.1.RELEASE</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>4.0.1.RELEASE</version>
+            <scope>test</scope>
+
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logbackVersion}</version>
+            <scope>test</scope>
+
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logbackVersion}</version>
+            <scope>test</scope>
+
         </dependency>
     </dependencies>
 
@@ -82,18 +94,6 @@
             <properties>
                 <skipTests>false</skipTests>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                    <version>${logbackVersion}</version>
-                </dependency>
-                <dependency>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                    <version>${logbackVersion}</version>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
 

@@ -1,6 +1,14 @@
 package cloudify.widget.ec2;
 
-import cloudify.widget.api.clouds.*;
+import cloudify.widget.api.clouds.CloudExecResponse;
+import cloudify.widget.api.clouds.CloudProvider;
+import cloudify.widget.api.clouds.CloudServer;
+import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.api.clouds.IConnectDetails;
+import cloudify.widget.api.clouds.ISecurityGroupDetails;
+import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.api.clouds.MachineOptions;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -8,9 +16,15 @@ import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.lang3.StringUtils;
-import org.jclouds.aws.ec2.AWSEC2Api;
+import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.domain.*;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.domain.ComputeMetadata;
+import org.jclouds.compute.domain.ExecResponse;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OsFamily;
+import org.jclouds.compute.domain.Template;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
@@ -22,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static com.google.common.collect.Collections2.transform;
@@ -48,7 +63,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return tag == null ? true : computeMetadata.getTags().contains(tag);
+                NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
+                return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
+                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
             }
         });
 
@@ -111,13 +128,62 @@ public class Ec2CloudServerApi implements CloudServerApi {
         return newNodesList;
     }
 
+    @Override
+    public String createCertificate() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void connect(IConnectDetails connectDetails) {
+        setConnectDetails(connectDetails);
+        connect();
+    }
+
+    @Override
+    public void setConnectDetails(IConnectDetails connectDetails) {
+        logger.info("connecting");
+        if (!( connectDetails instanceof Ec2ConnectDetails )){
+            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        }
+        this.connectDetails = (Ec2ConnectDetails) connectDetails;
+
+    }
+
+    @Override
+    public void connect() {
+        computeService = computeServiceContext(connectDetails).getComputeService();
+    }
+
+    public static ComputeServiceContext computeServiceContext(Ec2ConnectDetails connectDetails) {
+
+        String accessId = connectDetails.getAccessId();
+        String secretAccessKey = connectDetails.getSecretAccessKey();
+
+        logger.info("creating compute service context");
+
+        Properties overrides = new Properties();
+//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_AMI_QUERY, "");
+//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_CC_AMI_QUERY, "");
+
+        String cloudProvider = CloudProvider.AWS_EC2.label;
+        logger.info("building new context for provider [{}]", cloudProvider);
+        ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
+                .overrides(overrides)
+                .credentials(accessId, secretAccessKey)
+//                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
+                .buildView(ComputeServiceContext.class);
+
+        return context;
+    }
+
     private Template createTemplate( Ec2MachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
         String hardwareId = machineOptions.hardwareId();
         String locationId = machineOptions.locationId();
-        String imageId = machineOptions.locationId();
+        String imageId = machineOptions.imageId();
         OsFamily osFamily = machineOptions.osFamily();
+
         if( osFamily != null ){
             templateBuilder.osFamily(osFamily);
         }
@@ -137,31 +203,6 @@ public class Ec2CloudServerApi implements CloudServerApi {
         }
 
         return template;
-    }
-
-    @Override
-    public String createCertificate() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void connect(IConnectDetails connectDetails) {
-
-    }
-
-    @Override
-    public void setConnectDetails(IConnectDetails connectDetails) {
-        logger.info("connecting");
-        if (!( connectDetails instanceof Ec2ConnectDetails )){
-            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
-        }
-        this.connectDetails = (Ec2ConnectDetails) connectDetails;
-
-    }
-
-    @Override
-    public void connect() {
-        computeService = Ec2CloudUtils.computeServiceContext( connectDetails ).getComputeService();
     }
 
     @Override
