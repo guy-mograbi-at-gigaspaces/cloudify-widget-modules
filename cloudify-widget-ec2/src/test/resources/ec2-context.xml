@@ -26,5 +26,5 @@
     </bean>
 
     <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.common.WaitTimeout"/>
-    <bean id="waitMachineIsStoppedTimeout" class="cloudify.widget.common.WaitTimeout"/>
+    <bean id="waitMachineIsNotRunning" class="cloudify.widget.common.WaitTimeout"/>
 </beans>

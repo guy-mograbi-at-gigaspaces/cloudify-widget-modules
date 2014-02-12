@@ -69,30 +69,43 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public CloudServer get(String serverId) {
         CloudServer cloudServer = null;
-
-//        VirtualGuest virtualGuest = ec2Api.getVirtualGuestClient().getVirtualGuest(0);
-//        logger.info("virtual guest: [{}]", virtualGuest);
-
-/*        Server server = softLayerApi.get(serverId);
-        if (server != null) {
-            cloudServer = new SoftlayerCloudServer(server);
-        }*/
-
+        NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
+        if (nodeMetadata != null) {
+            cloudServer = new Ec2CloudServer( computeService, nodeMetadata );
+        }
         return cloudServer;
     }
 
     @Override
-    public void delete(String id) {
+    public void delete( String id ) {
 
+        if( id != null ) {
+            Ec2CloudServer cloudServer = ( Ec2CloudServer )get(id);
+            if( cloudServer != null ) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("calling destroyNode for ec2, status is [{}]", cloudServer.getStatus() );
+                }
+                try {
+                    computeService.destroyNode(id);
+                }
+                catch(Throwable e) {
+                    throw new Ec2CloudServerApiOperationFailureException(
+                        String.format("delete operation failed for server with id [%s].", id), e);
+                }
+            }
+        }
     }
 
     @Override
     public void rebuild(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        computeService.rebootNode( id );
     }
 
     @Override
     public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
+
+        logger.info( "Starting to create new node(s)..." );
+        long startTime = System.currentTimeMillis();
 
         Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
         String name = ec2MachineOptions.name();
@@ -108,6 +121,11 @@ public class Ec2CloudServerApi implements CloudServerApi {
             }
             throw new RuntimeException( e );
         }
+
+        long endTime = System.currentTimeMillis();
+        long totalTimeSec = ( endTime - startTime )/1000;
+        logger.info( "After create new node, creating took [" + ( totalTimeSec ) + "] sec." );
+
 
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
@@ -151,13 +169,13 @@ public class Ec2CloudServerApi implements CloudServerApi {
         logger.info("creating compute service context");
 
         Properties overrides = new Properties();
-//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_AMI_QUERY, "");
-//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_CC_AMI_QUERY, "");
+        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_AMI_QUERY, "");
+        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_CC_AMI_QUERY, "");
 
         String cloudProvider = CloudProvider.AWS_EC2.label;
         logger.info("building new context for provider [{}]", cloudProvider);
         ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
-                .overrides(overrides)
+                //.overrides(overrides)
                 .credentials(accessId, secretAccessKey)
 //                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
                 .buildView(ComputeServiceContext.class);
@@ -186,7 +204,13 @@ public class Ec2CloudServerApi implements CloudServerApi {
             templateBuilder.imageId(imageId);
         }
 
+        logger.info( "Before building template" );
+        long startTime = System.currentTimeMillis();
         Template template = templateBuilder.build();
+        long endTime = System.currentTimeMillis();
+        long totalTimeSec = ( endTime - startTime )/1000;
+        logger.info( "After building template, build took [" + ( totalTimeSec ) + "] sec." );
+
         if( machineOptions.tags() != null ){
             template.getOptions().tags( machineOptions.tags() );
         }

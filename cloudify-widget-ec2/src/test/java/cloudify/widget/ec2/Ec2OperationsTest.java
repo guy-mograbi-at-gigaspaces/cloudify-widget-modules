@@ -1,9 +1,7 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.*;
-import cloudify.widget.common.CloudExecResponseImpl;
-import cloudify.widget.common.CollectionUtils;
-import cloudify.widget.common.WaitTimeout;
+import cloudify.widget.common.*;
 import junit.framework.Assert;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -41,6 +39,8 @@ public class Ec2OperationsTest {
     private static Logger logger = LoggerFactory.getLogger(Ec2OperationsTest.class);
     private final String[] TAGS = { "ec2TestTag1", "ec2TestTag2" };
 
+    private final String echoString = "hello world";
+
 //    @Autowired
 //    private Ec2ConnectDetails ec2ConnectDetails;
 
@@ -57,10 +57,10 @@ public class Ec2OperationsTest {
     public WaitTimeout waitMachineIsRunningTimeout;
 
     @Autowired
-    public WaitTimeout waitMachineIsStoppedTimeout;
+    public WaitTimeout waitMachineIsNotRunning;
 
     @Test
-    public void testSoftlayerDriver() {
+    public void testEc2Driver() {
 
         logger.info("Start test, before connect");
 
@@ -90,6 +90,55 @@ public class Ec2OperationsTest {
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);
         }
+
+        logger.info("Running script");
+
+        /** run script on machine **/
+        for (CloudServer machine : machinesWithTag) {
+            String publicIp = machine.getServerIp().publicIp;
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
+            logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
+            assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
+        }
+
+
+        logger.info("deleting all machines");
+
+        for( CloudServer machine : machinesWithTag ) {
+            logger.info("waiting for machine to run");
+            MachineIsRunningCondition runCondition = new MachineIsRunningCondition();
+            runCondition.setMachine(machine);
+
+            waitMachineIsRunningTimeout.setCondition(runCondition);
+            waitMachineIsRunningTimeout.waitFor();
+
+            logger.info("deleting machine with id [{}]...", machine.getId());
+            cloudServerApi.delete(machine.getId());
+
+            logger.info("waiting for machine to stop");
+            MachineIsNotRunningCondition notRunningCondition = new MachineIsNotRunningCondition();
+            notRunningCondition.setMachine(machine);
+
+            waitMachineIsNotRunning.setCondition( notRunningCondition );
+            waitMachineIsNotRunning.waitFor();
+
+            Exception expectedException= null;
+            try {
+                cloudServerApi.delete(machine.getId());
+            } catch (RuntimeException e) {
+                logger.info("exception thrown:\n [{}]", e);
+                expectedException = e;
+            } finally {
+                assertNotNull("exception should have been thrown on delete attempt failure", expectedException);
+                boolean assignableFrom = Ec2CloudServerApiOperationFailureException.class.isAssignableFrom(expectedException.getClass());
+                if (!assignableFrom) {
+                    logger.info("exception thrown is not expected. stack trace is:\n[{}]", expectedException.getStackTrace());
+                }
+                assertTrue(String.format("[%s] should be assignable from exception type thrown on delete attempt failure [%s]", Ec2CloudServerApiOperationFailureException.class, expectedException.getClass()),
+                        assignableFrom);
+            }
+        }
+
     }
                                                                /*
     @Test
