@@ -1,7 +1,6 @@
 package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerStatus;
 import cloudify.widget.api.clouds.ServerIp;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
