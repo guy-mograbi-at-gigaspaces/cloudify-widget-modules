@@ -113,7 +113,6 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
-        logger.info("connecting");
         if (!( connectDetails instanceof SoftlayerConnectDetails )){
             throw new RuntimeException("expected SoftlayerConnectDetails implementation");
         }
@@ -123,7 +122,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
+        logger.info("connecting");
         computeService = SoftlayerCloudUtils.computeServiceContext( connectDetails.username, connectDetails.key, connectDetails.isApiKey ).getComputeService();
+        if ( computeService == null ){
+            throw new RuntimeException("illegal credentials");
+        }
     }
 
     @Override
@@ -135,6 +138,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         Template template = createTemplate(softlayerMachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
+            logger.info("creating [{}] new machine with name [{}]", machinesCount, name);
             newNodes = computeService.createNodesInGroup( name, machinesCount, template );
         }
         catch (org.jclouds.compute.RunNodesException e) {

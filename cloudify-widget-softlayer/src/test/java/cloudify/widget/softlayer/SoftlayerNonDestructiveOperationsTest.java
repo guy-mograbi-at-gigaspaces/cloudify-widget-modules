@@ -49,14 +49,14 @@ public class SoftlayerNonDestructiveOperationsTest {
     public WaitTimeout waitMachineIsStoppedTimeout;
 
 
-
     @Test
     public void testSoftlayerDriver() {
 
-
+        cloudServerApi.connect(connectDetails);
         logger.info("Start test create softlayer machine");
 
         logger.info("softlayerCloudServerApi created");
+        logger.info("creating machines");
         Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
         logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
         Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
@@ -77,6 +77,7 @@ public class SoftlayerNonDestructiveOperationsTest {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);
+            Assert.assertNotNull("expecting machine to have ip", cs.getServerIp().publicIp);
         }
 
         /** run script on machine **/ 

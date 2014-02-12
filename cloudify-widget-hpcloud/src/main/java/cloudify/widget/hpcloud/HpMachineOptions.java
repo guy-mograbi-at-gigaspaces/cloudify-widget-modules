@@ -5,6 +5,24 @@ package cloudify.widget.hpcloud;
  * User: guym
  * Date: 2/6/14
  * Time: 3:13 PM
+ *
+ * Guy - here are some flags we need to have
+ *
+ *
+ * public String serverNamePrefix="cloudify_pool_server";
+ public String zoneName="az-1.region-a.geo-l";
+ public String keyPair="cloudify";
+ public String securityGroup="default";
+ public String flavorId="102";
+ public String imageId="1358";
+ public SshConfiguration ssh = new SshConfiguration();
+ public String apiKey="<HP cloud Password>";
+ public String username="<tenant>:<user>";
+
+ public ApiCredentials api = new ApiCredentials();
+ *
+ *
+ *
  */
 public class HpMachineOptions {
     public String name;

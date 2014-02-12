@@ -2,6 +2,7 @@ package cloudify.widget.softlayer;
 
 
 import cloudify.widget.api.clouds.CloudProvider;
+import cloudify.widget.common.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.jclouds.ContextBuilder;
@@ -26,34 +27,44 @@ public class SoftlayerCloudUtils {
     private SoftlayerCloudUtils() {
     }
 
-    public static ComputeServiceContext computeServiceContext( String user , String key, boolean api) {
+    public static ComputeServiceContext computeServiceContext(String user, String key, boolean api) {
 
-        logger.info("creating compute service context");
-        Set<Module> modules = new HashSet<Module>();
-
-        modules.add(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
+        try {
+            logger.info("initializing the context");
+            if (StringUtils.isEmptyOrSpaces(user) || StringUtils.isEmptyOrSpaces(key)) {
+                logger.info("illegal credentials. throwing exception");
+                throw new RuntimeException("illegal credentials for user [" + user + "]");
             }
-        });
 
-        ComputeServiceContext context;
-        Properties overrides = new Properties();
-        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
-        if (api) {
-            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+            logger.info("creating compute service context");
+            Set<Module> modules = new HashSet<Module>();
+
+            modules.add(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
+                }
+            });
+
+            ComputeServiceContext context;
+            Properties overrides = new Properties();
+            overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+            if (api) {
+                overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+            }
+
+            String cloudProvider = CloudProvider.SOFTLAYER.label;
+            logger.info("building new context for provider [{}], [{}]", cloudProvider, user);
+            context = ContextBuilder.newBuilder(cloudProvider)
+                    .credentials(user, key)
+                    .overrides(overrides)
+                    .modules(modules)
+                    .buildView(ComputeServiceContext.class);
+            logger.info("new context available");
+            return context;
+        } catch (RuntimeException e) {
+            throw e;
         }
-
-        String cloudProvider = CloudProvider.SOFTLAYER.label;
-        logger.info("building new context for provider [{}]", cloudProvider);
-        context = ContextBuilder.newBuilder(cloudProvider)
-                .credentials(user, key)
-                .overrides(overrides)
-                .modules(modules)
-                .buildView(ComputeServiceContext.class);
-
-        return context;
     }
 
 }
