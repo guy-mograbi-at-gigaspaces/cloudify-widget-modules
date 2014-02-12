@@ -123,7 +123,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void connect() {
         logger.info("connecting");
-        computeService = SoftlayerCloudUtils.computeServiceContext( connectDetails.username, connectDetails.key, connectDetails.isApiKey ).getComputeService();
+        computeService = computeServiceContext( connectDetails ).getComputeService();
         if ( computeService == null ){
             throw new RuntimeException("illegal credentials");
         }
