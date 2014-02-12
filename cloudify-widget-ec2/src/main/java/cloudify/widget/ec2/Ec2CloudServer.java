@@ -4,7 +4,6 @@ import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.ServerIp;
 import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 
 import java.util.Set;

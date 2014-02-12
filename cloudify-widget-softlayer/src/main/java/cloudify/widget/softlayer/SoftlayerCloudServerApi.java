@@ -1,7 +1,5 @@
 package cloudify.widget.softlayer;
 
-import static com.google.common.collect.Collections2.*;
-
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
@@ -26,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static com.google.common.collect.Collections2.transform;
 
 /**
  * User: eliranm
