@@ -70,6 +70,7 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
         this.nodeNamingConvention = checkNotNull(namingConvention, "namingConvention").createWithoutPrefix();
     }
 
+
     @Override
     public NodeMetadata apply(final VirtualGuest from) {
         if (logger.isDebugEnabled()) {
@@ -85,10 +86,12 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
         builder.group(nodeNamingConvention.groupInUniqueNameOrNull(from.getHostname()));
 
         // These are null for 'bad' guest orders in the HALTED state.
-//        if (from.getPrimaryIpAddress() != null)
+        if (from.getPrimaryIpAddress() != null){
             builder.publicAddresses(ImmutableSet.<String>of(from.getPrimaryIpAddress()));
-//        if (from.getPrimaryBackendIpAddress() != null)
+        }
+        if (from.getPrimaryBackendIpAddress() != null){
             builder.privateAddresses(ImmutableSet.<String>of(from.getPrimaryBackendIpAddress()));
+        }
 
         OperatingSystem operatingSystem = from.getOperatingSystem();
         if (operatingSystem != null) {
