@@ -31,9 +31,8 @@ public interface CloudServerApi {
     /**
      * Machine should be removed from the cloud
      * @param id - id of node
-     * @return true if were successful, otherwise throw runtime error
      */
-	public boolean delete(String id);
+	public void delete(String id);
 
     /**
      * rebuild the machine

@@ -7,15 +7,20 @@ import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.net.HostAndPort;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
+import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.softlayer.SoftLayerApi;
+import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
 import org.jclouds.softlayer.domain.VirtualGuest;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
@@ -54,7 +59,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-        logger.info("getting all machines with tag [{}]",tag);
+        logger.info("getting all machines with tag [{}]", tag);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
@@ -81,8 +86,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public boolean delete(String id) {
-        boolean deleted = false;
+    public void delete(String id) {
         SoftlayerCloudServer cloudServer = null;
         if (id != null) {
             cloudServer = (SoftlayerCloudServer) get(id);
@@ -93,26 +97,22 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
             }
             try {
                 computeService.destroyNode(id);
-                deleted = true;
             } catch (RuntimeException e) {
                 throw new SoftlayerCloudServerApiOperationFailureException(
                         String.format("delete operation failed for server with id [%s].", id), e);
             }
         }
-        if (!deleted) {
-            throw new SoftlayerCloudServerApiOperationFailureException(
-                    String.format("delete operation failed for server with id [%s].", id));
-        }
-        return deleted;
     }
 
     @Override
     public void rebuild(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        logger.info("rebooting : [{}]", id);
+        computeService.rebootNode(id);
     }
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
+        logger.info("connecting");
         if (!( connectDetails instanceof SoftlayerConnectDetails )){
             throw new RuntimeException("expected SoftlayerConnectDetails implementation");
         }
@@ -127,6 +127,36 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         if ( computeService == null ){
             throw new RuntimeException("illegal credentials");
         }
+    }
+
+    private ComputeServiceContext computeServiceContext( SoftlayerConnectDetails connectDetails) {
+
+        logger.info("creating compute service context");
+        Set<Module> modules = new HashSet<Module>();
+
+        modules.add(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
+            }
+        });
+
+        ComputeServiceContext context;
+        Properties overrides = new Properties();
+        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        if (connectDetails.isApiKey()) {
+            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        }
+
+        String cloudProvider = CloudProvider.SOFTLAYER.label;
+        logger.info("building new context for provider [{}]", cloudProvider);
+        context = ContextBuilder.newBuilder(cloudProvider)
+                .credentials(connectDetails.getUsername(), connectDetails.getKey())
+                .overrides(overrides)
+                .modules(modules)
+                .buildView(ComputeServiceContext.class);
+
+        return context;
     }
 
     @Override

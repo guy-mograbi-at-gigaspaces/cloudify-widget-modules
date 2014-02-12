@@ -3,3 +3,5 @@
 **/conf/dev/**
 **/target
 dev
+conf/dev/**
+target
