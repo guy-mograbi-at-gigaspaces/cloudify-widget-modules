@@ -4,8 +4,6 @@ package cloudify.widget.softlayer;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import org.jclouds.compute.domain.NodeMetadata;
 
-import java.util.Set;
-
 /**
  * Softlayer implementation of CloudServerCreated
  * @author evgenyf

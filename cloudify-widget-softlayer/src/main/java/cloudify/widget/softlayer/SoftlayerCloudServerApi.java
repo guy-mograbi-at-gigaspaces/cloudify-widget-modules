@@ -1,7 +1,5 @@
 package cloudify.widget.softlayer;
 
-import static com.google.common.collect.Collections2.*;
-
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
@@ -30,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.util.*;
+
+import static com.google.common.collect.Collections2.transform;
 
 /**
  * User: eliranm
@@ -87,20 +87,14 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void delete(String id) {
-        SoftlayerCloudServer cloudServer = null;
-        if (id != null) {
-            cloudServer = (SoftlayerCloudServer) get(id);
+        if (logger.isDebugEnabled()) {
+            logger.debug("calling destroyNode, id is [{}]", id);
         }
-        if (cloudServer != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("calling destroyNode, status is [{}]", cloudServer.getStatus());
-            }
-            try {
-                computeService.destroyNode(id);
-            } catch (RuntimeException e) {
-                throw new SoftlayerCloudServerApiOperationFailureException(
-                        String.format("delete operation failed for server with id [%s].", id), e);
-            }
+        try {
+            computeService.destroyNode(id);
+        } catch (Throwable e) {
+            throw new SoftlayerCloudServerApiOperationFailureException(
+                    String.format("delete operation failed for server with id [%s].", id), e);
         }
     }
 
