@@ -115,7 +115,6 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long totalTimeSec = ( endTime - startTime )/1000;
         logger.info( "After create new node, creating took [" + ( totalTimeSec ) + "] sec." );
 
-
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
             newNodesList.add( new Ec2CloudServerCreated( newNode ) );
@@ -163,11 +162,10 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         String cloudProvider = CloudProvider.AWS_EC2.label;
         logger.info("building new context for provider [{}]", cloudProvider);
-        ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
-                .overrides(overrides)
-                .credentials(accessId, secretAccessKey)
-//                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
-                .buildView(ComputeServiceContext.class);
+
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
+                .credentials(accessId, secretAccessKey);
+        ComputeServiceContext context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }
@@ -178,11 +176,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         String hardwareId = machineOptions.hardwareId();
         String locationId = machineOptions.locationId();
         String imageId = machineOptions.imageId();
-        OsFamily osFamily = machineOptions.osFamily();
 
-        if( osFamily != null ){
-            templateBuilder.osFamily(osFamily);
-        }
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
         }
@@ -197,8 +191,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
         Template template = templateBuilder.build();
         long endTime = System.currentTimeMillis();
-        long totalTimeSec = ( endTime - startTime )/1000;
-        logger.info( "After building template, build took [" + ( totalTimeSec ) + "] sec." );
+        long totalTime = endTime - startTime;
+        logger.info( "After building template, build took [" + ( totalTime ) + "] msec." );
 
         if( machineOptions.tags() != null ){
             template.getOptions().tags( machineOptions.tags() );
