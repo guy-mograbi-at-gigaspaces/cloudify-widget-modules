@@ -8,7 +8,7 @@
 
     <context:property-placeholder location="conf/dev/me.conf"/>
 
-    <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
+    <bean id="connectDetails" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
         <property name="apiKey" value="true"/>
         <property name="key" value="${softlayer_api_key}"/>
         <property name="username" value="${softlayer_user}"/>
