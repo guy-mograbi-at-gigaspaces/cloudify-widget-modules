@@ -19,6 +19,12 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>cloudify.widget</groupId>
             <artifactId>api</artifactId>
             <version>1.0.0</version>

@@ -17,12 +17,16 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
+import org.jclouds.softlayer.SoftLayerApi;
 import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
+import org.jclouds.softlayer.domain.VirtualGuest;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
+import org.jclouds.util.Strings2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.util.*;
 
 import static com.google.common.collect.Collections2.transform;
@@ -96,6 +100,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void rebuild(String id) {
+        logger.info("rebooting : [{}]", id);
         computeService.rebootNode(id);
     }
 
@@ -111,7 +116,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
+        logger.info("connecting");
         computeService = computeServiceContext( connectDetails ).getComputeService();
+        if ( computeService == null ){
+            throw new RuntimeException("illegal credentials");
+        }
     }
 
     private ComputeServiceContext computeServiceContext( SoftlayerConnectDetails connectDetails) {
@@ -153,6 +162,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         Template template = createTemplate(softlayerMachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
+            logger.info("creating [{}] new machine with name [{}]", machinesCount, name);
             newNodes = computeService.createNodesInGroup( name, machinesCount, template );
         }
         catch (org.jclouds.compute.RunNodesException e) {

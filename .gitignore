@@ -1,6 +1,7 @@
 .idea
 *.iml
-conf/dev/**
+**/conf/dev/**
 **/target
-target
 dev
+conf/dev/**
+target

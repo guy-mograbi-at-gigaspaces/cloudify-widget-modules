@@ -9,26 +9,26 @@ import org.jclouds.compute.domain.OsFamily;
  */
 public class SoftlayerMachineOptions implements MachineOptions {
 
-    private String name;
+    private String tag;
     private int machinesCount;
     private OsFamily osFamily;
     private String locationId;
     private String hardwareId;
 
-   public SoftlayerMachineOptions(){
+    public SoftlayerMachineOptions() {
 
-   }
+    }
 
-    public SoftlayerMachineOptions setName(String name) {
-        this.name = name;
+    public SoftlayerMachineOptions setTag(String tag) {
+        this.tag = tag;
         return this;
     }
 
     public String name() {
-        return name;
+        return tag + "-" + System.currentTimeMillis();
     }
 
-    public SoftlayerMachineOptions setMachinesCount( int machinesCount ){
+    public SoftlayerMachineOptions setMachinesCount(int machinesCount) {
         this.machinesCount = machinesCount;
         return this;
     }
@@ -37,30 +37,50 @@ public class SoftlayerMachineOptions implements MachineOptions {
         return machinesCount;
     }
 
-    public SoftlayerMachineOptions setLocationId( String locationId ){
+    public SoftlayerMachineOptions setLocationId(String locationId) {
         this.locationId = locationId;
         return this;
     }
 
-    public String locationId(){
+    public String locationId() {
         return locationId;
     }
 
-    public SoftlayerMachineOptions setHardwareId( String hardwareId ){
+    public SoftlayerMachineOptions setHardwareId(String hardwareId) {
         this.hardwareId = hardwareId;
         return this;
     }
 
-    public String hardwareId(){
+    public String hardwareId() {
         return hardwareId;
     }
 
-    public SoftlayerMachineOptions setOsFamily( OsFamily osFamily ){
+    public SoftlayerMachineOptions setOsFamily(OsFamily osFamily) {
         this.osFamily = osFamily;
         return this;
     }
 
-    public OsFamily osFamily(){
+    public OsFamily osFamily() {
         return osFamily;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public int getMachinesCount() {
+        return machinesCount;
+    }
+
+    public OsFamily getOsFamily() {
+        return osFamily;
+    }
+
+    public String getLocationId() {
+        return locationId;
+    }
+
+    public String getHardwareId() {
+        return hardwareId;
     }
 }
