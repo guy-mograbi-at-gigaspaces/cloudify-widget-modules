@@ -1,7 +1,6 @@
 package cloudify.widget.hpcloud;
 
 
-import cloudify.widget.api.clouds.CloudCredentials;
 import cloudify.widget.api.clouds.CloudProvider;
 
 /**
@@ -10,7 +9,7 @@ import cloudify.widget.api.clouds.CloudProvider;
  * Date: 6/13/13
  * Time: 9:41 AM
  */
-public class NovaCloudCredentials implements CloudCredentials {
+public class NovaCloudCredentials {
     public String project;
     public String key;
     public String secretKey;
