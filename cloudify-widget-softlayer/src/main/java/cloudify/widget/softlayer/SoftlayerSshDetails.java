@@ -29,4 +29,13 @@ public class SoftlayerSshDetails implements ISshDetails {
     public String password(){
         return password;
     }
+
+    @Override
+    public String toString() {
+        return "SoftlayerSshDetails{" +
+                "port=" + port +
+                ", user='" + user + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

@@ -10,17 +10,17 @@
 
     <bean id="connectDetails" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
         <property name="apiKey" value="true"/>
-        <property name="key" value="${softlayer_api_key}"/>
-        <property name="username" value="${softlayer_user}"/>
+        <property name="username" value="${connectDetails.user}"/>
+        <property name="key" value="${connectDetails.key}"/>
     </bean>
+
 
     <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
-
+        <property name="useCommandLineSsh" value="${cloudServer.useCommandLineSsh}" />
     </bean>
 
-
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
-        <property name="tag" value="testSoft"/>
+        <property name="tag" value="testsoft"/> <!-- should be only lowercase! (DNS naming constraints) -->
         <property name="hardwareId" value="1640,2238,13899"/>
         <property name="locationId" value="37473"/>
         <property name="osFamily" value="CENTOS"/>
