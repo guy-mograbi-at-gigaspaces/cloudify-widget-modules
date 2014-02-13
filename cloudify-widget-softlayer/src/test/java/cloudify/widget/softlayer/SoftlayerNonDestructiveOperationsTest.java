@@ -48,6 +48,21 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Autowired
     public WaitTimeout waitMachineIsStoppedTimeout;
 
+    @Test
+    public void createMachine(){
+        cloudServerApi.connect( connectDetails );
+        cloudServerApi.create(machineOptions);
+    }
+
+    @Test
+    public void killMachineWithPrefix(){
+        cloudServerApi.connect( connectDetails );
+        Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag("ibmp");
+        for (CloudServer cloudServer : ibmp) {
+            logger.info(cloudServer.getName());
+            cloudServerApi.delete(cloudServer.getId());
+        }
+    }
 
     @Test
     public void testSoftlayerDriver() {
