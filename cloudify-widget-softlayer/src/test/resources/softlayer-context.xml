@@ -20,7 +20,7 @@
 
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
-        <property name="tag" value="testSoft"/>
+        <property name="tag" value="guymtmp"/>
         <property name="hardwareId" value="1640,2238,13899"/>
         <property name="locationId" value="37473"/>
         <property name="osFamily" value="CENTOS"/>

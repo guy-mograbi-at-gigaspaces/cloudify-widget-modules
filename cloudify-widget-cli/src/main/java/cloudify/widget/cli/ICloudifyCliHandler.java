@@ -1,5 +1,7 @@
 package cloudify.widget.cli;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -11,8 +13,9 @@ public interface ICloudifyCliHandler {
     /**
      * copies a cloud folder and prints the properties in CloudBootstrapDetails
      * @param details -
+     * @return new cloud folder
      */
-    public void createNewCloud( ICloudBootstrapDetails details );
+    public File createNewCloud( ICloudBootstrapDetails details );
 
     /**
      * Runs a command in the background
