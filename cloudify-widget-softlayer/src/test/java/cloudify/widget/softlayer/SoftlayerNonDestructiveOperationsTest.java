@@ -1,10 +1,6 @@
 package cloudify.widget.softlayer;
 
-import cloudify.widget.api.clouds.CloudExecResponse;
-import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerApi;
-import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.api.clouds.IConnectDetails;
+import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -78,16 +74,16 @@ public class SoftlayerNonDestructiveOperationsTest {
         Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
 
 
-        logger.info("Start test create softlayer machine, completed");
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server name [{}]", cloudServer.getName());
         }
 
-        /** get machine by id **/
+        // get machine by id
+
         Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag(tagMask);
         for (CloudServer cloudServer : cloudServers) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
@@ -96,9 +92,11 @@ public class SoftlayerNonDestructiveOperationsTest {
             Assert.assertNotNull("expecting machine to have ip", cs.getServerIp().publicIp);
         }
 
-        /** run script on machine **/ 
+        // run script on machine
+
+        logger.info("starting run-script on machine...");
         final String echoString = "hello world";
-        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag("testsoft-4");
+        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
 
         for (CloudServer machine : machines) {
             String publicIp = machine.getServerIp().publicIp;
@@ -108,11 +106,9 @@ public class SoftlayerNonDestructiveOperationsTest {
         }
 
 
-        /**
-         * teardown
-         */
+        // teardown
 
-         logger.info("deleting all machines");
+        logger.info("deleting all machines");
 
         for (CloudServer machine : machines) {
             logger.info("waiting for machine to run");
