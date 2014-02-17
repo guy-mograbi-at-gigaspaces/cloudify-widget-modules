@@ -9,11 +9,9 @@
     <context:property-placeholder location="conf/dev/me.conf"/>
 
     <bean id="ec2ConnectDetails" class="cloudify.widget.hpcloudcompute.HpCloudComputeConnectDetails">
-        <constructor-arg index="0" value="${hpcloud_compute_user}"/>
-        <constructor-arg index="1" value="${hpcloud_compute_project}"/>
-        <constructor-arg index="2" value="${hpcloud_compute_key}"/>
-        <constructor-arg index="3" value="${hpcloud_compute_secretKey}"/>
-        <constructor-arg index="4" value="${hpcloud_compute_password}"/>
+        <constructor-arg index="0" value="${hpcloud_compute_project}"/>
+        <constructor-arg index="1" value="${hpcloud_compute_key}"/>
+        <constructor-arg index="2" value="${hpcloud_compute_secretKey}"/>
     </bean>
 
     <bean id="cloudServer" class="cloudify.widget.hpcloudcompute.HpCloudComputeCloudServerApi"/>
@@ -21,7 +19,6 @@
     <bean id="machineOptions" class="cloudify.widget.hpcloudcompute.HpCloudComputeMachineOptions">
         <property name="name" value="testhpcloud"/>
         <property name="tags" value="hpCloudTestTag1,hpCloudTestTag2"/>
-        <property name="zone" value="az-2.region-a.geo-1"/>
         <property name="hardwareId" value="az-2.region-a.geo-1/102"/>
         <!--property name="locationId" value="eu-west-1"/-->
         <property name="imageId" value="az-2.region-a.geo-1/311725"/>

@@ -185,7 +185,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     private ContextBuilder createContextBuilder(){
-        String user = connectDetails.getUser();
+
         String project = connectDetails.getProject();
         String key = connectDetails.getKey();
         String secretKey = connectDetails.getSecretKey();

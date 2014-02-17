@@ -90,8 +90,6 @@ public class HpCloudComputeOperationsTest {
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
 
-        String zone = machineOptions.zone();
-        String imageId = machineOptions.imageId();
         logger.info("rebuild machines...");
         for (CloudServer machine : machinesWithTag) {
             logger.info("rebuild machine, id [{}] ",machine.getId());

@@ -10,26 +10,14 @@ import cloudify.widget.api.clouds.IConnectDetails;
  */
 public class HpCloudComputeConnectDetails implements IConnectDetails {
 
-    private String user;
     private String project;
     private String key;
     private String secretKey;
-    private String password;
 
-    public HpCloudComputeConnectDetails( String user, String project, String key, String secretKey, String password ) {
-        this.user = user;
+    public HpCloudComputeConnectDetails( String project, String key, String secretKey ) {
         this.project = project;
         this.key = key;
         this.secretKey = secretKey;
-        this.password = password;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     public String getProject() {
@@ -54,13 +42,5 @@ public class HpCloudComputeConnectDetails implements IConnectDetails {
 
     public void setKeyFile(String secretFile) {
         this.secretKey = secretKey;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

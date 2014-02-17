@@ -12,6 +12,7 @@ public interface CloudServerApi {
 
     /**
      * returns all machines with a specific tag
+     * if tag is null, it will return all machines
      *
      * a tag is an identifier of a pool. it can even be a machine name prefix,
      * as long as it can identify machines from specific pool.
