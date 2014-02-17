@@ -1,4 +1,4 @@
-package cloudify.widget.ec2;
+package cloudify.widget.hpcloudcompute;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
@@ -25,10 +25,11 @@ import static org.junit.Assert.assertTrue;
  * Time: 6:55 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:ec2-context.xml"})
-public class Ec2OperationsTest {
+@ContextConfiguration(locations = {"classpath:hpcloudcompute-context.xml"})
+public class HpCloudComputeOperationsTest {
 
-    private static Logger logger = LoggerFactory.getLogger(Ec2OperationsTest.class);
+    private static Logger logger = LoggerFactory.getLogger(HpCloudComputeOperationsTest.class);
+    private final String[] TAGS = { "hpCloudTestTag1", "hpCloudTestTag2" };
 
     private final String echoString = "hello world";
 
@@ -39,7 +40,7 @@ public class Ec2OperationsTest {
     private IConnectDetails connectDetails;
 
     @Autowired
-    private Ec2MachineOptions machineOptions;
+    private HpCloudComputeMachineOptions machineOptions;
 
     @Autowired
     public WaitTimeout waitMachineIsRunningTimeout;
@@ -48,22 +49,22 @@ public class Ec2OperationsTest {
     public WaitTimeout waitMachineIsNotRunning;
 
     @Test
-    public void testEc2Driver() {
+    public void testHpCloudComputeDriver() {
 
         logger.info("Start test, before connect");
 
         cloudServerApi.connect( connectDetails );
 
-        logger.info("Start test create ec2 machine");
+        logger.info("Start test create hp cloud machine");
 
         Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
-        logger.info("ec2CloudServerApi created");
+        logger.info("hpCloudCloudServerApi created");
         logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
         Assert.assertEquals("should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection));
 
-        logger.info("Start test create ec2 machine, completed");
+        logger.info("Start test create HP cloud machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("testtag2");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("hpCloudTestTag1");
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -71,7 +72,7 @@ public class Ec2OperationsTest {
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.getAllMachinesWithTag("testtag1");
+        machinesWithTag = cloudServerApi.getAllMachinesWithTag("hpCloudTestTag2");
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
@@ -89,8 +90,11 @@ public class Ec2OperationsTest {
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
 
-        logger.info("rebuild machine");
+        String zone = machineOptions.zone();
+        String imageId = machineOptions.imageId();
+        logger.info("rebuild machines...");
         for (CloudServer machine : machinesWithTag) {
+            logger.info("rebuild machine, id [{}] ",machine.getId());
             cloudServerApi.rebuild(machine.getId());
         }
 
@@ -114,7 +118,9 @@ public class Ec2OperationsTest {
             waitMachineIsNotRunning.setCondition( notRunningCondition );
             waitMachineIsNotRunning.waitFor();
 
-            Exception expectedException= null;
+            //in the case of HP cloud any exception is not throwsn in the case of passed wrong id to destroyNode method
+
+/*            Exception expectedException= null;
             try {
                 cloudServerApi.delete(machine.getId() + "myTest");
             } catch (RuntimeException e) {
@@ -122,13 +128,15 @@ public class Ec2OperationsTest {
                 expectedException = e;
             } finally {
                 assertNotNull("exception should have been thrown on delete attempt failure", expectedException);
-                boolean assignableFrom = Ec2CloudServerApiOperationFailureException.class.isAssignableFrom(expectedException.getClass());
+                boolean assignableFrom =
+                        HpCloudComputeServerApiOperationFailureException.class.isAssignableFrom(expectedException.getClass());
                 if (!assignableFrom) {
                     logger.info("exception thrown is not expected. stack trace is:\n[{}]", expectedException.getStackTrace());
                 }
-                assertTrue(String.format("[%s] should be assignable from exception type thrown on delete attempt failure [%s]", Ec2CloudServerApiOperationFailureException.class, expectedException.getClass()),
+                assertTrue(String.format("[%s] should be assignable from exception type thrown on delete attempt failure [%s]",
+                        HpCloudComputeServerApiOperationFailureException.class, expectedException.getClass()),
                         assignableFrom);
-            }
+            }*/
         }
 
     }

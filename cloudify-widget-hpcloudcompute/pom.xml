@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <groupId>cloudify.widget</groupId>
-    <artifactId>softlayer</artifactId>
+    <artifactId>hpcloudcompute</artifactId>
     <version>1.0.0</version>
     <name>${project.artifactId}</name>
 
@@ -15,28 +15,13 @@
     <dependencies>
         <dependency>
             <groupId>cloudify.widget</groupId>
-            <artifactId>modules</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>cloudify.widget</groupId>
             <artifactId>common</artifactId>
             <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>cloudify.widget</groupId>
             <artifactId>api</artifactId>
             <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds</groupId>
-            <artifactId>jclouds-compute</artifactId>
-            <version>1.6.2-incubating</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.driver</groupId>
@@ -45,14 +30,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>softlayer-cci-embedded</artifactId>
+            <artifactId>hpcloud-compute</artifactId>
             <version>${jCloudsVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-exec</artifactId>
-            <version>1.2</version>
-        </dependency>
+
     </dependencies>
 
 </project>

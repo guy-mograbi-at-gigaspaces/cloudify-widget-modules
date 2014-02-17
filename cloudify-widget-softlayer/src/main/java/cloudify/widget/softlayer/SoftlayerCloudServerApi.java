@@ -103,7 +103,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public void rebuild(String id) {
+    public void rebuild( String id ) {
         logger.info("rebooting : [{}]", id);
         computeService.rebootNode(id);
     }

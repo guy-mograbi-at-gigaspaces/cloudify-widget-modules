@@ -1,4 +1,5 @@
-package cloudify.widget.ec2;
+package cloudify.widget.hpcloudcompute;
+
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
@@ -11,23 +12,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.ComputeMetadata;
-import org.jclouds.compute.domain.TemplateBuilder;
-import org.jclouds.compute.domain.Template;
-import org.jclouds.compute.domain.ExecResponse;
+import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
+import org.jclouds.openstack.nova.v2_0.NovaApi;
+import org.jclouds.openstack.nova.v2_0.features.ServerApi;
+import org.jclouds.openstack.nova.v2_0.options.RebuildServerOptions;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Collections2.transform;
 
@@ -36,15 +33,16 @@ import static com.google.common.collect.Collections2.transform;
  * Date: 2/10/14
  * Time: 6:55 PM
  */
-public class Ec2CloudServerApi implements CloudServerApi {
+public class HpCloudComputeCloudServerApi implements CloudServerApi {
 
-    private static Logger logger = LoggerFactory.getLogger(Ec2CloudServerApi.class);
+    private static Logger logger = LoggerFactory.getLogger(HpCloudComputeCloudServerApi.class);
 
+    private ContextBuilder contextBuilder;
+    private ComputeServiceContext computeServiceContext;
     private ComputeService computeService;
-    private Ec2ConnectDetails connectDetails;
-//    private final AWSEC2Api ec2Api;
+    private HpCloudComputeConnectDetails connectDetails;
 
-    public Ec2CloudServerApi() {
+    public HpCloudComputeCloudServerApi() {
     }
 
     @Override
@@ -61,8 +59,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         return transform(nodeMetadatas, new Function<NodeMetadata, CloudServer>() {
             @Override
-            public Ec2CloudServer apply(@Nullable NodeMetadata o) {
-                return new Ec2CloudServer(computeService, o);
+            public HpCloudComputeCloudServer apply(@Nullable NodeMetadata o) {
+                return new HpCloudComputeCloudServer(computeService, o);
             }
         });
     }
@@ -72,7 +70,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         CloudServer cloudServer = null;
         NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
         if (nodeMetadata != null) {
-            cloudServer = new Ec2CloudServer( computeService, nodeMetadata );
+            cloudServer = new HpCloudComputeCloudServer( computeService, nodeMetadata );
         }
         return cloudServer;
     }
@@ -85,16 +83,42 @@ public class Ec2CloudServerApi implements CloudServerApi {
                 computeService.destroyNode(id);
             }
             catch (Throwable e) {
-                throw new Ec2CloudServerApiOperationFailureException(
+                throw new HpCloudComputeServerApiOperationFailureException(
                         String.format("delete operation failed for server with id [%s].", id), e);
             }
         }
     }
 
+
+    private ServerApi getApi( String zone ){
+        NovaApi novaApi = contextBuilder.buildApi(NovaApi.class);
+        ServerApi serverApi = novaApi.getServerApiForZone( zone );
+        return serverApi;
+    }
+
     @Override
     public void rebuild(String id) {
-        computeService.rebootNode( id );
+
+        HpCloudComputeCloudServer cloudServer = ( HpCloudComputeCloudServer )get(id);
+        String imageId = cloudServer.getImageId();
+        String zone = cloudify.widget.common.StringUtils.substringBefore( imageId, "/" );
+        ServerApi serverApi = getApi(zone);
+
+        RebuildServerOptions rebuildServerOptions = RebuildServerOptions.Builder.withImage( imageId );
+
+/*
+        RebuildServerOptions options = new RebuildServerOptions().
+                withImage(server.getImage().getId()).
+                name("newName").
+                adminPass("password").
+                ipv4Address("1.1.1.1").
+                ipv6Address("fe80::100");
+*/
+
+        serverApi.rebuild( id, rebuildServerOptions );
     }
+
+
 
     @Override
     public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
@@ -102,17 +126,17 @@ public class Ec2CloudServerApi implements CloudServerApi {
         logger.info( "Starting to create new node(s)..." );
         long startTime = System.currentTimeMillis();
 
-        Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
-        String name = ec2MachineOptions.name();
-        int machinesCount = ec2MachineOptions.machinesCount();
-        Template template = createTemplate(ec2MachineOptions);
+        HpCloudComputeMachineOptions hpCloudMachineOptions = ( HpCloudComputeMachineOptions )machineOpts;
+        String name = hpCloudMachineOptions.name();
+        int machinesCount = hpCloudMachineOptions.machinesCount();
+        Template template = createTemplate(hpCloudMachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
             newNodes = computeService.createNodesInGroup( name, machinesCount, template );
         }
         catch (org.jclouds.compute.RunNodesException e) {
             if( logger.isErrorEnabled() ){
-                logger.error( "Create EC2 node failed", e );
+                logger.error( "Create Hp cloud node failed", e );
             }
             throw new RuntimeException( e );
         }
@@ -123,7 +147,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
-            newNodesList.add( new Ec2CloudServerCreated( newNode ) );
+            newNodesList.add( new HpCloudComputeCloudServerCreated( newNode ) );
         }
 
         return newNodesList;
@@ -143,48 +167,66 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
         logger.info("connecting");
-        if (!(connectDetails instanceof Ec2ConnectDetails)) {
-            throw new RuntimeException("expected Ec2ConnectDetails implementation");
+        if (!(connectDetails instanceof HpCloudComputeConnectDetails)) {
+            throw new RuntimeException("expected HpCloudComputeConnectDetails implementation");
         }
-        this.connectDetails = (Ec2ConnectDetails) connectDetails;
+        this.connectDetails = (HpCloudComputeConnectDetails) connectDetails;
 
     }
 
     @Override
     public void connect() {
-        computeService = computeServiceContext(connectDetails).getComputeService();
+        computeServiceContext = computeServiceContext(connectDetails);
+        computeService = computeServiceContext.getComputeService();
     }
 
-    public static ComputeServiceContext computeServiceContext(Ec2ConnectDetails connectDetails) {
+    public ComputeServiceContext computeServiceContext(HpCloudComputeConnectDetails connectDetails) {
 
-        String accessId = connectDetails.getAccessId();
-        String secretAccessKey = connectDetails.getSecretAccessKey();
-
-        logger.info("creating compute service context");
-
-        String cloudProvider = CloudProvider.AWS_EC2.label;
-        logger.info("building new context for provider [{}]", cloudProvider);
-
-        ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
-                .credentials(accessId, secretAccessKey);
+        contextBuilder = createContextBuilder();
+                /*.name(user)*/;
         ComputeServiceContext context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }
 
-    private Template createTemplate( Ec2MachineOptions machineOptions ) {
+    private ContextBuilder createContextBuilder(){
+        String user = connectDetails.getUser();
+        String project = connectDetails.getProject();
+        String key = connectDetails.getKey();
+//        String password = connectDetails.getPassword();
+        String secretKey = connectDetails.getSecretKey();
+        String identity = project + ":" + key;
+
+        logger.info("creating compute service context");
+
+        String cloudProvider = CloudProvider.HP.label;
+        logger.info("building new context for provider [{}]", cloudProvider);
+
+        Properties overrides = new Properties();
+        overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
+                .credentials(identity, secretKey)
+                .overrides(overrides);
+
+        return contextBuilder;
+    }
+
+    private Template createTemplate( HpCloudComputeMachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
         String hardwareId = machineOptions.hardwareId();
-        String locationId = machineOptions.locationId();
+//        String locationId = machineOptions.locationId();
         String imageId = machineOptions.imageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
         }
+/*
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }
+*/
         if( !StringUtils.isEmpty( imageId ) ){
             templateBuilder.imageId(imageId);
         }
@@ -211,11 +253,11 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
 
-        Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
+        HpCloudComputeSshDetails hpCloudSshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = ec2SshDetails.user();
-        String privateKey = ec2SshDetails.privateKey();
-        int port = ec2SshDetails.port();
+        String user = "ubuntu";//hpCloudSshDetails.user();
+        String privateKey = hpCloudSshDetails.privateKey();
+        int port = hpCloudSshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
@@ -239,8 +281,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         return new CloudExecResponseImpl( execResponse );
     }
 
-
-    private Ec2SshDetails getMachineCredentialsByIp( final String ip ){
+    private HpCloudComputeSshDetails getMachineCredentialsByIp( final String ip ){
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
@@ -262,6 +303,26 @@ public class Ec2CloudServerApi implements CloudServerApi {
         String privateKey = loginCredentials.getPrivateKey();
         int port = nodeMetadata.getLoginPort();
 
-        return new Ec2SshDetails( port, user, privateKey );
+        return new HpCloudComputeSshDetails( port, user, privateKey );
+    }
+
+    private LoginCredentials getMachineLoginCredentialssByIp( final String ip ){
+
+        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
+            @Override
+            public boolean apply(ComputeMetadata computeMetadata) {
+                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
+                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
+                return publicAddresses.contains(ip);
+            }
+        });
+
+        if( nodeMetadatas.isEmpty() ){
+            throw new RuntimeException( "Machine [" + ip + "] was not found" );
+        }
+
+        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
+
+        return nodeMetadata.getCredentials();
     }
 }

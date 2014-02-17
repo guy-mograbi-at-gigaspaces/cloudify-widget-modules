@@ -1,4 +1,4 @@
-package cloudify.widget.ec2;
+package cloudify.widget.hpcloudcompute;
 
 import cloudify.widget.api.clouds.MachineOptions;
 
@@ -8,22 +8,22 @@ import java.util.Arrays;
  * User: evgenyf
  * Date: 2/9/14
  */
-public class Ec2MachineOptions implements MachineOptions {
+public class HpCloudComputeMachineOptions implements MachineOptions {
 
     private String name;
     private int machinesCount;
-    private String locationId;
+    private String zone;
     private String hardwareId;
     private String imageId;
     private String tags;
 
-    public Ec2MachineOptions(){}
+    public HpCloudComputeMachineOptions(){}
 
-    public Ec2MachineOptions( String name ){
+    public HpCloudComputeMachineOptions(String name){
         this( name, 1 );
     }
 
-    public Ec2MachineOptions( String name, int machinesCount ){
+    public HpCloudComputeMachineOptions(String name, int machinesCount){
         this.name = name;
         this.machinesCount = machinesCount;
     }
@@ -32,12 +32,12 @@ public class Ec2MachineOptions implements MachineOptions {
         return name;
     }
 
-    public Ec2MachineOptions setName( String name ){
+    public HpCloudComputeMachineOptions setName( String name ){
         this.name = name;
         return this;
     }
 
-    public Ec2MachineOptions setTags( String tags ){
+    public HpCloudComputeMachineOptions setTags( String tags ){
         this.tags = tags;
         return this;
     }
@@ -47,7 +47,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return Arrays.asList( split );
     }
 
-    public Ec2MachineOptions setMachinesCount( int machinesCount ){
+    public HpCloudComputeMachineOptions setMachinesCount( int machinesCount ){
         this.machinesCount = machinesCount;
         return this;
     }
@@ -56,16 +56,16 @@ public class Ec2MachineOptions implements MachineOptions {
         return machinesCount;
     }
 
-    public Ec2MachineOptions setLocationId( String locationId ){
-        this.locationId = locationId;
+    public HpCloudComputeMachineOptions setZone( String zone ){
+        this.zone = zone;
         return this;
     }
 
-    public String locationId(){
-        return locationId;
+    public String zone(){
+        return zone;
     }
 
-    public Ec2MachineOptions setHardwareId( String hardwareId ){
+    public HpCloudComputeMachineOptions setHardwareId( String hardwareId ){
         this.hardwareId = hardwareId;
         return this;
     }
@@ -74,7 +74,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return hardwareId;
     }
 
-    public Ec2MachineOptions setImageId( String imageId ){
+    public HpCloudComputeMachineOptions setImageId( String imageId ){
         this.imageId = imageId;
         return this;
     }

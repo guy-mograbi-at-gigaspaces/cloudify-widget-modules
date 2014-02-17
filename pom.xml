@@ -13,6 +13,7 @@
         <module>cloudify-widget-cli</module>
         <module>cloudify-widget-ec2</module>
         <module>cloudify-widget-mailer</module>
+        <module>cloudify-widget-hpcloudcompute</module>
     </modules>
 
     <dependencies>
