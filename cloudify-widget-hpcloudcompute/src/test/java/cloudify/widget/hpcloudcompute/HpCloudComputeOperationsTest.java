@@ -118,25 +118,7 @@ public class HpCloudComputeOperationsTest {
             waitMachineIsNotRunning.setCondition( notRunningCondition );
             waitMachineIsNotRunning.waitFor();
 
-            //in the case of HP cloud any exception is not throwsn in the case of passed wrong id to destroyNode method
-
-/*            Exception expectedException= null;
-            try {
-                cloudServerApi.delete(machine.getId() + "myTest");
-            } catch (RuntimeException e) {
-                logger.info("exception thrown:\n [{}]", e);
-                expectedException = e;
-            } finally {
-                assertNotNull("exception should have been thrown on delete attempt failure", expectedException);
-                boolean assignableFrom =
-                        HpCloudComputeServerApiOperationFailureException.class.isAssignableFrom(expectedException.getClass());
-                if (!assignableFrom) {
-                    logger.info("exception thrown is not expected. stack trace is:\n[{}]", expectedException.getStackTrace());
-                }
-                assertTrue(String.format("[%s] should be assignable from exception type thrown on delete attempt failure [%s]",
-                        HpCloudComputeServerApiOperationFailureException.class, expectedException.getClass()),
-                        assignableFrom);
-            }*/
+            //in the case of HP cloud any exception is not thrown in the case of passed wrong id to destroyNode method
         }
 
     }

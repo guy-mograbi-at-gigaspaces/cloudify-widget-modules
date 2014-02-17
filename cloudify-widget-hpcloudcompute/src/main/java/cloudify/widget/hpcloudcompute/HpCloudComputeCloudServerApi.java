@@ -102,20 +102,16 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         HpCloudComputeCloudServer cloudServer = ( HpCloudComputeCloudServer )get(id);
         String imageId = cloudServer.getImageId();
         String zone = cloudify.widget.common.StringUtils.substringBefore( imageId, "/" );
+        String imageIdLocal = cloudify.widget.common.StringUtils.substringAfter( imageId, "/" );
+
+        String idLocal = StringUtils.substringAfter(id, "/");
+        logger.info("rebuilding [{}] that had image id [{}] idLocal [{}] with zone [{}] and imageIdLocal [{}]", id, imageId, idLocal, zone, imageIdLocal);
+
         ServerApi serverApi = getApi(zone);
 
-        RebuildServerOptions rebuildServerOptions = RebuildServerOptions.Builder.withImage( imageId );
+        RebuildServerOptions rebuildServerOptions = RebuildServerOptions.Builder.withImage( imageIdLocal );
 
-/*
-        RebuildServerOptions options = new RebuildServerOptions().
-                withImage(server.getImage().getId()).
-                name("newName").
-                adminPass("password").
-                ipv4Address("1.1.1.1").
-                ipv6Address("fe80::100");
-*/
-
-        serverApi.rebuild( id, rebuildServerOptions );
+        serverApi.rebuild( idLocal, rebuildServerOptions );
     }
 
 
@@ -183,7 +179,6 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     public ComputeServiceContext computeServiceContext(HpCloudComputeConnectDetails connectDetails) {
 
         contextBuilder = createContextBuilder();
-                /*.name(user)*/;
         ComputeServiceContext context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
@@ -193,7 +188,6 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         String user = connectDetails.getUser();
         String project = connectDetails.getProject();
         String key = connectDetails.getKey();
-//        String password = connectDetails.getPassword();
         String secretKey = connectDetails.getSecretKey();
         String identity = project + ":" + key;
 
@@ -216,17 +210,12 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
         String hardwareId = machineOptions.hardwareId();
-//        String locationId = machineOptions.locationId();
         String imageId = machineOptions.imageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
         }
-/*
-        if( !StringUtils.isEmpty( locationId ) ){
-            templateBuilder.locationId(locationId);
-        }
-*/
+
         if( !StringUtils.isEmpty( imageId ) ){
             templateBuilder.imageId(imageId);
         }
