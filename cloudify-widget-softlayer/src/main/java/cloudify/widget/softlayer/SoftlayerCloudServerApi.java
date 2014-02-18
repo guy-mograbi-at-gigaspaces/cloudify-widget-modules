@@ -130,6 +130,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
             }
         }catch(RuntimeException e){
             logger.error("unable to connect softlayer context",e);
+            throw e;
         }
     }
 
