@@ -122,10 +122,14 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
-        logger.info("connecting");
-        computeService = computeServiceContext( connectDetails ).getComputeService();
-        if ( computeService == null ){
-            throw new RuntimeException("illegal credentials");
+        try{
+            logger.info("connecting");
+            computeService = computeServiceContext( connectDetails ).getComputeService();
+            if ( computeService == null ){
+                throw new RuntimeException("illegal credentials");
+            }
+        }catch(RuntimeException e){
+            logger.error("unable to connect softlayer context",e);
         }
     }
 
