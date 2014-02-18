@@ -2,6 +2,8 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
+import cloudify.widget.common.MachineIsRunningCondition;
+import cloudify.widget.common.WaitTimeout;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +61,25 @@ public class SoftlayerNonDestructiveOperationsTest {
             cloudServerApi.delete(cloudServer.getId());
         }
     }
+
+/*    @Test
+    public void testSoftlayerRebuild() {
+        cloudServerApi.connect( connectDetails );
+        Collection<CloudServer> allMachinesWithTag = cloudServerApi.getAllMachinesWithTag(null);
+        for( CloudServer cloudServer : allMachinesWithTag ){
+            String id = cloudServer.getId();
+            String name = cloudServer.getName();
+            logger.info( "Softlayer node id [{}] name [{}] IP [{}]", id, name, cloudServer.getServerIp() );
+            if( name.equals( "evgeny" )){
+                logger.info( "Rebuilding..." );
+                cloudServerApi.rebuild(id);
+                logger.info( "Rebuild completed..." );
+                break;
+            }
+        }
+
+
+    }*/
 
     @Test
     public void testSoftlayerDriver() {
@@ -154,26 +175,6 @@ public class SoftlayerNonDestructiveOperationsTest {
 
     public void setWaitMachineIsRunningTimeout( WaitTimeout waitTimeout ){
         this.waitMachineIsRunningTimeout = waitTimeout;
-    }
-
-    public static class MachineIsRunningCondition implements WaitTimeout.Condition {
-        public CloudServer machine;
-
-        @Override
-        public boolean apply() {
-            return machine.isRunning();
-        }
-
-        public void setMachine(CloudServer machine) {
-            this.machine = machine;
-        }
-
-        @Override
-        public String toString() {
-            return "MachineIsRunningCondition{" +
-                    "machine=" + machine +
-                    '}';
-        }
     }
 
     public static class MachineIsStoppedCondition implements WaitTimeout.Condition{

@@ -2,6 +2,7 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
+import cloudify.widget.common.CollectionUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.net.HostAndPort;
@@ -22,7 +23,11 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
+import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
+import org.jclouds.softlayer.domain.*;
+import org.jclouds.softlayer.domain.OperatingSystem;
+import org.jclouds.softlayer.features.VirtualGuestClient;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
@@ -42,12 +47,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServerApi.class);
 
-    private ComputeService computeService = null;
+    private ComputeService computeService;
 
     private SoftlayerConnectDetails connectDetails;
 
     private boolean useCommandLineSsh;
-
+    private ContextBuilder contextBuilder;
 
     public SoftlayerCloudServerApi(){
 
@@ -67,7 +72,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return computeMetadata.getName().startsWith(tag);
+                return tag == null || computeMetadata.getName().startsWith(tag);
             }
         });
 
@@ -105,8 +110,45 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void rebuild( String id ) {
         logger.info("rebooting : [{}]", id);
+        SoftlayerCloudServer cloudServer = ( SoftlayerCloudServer )get(id);
+        getApi( id );
         computeService.rebootNode(id);
+
+
+/*
+        String imageId = ( ( SoftlayerCloudServer )cloudServer ).getImageId();
+        String zone = cloudify.widget.common.StringUtils.substringBefore( imageId, "/" );
+        String imageIdLocal = cloudify.widget.common.StringUtils.substringAfter( imageId, "/" );
+        String idLocal = StringUtils.substringAfter(id, "/");
+        logger.info("rebuilding [{}] that had image id [{}] idLocal [{}] with zone [{}] and imageIdLocal [{}]", id, imageId, idLocal, zone, imageIdLocal);
+
+        ServerApi serverApi = getApi(zone);
+*/
+
     }
+
+
+    private void getApi( String id ){
+        SoftLayerClient softlayerClient = contextBuilder.buildApi(SoftLayerClient.class);
+        VirtualGuestClient virtualGuestClient = softlayerClient.getVirtualGuestClient();
+        Set<VirtualGuest> virtualGuests = virtualGuestClient.listVirtualGuests();
+        long nodeId = Long.parseLong( id );
+        VirtualGuest virtualGuest = virtualGuestClient.getVirtualGuest( nodeId );
+        OperatingSystem operatingSystem = virtualGuest.getOperatingSystem();
+        PowerState powerState = virtualGuest.getPowerState();
+        Datacenter datacenter = virtualGuest.getDatacenter();
+
+        ProductOrder orderTemplate = virtualGuestClient.getOrderTemplate( nodeId );
+        virtualGuestClient.cancelService( nodeId );
+        ProductOrderReceipt productOrderReceipt = virtualGuestClient.orderVirtualGuest(orderTemplate);
+
+        logger.info("--getApi--");
+
+//        ServerApi serverApi = novaApi.getServerApiForZone(zone);
+//        return serverApi;
+    }
+
+
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
@@ -121,7 +163,8 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void connect() {
         logger.info("connecting");
-        computeService = computeServiceContext( connectDetails ).getComputeService();
+        ComputeServiceContext computeServiceContext = computeServiceContext(connectDetails);
+        computeService = computeServiceContext.getComputeService();
         if ( computeService == null ){
             throw new RuntimeException("illegal credentials");
         }
@@ -142,17 +185,14 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         ComputeServiceContext context;
         Properties overrides = new Properties();
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
-        if (connectDetails.isApiKey()) {
-            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
-        }
 
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);
-        context = ContextBuilder.newBuilder(cloudProvider)
+        contextBuilder = ContextBuilder.newBuilder(cloudProvider)
                 .credentials(connectDetails.getUsername(), connectDetails.getKey())
                 .overrides(overrides)
-                .modules(modules)
-                .buildView(ComputeServiceContext.class);
+                .modules(modules);
+        context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }
