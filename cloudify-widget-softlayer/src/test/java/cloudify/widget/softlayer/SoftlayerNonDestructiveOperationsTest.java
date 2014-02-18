@@ -51,6 +51,7 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Test
     public void createMachine(){
         cloudServerApi.connect( connectDetails );
+        logger.info("context created. creating machine");
         cloudServerApi.create(machineOptions);
     }
 
