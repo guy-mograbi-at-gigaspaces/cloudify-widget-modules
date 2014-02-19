@@ -16,6 +16,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -55,13 +57,37 @@ public class SoftlayerNonDestructiveOperationsTest {
         cloudServerApi.create(machineOptions);
     }
 
-    @Test
+//    @Test  // utility we use
     public void killMachineWithPrefix(){
+        final CloudServerApi finalCloudServerApi = cloudServerApi;
+        List<Thread> threads = new LinkedList<Thread>();
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag("ibmp");
+        Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag("ibmprodpool");
         for (CloudServer cloudServer : ibmp) {
+            final CloudServer finalCloudServer = cloudServer;
             logger.info(cloudServer.getName());
-            cloudServerApi.delete(cloudServer.getId());
+            Thread t = new Thread( new Runnable() {
+                @Override
+                public void run() {
+                    cloudServerApi.delete(finalCloudServer.getId());
+                }
+            });
+            threads.add(t);
+
+        }
+
+        int total = threads.size();
+        int done = 0;
+        logger.info("taking down [{}] machines", total);
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+                done++;
+                logger.info("took down {}/{} machines", done, total);
+            } catch (InterruptedException e) {
+                logger.error("error while joining thread",e);
+            }
         }
     }
 

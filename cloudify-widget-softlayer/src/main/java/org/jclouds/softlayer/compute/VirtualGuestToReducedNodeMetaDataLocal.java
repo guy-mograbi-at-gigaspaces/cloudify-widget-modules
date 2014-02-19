@@ -73,9 +73,6 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
 
     @Override
     public NodeMetadata apply(final VirtualGuest from) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("applying VirtualGuestLocal - start....");
-        }
         // convert the result object to a jclouds NodeMetadata
         NodeMetadataBuilder builder = new NodeMetadataBuilder();
         builder.ids(from.getId() + "");
@@ -103,9 +100,6 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
         }
 
         NodeMetadata nodeMetadata = builder.build();
-        if (logger.isDebugEnabled()) {
-            logger.debug("applying - end....");
-        }
         return nodeMetadata;
     }
 }
