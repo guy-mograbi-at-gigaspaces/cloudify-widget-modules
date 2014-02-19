@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
  * Time: 6:55 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:hpcloudcompute-context.xml"})
 public class HpCloudComputeOperationsTest {
 
     private static Logger logger = LoggerFactory.getLogger(HpCloudComputeOperationsTest.class);
@@ -85,6 +84,7 @@ public class HpCloudComputeOperationsTest {
         /** run script on machine **/
         for (CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
+            Assert.assertNotNull( "Public Ip cannot be null, machine Id is [ " + machine.getId() + "]",  publicIp );
             CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
