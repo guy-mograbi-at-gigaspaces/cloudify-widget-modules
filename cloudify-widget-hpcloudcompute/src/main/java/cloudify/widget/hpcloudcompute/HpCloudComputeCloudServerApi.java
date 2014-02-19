@@ -7,18 +7,16 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.*;
-import org.jclouds.domain.Location;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
-import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.config.NovaProperties;
 import org.jclouds.openstack.nova.v2_0.domain.FloatingIP;
@@ -258,9 +256,10 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         overrides.setProperty(NovaProperties.AUTO_ALLOCATE_FLOATING_IPS, Boolean.FALSE.toString());
 
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
-                .apiVersion( apiVersion )
+                .apiVersion(apiVersion)
                 .credentials(identity, secretKey)
-                .overrides(overrides);
+                .overrides(overrides)
+                .modules(ImmutableSet.<Module>of(new SshjSshClientModule()));
 
         return contextBuilder;
     }
@@ -318,14 +317,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         int port = hpCloudSshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
-        Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
-        SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
+        SshClient.Factory factory = computeServiceContext.getUtils().getSshClientFactory();
         LoginCredentials loginCredentials = LoginCredentials.builder().user(user).privateKey(privateKey).build();
-
-//        Utils utils = computeServiceContext.getUtils();
-//        SshClient.Factory sshFactory = utils.getSshClientFactory();
-//        SshClient sshConnection = sshFactory.create(HostAndPort.fromParts(serverIp, port),loginCredentials);
-
         SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
                 loginCredentials );
         ExecResponse execResponse = null;
