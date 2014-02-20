@@ -16,7 +16,7 @@
  *  ******************************************************************************
  */
 
-package org.jclouds.softlayer.compute;
+package org.jclouds.softlayer.compute.functions;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
@@ -57,10 +57,10 @@ public class VirtualGuestToReducedNodeMetaDataLocal extends VirtualGuestToNodeMe
 
     private final GroupNamingConvention nodeNamingConvention;
 
-    private static Logger logger = LoggerFactory.getLogger(org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaData.class);
+    private static Logger logger = LoggerFactory.getLogger(VirtualGuestToReducedNodeMetaDataLocal.class);
 
     @Inject
-    public VirtualGuestToReducedNodeMetaDataLocal(
+    VirtualGuestToReducedNodeMetaDataLocal(
             @Memoized Supplier<Set<? extends Location>> locations,
             GetHardwareForVirtualGuest hardware,
             GetImageForVirtualGuest images, GroupNamingConvention.Factory namingConvention) {

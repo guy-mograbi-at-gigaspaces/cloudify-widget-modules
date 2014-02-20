@@ -15,6 +15,12 @@ public class SoftlayerMachineOptions implements MachineOptions {
     private String locationId;
     private String hardwareId;
 
+
+
+    // we moved the networkId to the ConnectDetails instead. We pass it to the context;
+//    private String networkId;
+
+
     public SoftlayerMachineOptions() {
 
     }

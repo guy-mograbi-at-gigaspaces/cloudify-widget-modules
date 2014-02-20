@@ -19,12 +19,13 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.softlayer.SoftLayerApi;
-import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
-import org.jclouds.softlayer.domain.VirtualGuest;
+
+
+import org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaDataLocal;
+import org.jclouds.softlayer.reference.SoftLayerConstants;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
-import org.jclouds.util.Strings2;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,6 +149,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
         ComputeServiceContext context;
         Properties overrides = new Properties();
+
+        // it is strange that we add a machine detail on the context, but it was less work.
+        overrides.setProperty(SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED_FIRST_PRICE_ID, connectDetails.networkId );
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
         if (connectDetails.isApiKey()) {
             overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
@@ -203,6 +207,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId( hardwareId );
         }
+
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }
@@ -279,5 +284,6 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
         return new SoftlayerSshDetails( port, user, password );
     }
+
 
 }
