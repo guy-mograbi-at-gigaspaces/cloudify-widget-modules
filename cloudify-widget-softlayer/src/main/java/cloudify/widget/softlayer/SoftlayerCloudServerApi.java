@@ -22,14 +22,10 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
-
-
 import org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaDataLocal;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
