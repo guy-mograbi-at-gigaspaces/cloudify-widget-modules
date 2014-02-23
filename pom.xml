@@ -12,6 +12,8 @@
         <module>cloudify-widget-hpcloud</module>
         <module>cloudify-widget-cli</module>
         <module>cloudify-widget-ec2</module>
+        <module>cloudify-widget-pool-manager</module>
+        <module>cloudify-widget-pool-manager-website</module>
     </modules>
 
     <dependencies>

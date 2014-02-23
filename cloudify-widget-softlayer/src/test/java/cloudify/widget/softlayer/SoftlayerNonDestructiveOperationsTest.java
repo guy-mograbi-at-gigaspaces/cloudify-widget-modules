@@ -6,7 +6,9 @@ import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.common.CollectionUtils;
+import cloudify.widget.common.StringUtils;
 import junit.framework.Assert;
+import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -50,45 +52,13 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Autowired
     public WaitTimeout waitMachineIsStoppedTimeout;
 
+
     @Test
-    public void createMachine(){
+    public void getInvalidId(){
         cloudServerApi.connect( connectDetails );
-        logger.info("context created. creating machine");
-        cloudServerApi.create(machineOptions);
-    }
-
-//    @Test  // utility we use
-    public void killMachineWithPrefix(){
-        final CloudServerApi finalCloudServerApi = cloudServerApi;
-        List<Thread> threads = new LinkedList<Thread>();
-        cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag("ibmprodpool");
-        for (CloudServer cloudServer : ibmp) {
-            final CloudServer finalCloudServer = cloudServer;
-            logger.info(cloudServer.getName());
-            Thread t = new Thread( new Runnable() {
-                @Override
-                public void run() {
-                    cloudServerApi.delete(finalCloudServer.getId());
-                }
-            });
-            threads.add(t);
-
-        }
-
-        int total = threads.size();
-        int done = 0;
-        logger.info("taking down [{}] machines", total);
-
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-                done++;
-                logger.info("took down {}/{} machines", done, total);
-            } catch (InterruptedException e) {
-                logger.error("error while joining thread",e);
-            }
-        }
+        CloudServer cloudServer = cloudServerApi.get("453534534534534");
+        logger.info("cloudServer is " + cloudServer);
+        Assert.assertNull(cloudServer);
     }
 
     @Test

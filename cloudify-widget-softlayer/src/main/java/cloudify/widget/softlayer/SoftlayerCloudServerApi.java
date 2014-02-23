@@ -108,12 +108,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void rebuild(String id) {
         logger.info("rebooting : [{}]", id);
-        computeService.rebootNode(id);
+        throw new UnsupportedOperationException("this driver does not support this operation");
     }
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
-        logger.info("connecting");
         if (!( connectDetails instanceof SoftlayerConnectDetails )){
             throw new RuntimeException("expected SoftlayerConnectDetails implementation");
         }

@@ -24,7 +24,7 @@ public interface CloudServerApi {
     /**
      * get CloudServer by id
      * @param serverId - the server id
-     * @return CloudServer
+     * @return CloudServer - null if does not exists. otherwise CloudServer from the cloud.
      */
 	public CloudServer get( String serverId );
 
