@@ -6,6 +6,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.IOException;
@@ -50,9 +51,15 @@ public class EmbeddedJetty {
     }
 
     private static WebApplicationContext getContext() {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(CONFIG_LOCATION);
+
+        XmlWebApplicationContext context = new XmlWebApplicationContext();
+//        context.
         context.getEnvironment().setDefaultProfiles(DEFAULT_PROFILE);
+
+
+//        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+//        context.setConfigLocation(CONFIG_LOCATION);
+//        context.getEnvironment().setDefaultProfiles(DEFAULT_PROFILE);
         return context;
     }
 
