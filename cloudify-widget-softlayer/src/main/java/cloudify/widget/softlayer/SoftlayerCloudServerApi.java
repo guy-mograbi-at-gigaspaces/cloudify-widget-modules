@@ -23,8 +23,13 @@ import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
+
+
+import org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaDataLocal;
+import org.jclouds.softlayer.reference.SoftLayerConstants;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,12 +110,11 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     @Override
     public void rebuild( String id ) {
         logger.info("rebooting : [{}]", id);
-        computeService.rebootNode(id);
+        throw new UnsupportedOperationException("this driver does not support this operation");
     }
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
-        logger.info("connecting");
         if (!( connectDetails instanceof SoftlayerConnectDetails )){
             throw new RuntimeException("expected SoftlayerConnectDetails implementation");
         }
@@ -120,10 +124,15 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
-        logger.info("connecting");
-        computeService = computeServiceContext( connectDetails ).getComputeService();
-        if ( computeService == null ){
-            throw new RuntimeException("illegal credentials");
+        try{
+            logger.info("connecting");
+            computeService = computeServiceContext( connectDetails ).getComputeService();
+            if ( computeService == null ){
+                throw new RuntimeException("illegal credentials");
+            }
+        }catch(RuntimeException e){
+            logger.error("unable to connect softlayer context",e);
+            throw e;
         }
     }
 
@@ -141,6 +150,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
         ComputeServiceContext context;
         Properties overrides = new Properties();
+
+        // it is strange that we add a machine detail on the context, but it was less work.
+        overrides.setProperty(SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED_FIRST_PRICE_ID, connectDetails.networkId );
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
         if (connectDetails.isApiKey()) {
             overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
@@ -196,6 +208,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId( hardwareId );
         }
+
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }

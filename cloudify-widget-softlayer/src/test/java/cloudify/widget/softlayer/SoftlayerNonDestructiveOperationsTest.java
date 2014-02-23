@@ -2,7 +2,9 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
+import cloudify.widget.common.StringUtils;
 import junit.framework.Assert;
+import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -44,20 +48,13 @@ public class SoftlayerNonDestructiveOperationsTest {
     @Autowired
     public WaitTimeout waitMachineIsStoppedTimeout;
 
-    @Test
-    public void createMachine(){
-        cloudServerApi.connect( connectDetails );
-        cloudServerApi.create(machineOptions);
-    }
 
     @Test
-    public void killMachineWithPrefix(){
+    public void getInvalidId(){
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag("ibmp");
-        for (CloudServer cloudServer : ibmp) {
-            logger.info(cloudServer.getName());
-            cloudServerApi.delete(cloudServer.getId());
-        }
+        CloudServer cloudServer = cloudServerApi.get("453534534534534");
+        logger.info("cloudServer is " + cloudServer);
+        Assert.assertNull(cloudServer);
     }
 
     @Test
