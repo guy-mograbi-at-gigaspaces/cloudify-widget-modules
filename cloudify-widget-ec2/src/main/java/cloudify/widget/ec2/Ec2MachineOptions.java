@@ -95,4 +95,9 @@ public class Ec2MachineOptions implements MachineOptions {
     public OsFamily osFamily(){
         return osFamily;
     }
+
+    @Override
+    public String getMask() {
+        return tags;
+    }
 }
