@@ -14,7 +14,7 @@
     <groupId>cloudify.widget</groupId>
     <artifactId>cloudify-widget-pool-manager</artifactId>
     <version>1.0.0</version>
-    <name>${project.artifactId}</name>
+    <name>pool-manager</name>
 
     <dependencies>
         <dependency>
