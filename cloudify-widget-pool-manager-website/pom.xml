@@ -17,14 +17,7 @@
 
     <name>${project.artifactId}</name>
 
-    <properties>
-        <spring.version>3.2.5.RELEASE</spring.version>
-        <jetty.version>9.0.6.v20130930</jetty.version>
-        <!--<slf4j.version>1.7.5</slf4j.version>-->
-        <logback.version>1.0.9</logback.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
+
 
     <dependencies>
 
@@ -33,19 +26,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
+            <version>3.2.4.RELEASE</version>
+
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
+            <version>3.2.4.RELEASE</version>
         </dependency>
 
         <!-- Jetty embedded -->
@@ -53,21 +41,32 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
+            <version>8.1.10.v20130312</version>
         </dependency>
 
         <!-- Logging -->
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4jVersion}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.9</version>
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4jVersion}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.4.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloudify.widget</groupId>
+            <artifactId>cloudify-widget-pool-manager</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
     </dependencies>
@@ -134,18 +133,18 @@
 
             <!-- Jetty -->
 
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${jetty.version}</version>
-                <configuration>
-                    <httpConnector>
-                        <port>8011</port>
-                        <host>localhost</host>
-                    </httpConnector>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.eclipse.jetty</groupId>-->
+                <!--<artifactId>jetty-maven-plugin</artifactId>-->
+                <!--<version>8.1.10.v20130312</version>-->
+                <!--<configuration>-->
+                    <!--<httpConnector>-->
+                        <!--<port>8011</port>-->
+                        <!--<host>localhost</host>-->
+                    <!--</httpConnector>-->
+                    <!--<scanIntervalSeconds>10</scanIntervalSeconds>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

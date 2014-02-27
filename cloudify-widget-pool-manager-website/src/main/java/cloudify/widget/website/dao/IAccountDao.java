@@ -6,5 +6,10 @@ package cloudify.widget.website.dao;
  * Date: 2/27/14
  * Time: 10:39 AM
  */
-public class IAccountDao {
+public interface IAccountDao {
+
+    public void addAccount( String uuid );
+
+    public void removeAccount( String uuid );
+
 }

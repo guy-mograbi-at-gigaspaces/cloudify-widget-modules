@@ -1,10 +1,26 @@
 package cloudify.widget.website.dao;
 
+import cloudify.widget.pool.manager.PoolSettings;
+import cloudify.widget.website.models.PoolConfigurationModel;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
  * Date: 2/27/14
  * Time: 10:40 AM
  */
-public class IPoolDao {
+public interface IPoolDao {
+
+    /**
+     * saves model and returns ID
+     * @param poolSettings
+     * @return
+     */
+    public Long createPool( PoolConfigurationModel poolSettings );
+
+    public void updatePool( PoolConfigurationModel poolSettings );
+
+    public void deletePool( PoolConfigurationModel poolSettings );
+
+    public PoolConfigurationModel readPool( Long id );
 }
