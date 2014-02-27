@@ -2,7 +2,6 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
-import cloudify.widget.common.CollectionUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.net.HostAndPort;
@@ -23,11 +22,8 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
-import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.compute.VirtualGuestToReducedNodeMetaDataLocal;
-import org.jclouds.softlayer.domain.*;
-import org.jclouds.softlayer.domain.OperatingSystem;
-import org.jclouds.softlayer.features.VirtualGuestClient;
+import org.jclouds.softlayer.compute.functions.VirtualGuestToReducedNodeMetaDataLocal;
+import org.jclouds.softlayer.reference.SoftLayerConstants;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
@@ -53,6 +49,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private boolean useCommandLineSsh;
     private ContextBuilder contextBuilder;
+
 
     public SoftlayerCloudServerApi(){
 
@@ -109,50 +106,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void rebuild( String id ) {
-        logger.info("rebooting : [{}]", id);
-        SoftlayerCloudServer cloudServer = ( SoftlayerCloudServer )get(id);
-        getApi( id );
-        computeService.rebootNode(id);
-
-
-/*
-        String imageId = ( ( SoftlayerCloudServer )cloudServer ).getImageId();
-        String zone = cloudify.widget.common.StringUtils.substringBefore( imageId, "/" );
-        String imageIdLocal = cloudify.widget.common.StringUtils.substringAfter( imageId, "/" );
-        String idLocal = StringUtils.substringAfter(id, "/");
-        logger.info("rebuilding [{}] that had image id [{}] idLocal [{}] with zone [{}] and imageIdLocal [{}]", id, imageId, idLocal, zone, imageIdLocal);
-
-        ServerApi serverApi = getApi(zone);
-*/
-
+        logger.info("rebuilding : [{}]", id);
+        throw new UnsupportedOperationException("this driver does not support this operation");
     }
-
-
-    private void getApi( String id ){
-        SoftLayerClient softlayerClient = contextBuilder.buildApi(SoftLayerClient.class);
-        VirtualGuestClient virtualGuestClient = softlayerClient.getVirtualGuestClient();
-        Set<VirtualGuest> virtualGuests = virtualGuestClient.listVirtualGuests();
-        long nodeId = Long.parseLong( id );
-        VirtualGuest virtualGuest = virtualGuestClient.getVirtualGuest( nodeId );
-        OperatingSystem operatingSystem = virtualGuest.getOperatingSystem();
-        PowerState powerState = virtualGuest.getPowerState();
-        Datacenter datacenter = virtualGuest.getDatacenter();
-
-        ProductOrder orderTemplate = virtualGuestClient.getOrderTemplate( nodeId );
-        virtualGuestClient.cancelService( nodeId );
-        ProductOrderReceipt productOrderReceipt = virtualGuestClient.orderVirtualGuest(orderTemplate);
-
-        logger.info("--getApi--");
-
-//        ServerApi serverApi = novaApi.getServerApiForZone(zone);
-//        return serverApi;
-    }
-
-
 
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
-        logger.info("connecting");
         if (!( connectDetails instanceof SoftlayerConnectDetails )){
             throw new RuntimeException("expected SoftlayerConnectDetails implementation");
         }
@@ -162,11 +121,15 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void connect() {
-        logger.info("connecting");
-        ComputeServiceContext computeServiceContext = computeServiceContext(connectDetails);
-        computeService = computeServiceContext.getComputeService();
-        if ( computeService == null ){
-            throw new RuntimeException("illegal credentials");
+        try{
+            logger.info("connecting");
+            computeService = computeServiceContext( connectDetails ).getComputeService();
+            if ( computeService == null ){
+                throw new RuntimeException("illegal credentials");
+            }
+        }catch(RuntimeException e){
+            logger.error("unable to connect softlayer context",e);
+            throw e;
         }
     }
 
@@ -184,7 +147,13 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
         ComputeServiceContext context;
         Properties overrides = new Properties();
+
+        // it is strange that we add a machine detail on the context, but it was less work.
+        overrides.setProperty(SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED_FIRST_PRICE_ID, connectDetails.networkId );
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        if (connectDetails.isApiKey()) {
+            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        }
 
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);
@@ -236,6 +205,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId( hardwareId );
         }
+
         if( !StringUtils.isEmpty( locationId ) ){
             templateBuilder.locationId(locationId);
         }

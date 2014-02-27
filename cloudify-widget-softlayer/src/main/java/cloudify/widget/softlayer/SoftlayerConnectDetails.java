@@ -12,6 +12,11 @@ public class SoftlayerConnectDetails implements IConnectDetails {
     public String username;
     public String key;
 
+    /**
+     * this should've been on the template builder, but it was simpler to add it on the context.
+     */
+    public String networkId;
+
     public String getUsername() {
         return username;
     }
@@ -27,6 +32,24 @@ public class SoftlayerConnectDetails implements IConnectDetails {
 
     public SoftlayerConnectDetails setKey(String key) {
         this.key = key;
+        return this;
+    }
+
+    public boolean isApiKey() {
+        return isApiKey;
+    }
+
+    public SoftlayerConnectDetails setApiKey(boolean isApiKey) {
+        this.isApiKey = isApiKey;
+        return this;
+    }
+
+    public String getNetworkId() {
+        return networkId;
+    }
+
+    public SoftlayerConnectDetails setNetworkId(String networkId) {
+        this.networkId = networkId;
         return this;
     }
 }

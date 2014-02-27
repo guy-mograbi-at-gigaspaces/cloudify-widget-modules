@@ -11,6 +11,7 @@
     <bean id="connectDetails" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
         <property name="username" value="${connectDetails.user}"/>
         <property name="key" value="${connectDetails.key}"/>
+        <property name="networkId" value="274"/>
     </bean>
 
 
@@ -20,7 +21,7 @@
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
         <property name="tag" value="testsoft"/> <!-- should be only lowercase! (DNS naming constraints) -->
-        <property name="hardwareId" value="1640,2238,13899"/>
+        <property name="hardwareId" value="1643,21275,13887"/>
         <property name="locationId" value="37473"/>
         <property name="osFamily" value="CENTOS"/>
         <property name="machinesCount" value="1"/>
