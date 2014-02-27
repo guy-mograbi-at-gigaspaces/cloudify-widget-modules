@@ -89,4 +89,9 @@ public class SoftlayerMachineOptions implements MachineOptions {
     public String getHardwareId() {
         return hardwareId;
     }
+
+    @Override
+    public String getMask() {
+        return tag;
+    }
 }

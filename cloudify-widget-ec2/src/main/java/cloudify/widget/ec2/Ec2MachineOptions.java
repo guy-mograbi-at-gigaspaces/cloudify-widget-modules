@@ -1,6 +1,9 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.common.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jclouds.compute.domain.OsFamily;
 
 import java.util.Arrays;
 
@@ -12,6 +15,7 @@ public class Ec2MachineOptions implements MachineOptions {
 
     private String name;
     private int machinesCount;
+    private OsFamily osFamily;
     private String locationId;
     private String hardwareId;
     private String imageId;
@@ -81,5 +85,19 @@ public class Ec2MachineOptions implements MachineOptions {
 
     public String imageId(){
         return imageId;
+    }
+
+    public Ec2MachineOptions setOsFamily( OsFamily osFamily ){
+        this.osFamily = osFamily;
+        return this;
+    }
+
+    public OsFamily osFamily(){
+        return osFamily;
+    }
+
+    @Override
+    public String getMask() {
+        return tags;
     }
 }

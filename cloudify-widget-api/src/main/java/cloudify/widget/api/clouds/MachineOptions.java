@@ -7,4 +7,5 @@ package cloudify.widget.api.clouds;
  * Time: 1:54 PM
  */
 public interface MachineOptions {
+    public String getMask();
 }
