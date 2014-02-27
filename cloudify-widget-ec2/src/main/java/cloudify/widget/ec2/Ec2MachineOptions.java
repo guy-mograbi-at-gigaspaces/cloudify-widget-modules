@@ -1,6 +1,9 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.common.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jclouds.compute.domain.OsFamily;
 
 import java.util.Arrays;
 
@@ -81,5 +84,10 @@ public class Ec2MachineOptions implements MachineOptions {
 
     public String imageId(){
         return imageId;
+    }
+
+    @Override
+    public String getMask() {
+        return tags;
     }
 }

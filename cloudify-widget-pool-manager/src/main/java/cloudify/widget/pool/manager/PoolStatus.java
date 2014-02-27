@@ -75,7 +75,7 @@ public class PoolStatus {
         return CollectionUtils.select( machineModels.values(), new Predicate() {
             @Override
             public boolean evaluate(Object object) {
-                return finalItems.containsKey( ((MachineModel)object).getMachineId());
+                return !finalItems.containsKey( ((MachineModel)object).getMachineId());
             }
         });
     }
@@ -86,6 +86,15 @@ public class PoolStatus {
 //
 //    }
 
+    public int getTotalNodes(){
+        return machineStatuses.size();
+    }
+
+
+
+    public int getTotalModels(){
+        return machineModels.size();
+    }
     public static class MachineModelWithStatus{
         public MachineModel machineModel;
         public PoolMachineStatus poolMachineStatus;
@@ -117,15 +126,13 @@ public class PoolStatus {
     public Collection<PoolMachineStatus> getMachineStatusWithoutModel(){
 
         final Map<MachineId, MachineModel> finalMachineModels = machineModels;
-        List<PoolMachineStatus> result = new LinkedList<PoolMachineStatus>();
 
-        CollectionUtils.select(machineStatuses.values(), new Predicate() {
+        return CollectionUtils.select(machineStatuses.values(), new Predicate() {
             @Override
             public boolean evaluate(Object object) {
                 return !finalMachineModels.containsKey(((PoolMachineStatus) object).getMachineId());
             }
         });
-        return result;
     }
 
     public int getMachineStatusWithoutModelCount(){

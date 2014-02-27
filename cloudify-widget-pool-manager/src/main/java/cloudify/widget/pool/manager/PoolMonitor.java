@@ -2,6 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.softlayer.SoftlayerCloudServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ public class PoolMonitor {
     public PoolStatus getPoolStatus(){
         serverApi.connect();
         Collection<CloudServer> allMachinesWithTag = serverApi.getAllMachinesWithTag(tag);
+        logger.info("there are [{}] machines with tag [{}]", allMachinesWithTag.size(), tag);
         return getPoolStatus( allMachinesWithTag );
     }
 
@@ -41,10 +43,13 @@ public class PoolMonitor {
         serverApi.connect();
         PoolStatus status = new PoolStatus();
 
+
         List<Thread> threads = new LinkedList<Thread>();
+        int i = 0;
         for (CloudServer cloudServer : servers) {
 
             if ( cloudServer.isRunning() ){
+                i++;
                 GetMachineStatus task = new GetMachineStatus();
                 task.setBootstrapMonitor(bootstrapMonitor);
                 task.setPublicIp(cloudServer.getServerIp().publicIp);
@@ -54,9 +59,13 @@ public class PoolMonitor {
                 Thread t = new Thread(task);
                 t.start();
                 threads.add(t);
+            }else{
+                logger.info("status is [{}]", ((SoftlayerCloudServer) cloudServer).getStatus());
             }
 
         }
+
+        logger.info("all in all found [{}] running servers",i);
 
         for (MachineModel machineModel : poolDao.getMachines()) {
             status.machineModels.put(machineModel.getMachineId(), machineModel);
@@ -93,13 +102,17 @@ public class PoolMonitor {
 
 
     public static class GetMachineStatus implements Runnable{
+        public static int i = 0;
         BootstrapMonitor bootstrapMonitor;
         String publicIp;
         PoolStatus status;
         CloudServerApi serverApi;
         @Override
         public void run() {
+            try{
+            i++;
             PoolMachineStatus item = new PoolMachineStatus();
+
 
             boolean cloudifyManagementAvailable = bootstrapMonitor.isCloudifyManagementAvailable(publicIp);
             logger.debug("bootstrap is available [{}] on ip [{}]", cloudifyManagementAvailable, publicIp);
@@ -113,6 +126,10 @@ public class PoolMonitor {
                 logger.info("BLU is down at : " + publicIp);
             }
 
+                if ( item.managementAvailable && item.applicationIsOnline ){
+                    logger.info( publicIp + " should be ok ");
+                }
+
             item.ip = publicIp;
 
 //            try{
@@ -125,6 +142,9 @@ public class PoolMonitor {
 //            }
 
             status.machineStatuses.put(item.getMachineId(), item);
+            }catch(Exception e){
+                logger.error("there are exceptions ",e);
+            }
         }
 
         public BootstrapMonitor getBootstrapMonitor() {

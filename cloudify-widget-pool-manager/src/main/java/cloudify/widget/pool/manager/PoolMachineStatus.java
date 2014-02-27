@@ -16,4 +16,11 @@ public class PoolMachineStatus {
     public MachineId getMachineId(){
         return new MachineId(ip);
     }
+
+    @Override
+    public String toString() {
+        return "PoolMachineStatus{" +
+                "ip='" + ip + '\'' +
+                '}';
+    }
 }
