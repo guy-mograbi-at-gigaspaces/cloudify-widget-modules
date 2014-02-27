@@ -18,6 +18,8 @@ public class SoftlayerConnectDetails implements IConnectDetails {
      */
     public String networkId;
 
+    public SoftlayerConnectDetails() {}
+
     public String getUsername() {
         return username;
     }

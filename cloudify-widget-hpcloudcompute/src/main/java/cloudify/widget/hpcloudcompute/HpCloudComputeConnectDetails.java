@@ -16,6 +16,8 @@ public class HpCloudComputeConnectDetails implements IConnectDetails {
     private String secretKey;
     private String password;
 
+    public HpCloudComputeConnectDetails() {}
+
     public HpCloudComputeConnectDetails( String user, String project, String key, String secretKey, String password ) {
         this.user = user;
         this.project = project;
