@@ -47,16 +47,18 @@ public class MySqlOperationsTest {
 
         PoolConfigurationModel poolConfigurationModel = poolDao.readPool(poolId1);
         logger.info( "Pool with id [{}] was [{}]", poolId1, poolConfigurationModel != null ? "found" : "not found" );
-//        Assert.assertNotNull( "retrieved PoolConfiguration id [", poolConfigurationModel );
+        Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId1 + "] should not be null", poolConfigurationModel );
 
         poolConfigurationModel = poolDao.readPool(poolId2);
+        Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId2 + "] should not be null", poolConfigurationModel );
         logger.info( "Pool with id [{}] was ", poolId2, poolConfigurationModel != null ? "found" : "not found" );
 
         boolean pool1Deleted = poolDao.deletePool(poolId1);
         logger.info( "Pool with id [{}] was ", poolId1, pool1Deleted ? "deleted" : "not deleted" );
+        Assert.assertTrue("PoolConfiguration with id [" + poolId1 + "] was not deleted", pool1Deleted);
 
         boolean pool2Deleted = poolDao.deletePool(poolId2);
-        logger.info( "Pool with id [{}] was [{}]", poolId2, pool2Deleted ? "deleted" : "not deleted" );
+        Assert.assertTrue("PoolConfiguration with id [" + poolId2 + "] was not deleted", pool2Deleted);
     }
 
     @Test
@@ -72,9 +74,10 @@ public class MySqlOperationsTest {
         logger.info( "Account 2 created, uuid [{}], id [{}]", accountModel2.getUuid(), accountId2 );
 
         boolean account1Deleted = accountDao.deleteAccount( accountId1 );
-        logger.info( "Account with id [{}] was ", accountId1, account1Deleted ? "deleted" : "not deleted" );
+        Assert.assertTrue("Account with id [" + accountId1 + "] was not deleted", account1Deleted);
+
         boolean account2Deleted = accountDao.deleteAccount( accountId2 );
-        logger.info( "Account with id [{}] was ", accountId2, account2Deleted ? "deleted" : "not deleted" );
+        Assert.assertTrue("Account with id [" + accountId2 + "] was not deleted", account2Deleted);
 
     }
 
