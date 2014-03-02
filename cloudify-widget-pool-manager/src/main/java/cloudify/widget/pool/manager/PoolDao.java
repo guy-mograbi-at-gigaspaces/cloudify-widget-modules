@@ -1,6 +1,5 @@
 package cloudify.widget.pool.manager;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -17,13 +16,13 @@ import java.util.List;
  */
 public class PoolDao {
     private JdbcTemplate jdbcTemplate;
-    private BasicDataSource bds;
+//    private BasicDataSource bds;
 
-    public void setDataSource( DataSource dataSource ){
+    public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<MachineModel> getMachines(){
+    public List<MachineModel> getMachines() {
         return jdbcTemplate.query("select * from server_node", new MachineModelMapper());
     }
 

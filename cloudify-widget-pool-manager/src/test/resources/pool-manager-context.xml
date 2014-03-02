@@ -8,6 +8,8 @@
     <context:component-scan base-package="cloudify.widget.pool.manager" />
 
 
+    <bean id="manager" class="cloudify.widget.pool.manager.PoolManager"></bean>
+
     <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.settings.ManagerSettingsFileLoader">
         <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
     </bean>

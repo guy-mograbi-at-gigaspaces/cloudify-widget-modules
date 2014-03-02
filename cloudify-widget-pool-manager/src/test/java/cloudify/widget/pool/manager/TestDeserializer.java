@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.tests;
+package cloudify.widget.pool.manager;
 
 import cloudify.widget.hpcloudcompute.HpCloudComputeConnectDetails;
 import cloudify.widget.pool.manager.settings.ManagerSettingsHandler;
@@ -40,7 +40,7 @@ public class TestDeserializer {
 
         ProviderSettings hpProviderSettings = null;
         for (PoolSettings pool : managerSettings.pools) {
-            if ("hp".equals(pool.provider.name)) {
+            if (ProviderSettings.ProviderName.hp == pool.provider.name) {
                 hpProviderSettings = pool.provider;
                 break;
             }
