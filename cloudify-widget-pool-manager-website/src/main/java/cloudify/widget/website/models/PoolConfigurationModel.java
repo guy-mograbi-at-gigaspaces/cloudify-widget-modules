@@ -12,7 +12,7 @@ public class PoolConfigurationModel {
 
     public Long id;
 
-    public PoolSettings poolSettings;
+    public PoolSettings poolSettings; //in db is of TEXT type
 
     public Long accountId;
 

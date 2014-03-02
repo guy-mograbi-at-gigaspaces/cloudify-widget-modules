@@ -1,5 +1,7 @@
 package cloudify.widget.website.dao;
 
+import cloudify.widget.website.models.AccountModel;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -8,8 +10,8 @@ package cloudify.widget.website.dao;
  */
 public interface IAccountDao {
 
-    public void addAccount( String uuid );
+    public Long createAccount( AccountModel account );
 
-    public void removeAccount( String uuid );
+    public boolean deleteAccount( Long id );
 
 }
