@@ -47,7 +47,7 @@ public class MySqlOperationsTest {
 
         PoolConfigurationModel poolConfigurationModel = poolDao.readPool(poolId1);
         logger.info( "Pool with id [{}] was [{}]", poolId1, poolConfigurationModel != null ? "found" : "not found" );
-        Assert.assertNotNull( "retrieved PoolConfiguration id [" + , poolConfigurationModel );
+//        Assert.assertNotNull( "retrieved PoolConfiguration id [", poolConfigurationModel );
 
         poolConfigurationModel = poolDao.readPool(poolId2);
         logger.info( "Pool with id [{}] was ", poolId2, poolConfigurationModel != null ? "found" : "not found" );
@@ -84,7 +84,7 @@ public class MySqlOperationsTest {
         PoolSettings poolSettings = new PoolSettings();
         poolSettings.name = poolSettingsStr;
         poolModel.setPoolSettings( poolSettings );
-                                                                      m
+
         return poolModel;
     }
 
