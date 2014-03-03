@@ -3,6 +3,8 @@ package cloudify.widget.softlayer;
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
 import cloudify.widget.common.StringUtils;
+import cloudify.widget.common.MachineIsRunningCondition;
+import cloudify.widget.common.WaitTimeout;
 import junit.framework.Assert;
 import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
@@ -151,26 +153,6 @@ public class SoftlayerNonDestructiveOperationsTest {
 
     public void setWaitMachineIsRunningTimeout( WaitTimeout waitTimeout ){
         this.waitMachineIsRunningTimeout = waitTimeout;
-    }
-
-    public static class MachineIsRunningCondition implements WaitTimeout.Condition {
-        public CloudServer machine;
-
-        @Override
-        public boolean apply() {
-            return machine.isRunning();
-        }
-
-        public void setMachine(CloudServer machine) {
-            this.machine = machine;
-        }
-
-        @Override
-        public String toString() {
-            return "MachineIsRunningCondition{" +
-                    "machine=" + machine +
-                    '}';
-        }
     }
 
     public static class MachineIsStoppedCondition implements WaitTimeout.Condition{

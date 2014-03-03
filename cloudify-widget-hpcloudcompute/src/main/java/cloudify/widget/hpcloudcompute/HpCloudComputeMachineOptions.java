@@ -12,7 +12,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
 
     private String name;
     private int machinesCount;
-    private String zone;
     private String hardwareId;
     private String imageId;
     private String tags;
@@ -54,15 +53,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
 
     public int machinesCount() {
         return machinesCount;
-    }
-
-    public HpCloudComputeMachineOptions setZone( String zone ){
-        this.zone = zone;
-        return this;
-    }
-
-    public String zone(){
-        return zone;
     }
 
     public HpCloudComputeMachineOptions setHardwareId( String hardwareId ){

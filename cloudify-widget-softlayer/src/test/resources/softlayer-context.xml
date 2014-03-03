@@ -9,7 +9,6 @@
     <context:property-placeholder location="conf/dev/me.conf"/>
 
     <bean id="connectDetails" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
-        <property name="apiKey" value="true"/>
         <property name="username" value="${connectDetails.user}"/>
         <property name="key" value="${connectDetails.key}"/>
         <property name="networkId" value="274"/>
@@ -17,7 +16,7 @@
 
 
     <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
-        <property name="useCommandLineSsh" value="${cloudServer.useCommandLineSsh}" />
+        <!--property name="useCommandLineSsh" value="${cloudServer.useCommandLineSsh}" /-->
     </bean>
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
@@ -28,6 +27,6 @@
         <property name="machinesCount" value="1"/>
     </bean>
 
-    <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.softlayer.WaitTimeout"/>
-    <bean id="waitMachineIsStoppedTimeout" class="cloudify.widget.softlayer.WaitTimeout"/>
+    <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.common.WaitTimeout"/>
+    <bean id="waitMachineIsStoppedTimeout" class="cloudify.widget.common.WaitTimeout"/>
 </beans>

@@ -10,28 +10,21 @@ import cloudify.widget.api.clouds.IConnectDetails;
  */
 public class HpCloudComputeConnectDetails implements IConnectDetails {
 
-    private String user;
     private String project;
     private String key;
     private String secretKey;
-    private String password;
+    private String apiVersion;
 
-    public HpCloudComputeConnectDetails() {}
 
-    public HpCloudComputeConnectDetails( String user, String project, String key, String secretKey, String password ) {
-        this.user = user;
+    public HpCloudComputeConnectDetails( String project, String key, String secretKey ) {
+        this( project, key, secretKey, "1.1" );
+    }
+
+    public HpCloudComputeConnectDetails( String project, String key, String secretKey, String apiVersion ) {
         this.project = project;
         this.key = key;
         this.secretKey = secretKey;
-        this.password = password;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
+        this.apiVersion = apiVersion;
     }
 
     public String getProject() {
@@ -58,11 +51,11 @@ public class HpCloudComputeConnectDetails implements IConnectDetails {
         this.secretKey = secretKey;
     }
 
-    public String getPassword() {
-        return password;
+    public String getApiVersion() {
+        return apiVersion;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setApiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
     }
 }

@@ -4,10 +4,12 @@ package cloudify.widget.hpcloudcompute;
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
@@ -15,8 +17,10 @@ import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
-import org.jclouds.logging.config.NullLoggingModule;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
+import org.jclouds.openstack.nova.v2_0.config.NovaProperties;
+import org.jclouds.openstack.nova.v2_0.domain.FloatingIP;
+import org.jclouds.openstack.nova.v2_0.extensions.FloatingIPApi;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
 import org.jclouds.openstack.nova.v2_0.options.RebuildServerOptions;
 import org.jclouds.ssh.SshClient;
@@ -41,6 +45,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     private ComputeServiceContext computeServiceContext;
     private ComputeService computeService;
     private HpCloudComputeConnectDetails connectDetails;
+
+    private static final String IMAGE_DELIMETER = "/";
 
     public HpCloudComputeCloudServerApi() {
     }
@@ -89,7 +95,6 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         }
     }
 
-
     private ServerApi getApi( String zone ){
         NovaApi novaApi = contextBuilder.buildApi(NovaApi.class);
         ServerApi serverApi = novaApi.getServerApiForZone( zone );
@@ -101,21 +106,17 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
 
         HpCloudComputeCloudServer cloudServer = ( HpCloudComputeCloudServer )get(id);
         String imageId = cloudServer.getImageId();
-        String zone = cloudify.widget.common.StringUtils.substringBefore( imageId, "/" );
+        String zone = cloudify.widget.common.StringUtils.substringBefore(imageId, IMAGE_DELIMETER);
+        String imageIdLocal = cloudify.widget.common.StringUtils.substringAfter( imageId, IMAGE_DELIMETER );
+
+        String idLocal = StringUtils.substringAfter(id, IMAGE_DELIMETER);
+        logger.info("rebuilding [{}] that had image id [{}] idLocal [{}] with zone [{}] and imageIdLocal [{}]", id, imageId, idLocal, zone, imageIdLocal);
+
         ServerApi serverApi = getApi(zone);
 
-        RebuildServerOptions rebuildServerOptions = RebuildServerOptions.Builder.withImage( imageId );
+        RebuildServerOptions rebuildServerOptions = RebuildServerOptions.Builder.withImage( imageIdLocal );
 
-/*
-        RebuildServerOptions options = new RebuildServerOptions().
-                withImage(server.getImage().getId()).
-                name("newName").
-                adminPass("password").
-                ipv4Address("1.1.1.1").
-                ipv6Address("fe80::100");
-*/
-
-        serverApi.rebuild( id, rebuildServerOptions );
+        serverApi.rebuild( idLocal, rebuildServerOptions );
     }
 
 
@@ -130,12 +131,18 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         String name = hpCloudMachineOptions.name();
         int machinesCount = hpCloudMachineOptions.machinesCount();
         Template template = createTemplate(hpCloudMachineOptions);
-        Set<? extends NodeMetadata> newNodes;
+        Set<? extends NodeMetadata> newNodes = null;
         try {
             newNodes = computeService.createNodesInGroup( name, machinesCount, template );
         }
-        catch (org.jclouds.compute.RunNodesException e) {
+        catch( Throwable e) {
             if( logger.isErrorEnabled() ){
+                if( newNodes != null ){
+                    logger.info( "Create Hp cloud node failed, newNodes: [{}] ", Arrays.toString( newNodes.toArray() ) );
+                }
+                else{
+                    logger.info( "newNodes: [{}] ", newNodes );
+                }
                 logger.error( "Create Hp cloud node failed", e );
             }
             throw new RuntimeException( e );
@@ -145,12 +152,55 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long totalTimeSec = ( endTime - startTime )/1000;
         logger.info( "After create new node, creating took [" + ( totalTimeSec ) + "] sec." );
 
+        String apiVersion = connectDetails.getApiVersion();
+        float apiVersionNum = Float.parseFloat( apiVersion );
+        logger.info( "Using apiVersionNum is [{}]", apiVersionNum );
+        if( apiVersionNum >= 2 ){
+            logger.info( "Handling floating IP since using api version [{}]", apiVersionNum );
+            for( NodeMetadata nodeMetadata : newNodes ){
+                associateFloatingIp( nodeMetadata );
+            }
+        }
+
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
             newNodesList.add( new HpCloudComputeCloudServerCreated( newNode ) );
         }
 
         return newNodesList;
+    }
+
+    private void associateFloatingIp( NodeMetadata nodeMetadata ) {
+
+        String zone = cloudify.widget.common.StringUtils.substringBefore( nodeMetadata.getImageId(), IMAGE_DELIMETER );
+        String id = cloudify.widget.common.StringUtils.substringAfter( nodeMetadata.getId(), IMAGE_DELIMETER );
+
+        logger.info( "associating IP for id [{}} and zone [{}]", id, zone );
+        NovaApi novaApi = contextBuilder.buildApi(NovaApi.class);
+
+        Optional<? extends FloatingIPApi> floatingIPExtensionForZone = novaApi.getFloatingIPExtensionForZone( zone );
+        FloatingIPApi floatingIPApi =  floatingIPExtensionForZone.get();
+
+        logger.info( "floatingIPExtensionForZone for zone [{}} is [{}]", zone, floatingIPExtensionForZone );
+        FluentIterable<? extends FloatingIP> floatingIPs = floatingIPApi.list();
+
+        if( floatingIPs.isEmpty() ){
+            throw new RuntimeException( "There are no available floating IPs for id [" + id +
+                                        "] and zone [" + zone + "]. Unable to continue." );
+        }
+
+        logger.info( "floating IP addresses: ", Arrays.toString(floatingIPs.toList().toArray()) );
+
+        Optional<? extends FloatingIP> firstOptionalFloatingIp = floatingIPs.first();
+        FloatingIP firstFloatingIP = firstOptionalFloatingIp.get();
+
+
+        firstFloatingIP = floatingIPApi.get(firstFloatingIP.getId());
+        String address = firstFloatingIP.getIp();
+
+        logger.info( "FloatingIP, add IP to server id [{}], address [{}], firstFloatingIP [{}]", id, address, firstFloatingIP );
+        //add floating IP tp specific instance/node
+        floatingIPApi.addToServer( address, id );
     }
 
     @Override
@@ -183,50 +233,57 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     public ComputeServiceContext computeServiceContext(HpCloudComputeConnectDetails connectDetails) {
 
         contextBuilder = createContextBuilder();
-                /*.name(user)*/;
         ComputeServiceContext context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }
 
     private ContextBuilder createContextBuilder(){
-        String user = connectDetails.getUser();
+
         String project = connectDetails.getProject();
         String key = connectDetails.getKey();
-//        String password = connectDetails.getPassword();
         String secretKey = connectDetails.getSecretKey();
         String identity = project + ":" + key;
+        String apiVersion = connectDetails.getApiVersion();
 
-        logger.info("creating compute service context");
+        logger.info("creating compute service context, using [{}] apiVersion, identity is [{}]", apiVersion, identity );
 
         String cloudProvider = CloudProvider.HP.label;
         logger.info("building new context for provider [{}]", cloudProvider);
 
         Properties overrides = new Properties();
-        overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        overrides.setProperty("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        overrides.setProperty(NovaProperties.AUTO_ALLOCATE_FLOATING_IPS, Boolean.FALSE.toString());
 
         ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
+                .apiVersion(apiVersion)
                 .credentials(identity, secretKey)
-                .overrides(overrides);
+                .overrides(overrides)
+                .modules(ImmutableSet.<Module>of(new SshjSshClientModule()));
 
         return contextBuilder;
     }
 
     private Template createTemplate( HpCloudComputeMachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
+ /*
+        Set<? extends Image> images = computeService.listImages();
+        Set<? extends Hardware> hardwares = computeService.listHardwareProfiles();
+        Set<? extends ComputeMetadata> listNodes = computeService.listNodes();
+        Set<? extends Location> locations = computeService.listAssignableLocations();
 
+        logger.info( "images [{}]", Arrays.toString( images.toArray() ) );
+        logger.info( "hardwares [{}]", Arrays.toString( hardwares.toArray() ) );
+        logger.info( "listNodes [{}]", Arrays.toString( listNodes.toArray() ) );
+        logger.info( "locations [{}]", Arrays.toString( locations.toArray() ) );
+*/
         String hardwareId = machineOptions.hardwareId();
-//        String locationId = machineOptions.locationId();
         String imageId = machineOptions.imageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
         }
-/*
-        if( !StringUtils.isEmpty( locationId ) ){
-            templateBuilder.locationId(locationId);
-        }
-*/
+
         if( !StringUtils.isEmpty( imageId ) ){
             templateBuilder.imageId(imageId);
         }
@@ -255,20 +312,33 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
 
         HpCloudComputeSshDetails hpCloudSshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = "ubuntu";//hpCloudSshDetails.user();
+        String user = "debian";//hpCloudSshDetails.user();
         String privateKey = hpCloudSshDetails.privateKey();
         int port = hpCloudSshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
-        Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
-        SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
+        SshClient.Factory factory = computeServiceContext.getUtils().getSshClientFactory();
         LoginCredentials loginCredentials = LoginCredentials.builder().user(user).privateKey(privateKey).build();
-
         SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
                 loginCredentials );
         ExecResponse execResponse = null;
+        boolean connectionSucceeded = false;
+        int attemptsCount = 0;
         try{
-            sshConnection.connect();
+            while( !connectionSucceeded && attemptsCount < 10 ){
+                try{
+                    Thread.sleep( 1*1000 );
+                    sshConnection.connect();
+                    connectionSucceeded = true;
+                }
+                catch( Exception e ){
+                    attemptsCount++;
+                    logger.info( "failed to ssh connect, going to sleep..." );
+                }
+            }
+            if( !connectionSucceeded ){
+                throw new RuntimeException( "SSH connect failed" );
+            }
             logger.info("ssh connected, executing");
             execResponse = sshConnection.exec(script);
             logger.info("finished execution");

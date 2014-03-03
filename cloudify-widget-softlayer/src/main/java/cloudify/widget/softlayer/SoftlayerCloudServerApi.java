@@ -43,11 +43,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudServerApi.class);
 
-    private ComputeService computeService = null;
+    private ComputeService computeService;
 
     private SoftlayerConnectDetails connectDetails;
 
     private boolean useCommandLineSsh;
+    private ContextBuilder contextBuilder;
 
 
     public SoftlayerCloudServerApi(){
@@ -68,7 +69,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return computeMetadata.getName().startsWith(tag);
+                return tag == null || computeMetadata.getName().startsWith(tag);
             }
         });
 
@@ -105,7 +106,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     @Override
     public void rebuild( String id ) {
-        logger.info("rebooting : [{}]", id);
+        logger.info("rebuilding : [{}]", id);
         throw new UnsupportedOperationException("this driver does not support this operation");
     }
 
@@ -150,17 +151,18 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         // it is strange that we add a machine detail on the context, but it was less work.
         overrides.setProperty(SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED_FIRST_PRICE_ID, connectDetails.networkId );
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
-        if (connectDetails.isApiKey()) {
-            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
-        }
+        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        //if (connectDetails.isApiKey()) {
+        overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        //}
 
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);
-        context = ContextBuilder.newBuilder(cloudProvider)
+        contextBuilder = ContextBuilder.newBuilder(cloudProvider)
                 .credentials(connectDetails.getUsername(), connectDetails.getKey())
                 .overrides(overrides)
-                .modules(modules)
-                .buildView(ComputeServiceContext.class);
+                .modules(modules);
+        context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }

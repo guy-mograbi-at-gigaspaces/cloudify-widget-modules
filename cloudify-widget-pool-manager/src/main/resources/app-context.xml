@@ -26,7 +26,6 @@
 
     <beans profile="softlayer">
         <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
-            <property name="apiKey" value="true"/>
             <property name="key" value="${softlayer_api_key}"/>
             <property name="username" value="${softlayer_user}"/>
             <property name="networkId" value="274"/>

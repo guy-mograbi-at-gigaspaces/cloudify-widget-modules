@@ -20,7 +20,7 @@ public interface IPoolDao {
 
     public void updatePool( PoolConfigurationModel poolSettings );
 
-    public void deletePool( PoolConfigurationModel poolSettings );
+    public boolean deletePool( Long id );
 
     public PoolConfigurationModel readPool( Long id );
 }
