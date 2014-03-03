@@ -1,6 +1,5 @@
 package cloudify.widget.website.dao;
 
-import cloudify.widget.pool.manager.PoolSettings;
 import cloudify.widget.website.models.PoolConfigurationModel;
 
 /**
