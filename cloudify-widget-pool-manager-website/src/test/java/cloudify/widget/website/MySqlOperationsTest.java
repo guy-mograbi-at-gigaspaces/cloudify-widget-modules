@@ -48,10 +48,25 @@ public class MySqlOperationsTest {
         PoolConfigurationModel poolConfigurationModel = poolDao.readPool(poolId1);
         logger.info( "Pool with id [{}] was [{}]", poolId1, poolConfigurationModel != null ? "found" : "not found" );
         Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId1 + "] should not be null", poolConfigurationModel );
+        Assert.assertEquals( "Retrieved account Id is not as expected", poolModel1.getAccountId(), poolConfigurationModel.getAccountId() );
+        Assert.assertEquals( "Retrieved pool configuration is not as expected", poolModel1.getPoolSettings().name, poolConfigurationModel.getPoolSettings().name );
 
         poolConfigurationModel = poolDao.readPool(poolId2);
-        Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId2 + "] should not be null", poolConfigurationModel );
         logger.info( "Pool with id [{}] was ", poolId2, poolConfigurationModel != null ? "found" : "not found" );
+        Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId2 + "] should not be null", poolConfigurationModel );
+        Assert.assertEquals("Retrieved account Id is not as expected", poolModel2.getAccountId(), poolConfigurationModel.getAccountId());
+        Assert.assertEquals( "Retrieved pool configuration is not as expected", poolModel2.getPoolSettings().name, poolConfigurationModel.getPoolSettings().name );
+
+        PoolConfigurationModel updatedPoolModel1 = createPoolConfigurationModel( (long)111, "updated_content_test1" );
+        updatedPoolModel1.setId( poolId1 );
+        poolDao.updatePool( updatedPoolModel1 );
+
+        PoolConfigurationModel updatedPoolConfigurationModel = poolDao.readPool(poolId1);
+        logger.info( "Updated Pool with id [{}] was ", poolId1, updatedPoolConfigurationModel != null ? "found" : "not found" );
+        Assert.assertEquals("Retrieved account Id is not as expected", updatedPoolModel1.getAccountId(), updatedPoolConfigurationModel.getAccountId());
+        Assert.assertEquals( "Retrieved pool configuration is not as expected", updatedPoolModel1.getPoolSettings().name, updatedPoolConfigurationModel.getPoolSettings().name );
+
+
 
         boolean pool1Deleted = poolDao.deletePool(poolId1);
         logger.info( "Pool with id [{}] was ", poolId1, pool1Deleted ? "deleted" : "not deleted" );

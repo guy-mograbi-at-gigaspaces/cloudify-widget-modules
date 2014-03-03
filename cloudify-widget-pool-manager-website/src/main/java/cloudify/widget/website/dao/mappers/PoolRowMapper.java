@@ -22,6 +22,7 @@ public class PoolRowMapper implements RowMapper{
         poolSettings.name = rs.getString( "pool_setting" );
 
         poolConfigurationModel.setPoolSettings( poolSettings );
+        poolConfigurationModel.setAccountId( rs.getLong( "account_id" ) );
 
         return poolConfigurationModel;
     }

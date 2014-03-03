@@ -5,6 +5,7 @@ import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.PoolConfigurationModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.object.SqlUpdate;
 
 import java.sql.Types;
 import java.util.HashMap;
@@ -45,14 +46,20 @@ public class PoolDaoImpl implements IPoolDao {
     }
 
     @Override
-    public void updatePool(PoolConfigurationModel poolSettings) {
+    public void updatePool( PoolConfigurationModel poolSettings ) {
+        Long accountId = poolSettings.getAccountId();
+        Long id = poolSettings.getId();
+        PoolSettings settings = poolSettings.getPoolSettings();
+        String poolSettingsName = settings.name;
 
+        jdbcTemplate.update( "update " + TABLE_NAME +
+               " set account_id = ?, pool_setting = ? where id = ?", accountId, poolSettingsName, id );
     }
 
     @Override
     public boolean deletePool( Long id ) {
         String delQuery = "delete from " + TABLE_NAME + " where id = ?";
-        int count = jdbcTemplate.update(delQuery, new Object[] { id });
+        int count = jdbcTemplate.update(delQuery, new Object[]{id});
         return count > 0;
     }
 
