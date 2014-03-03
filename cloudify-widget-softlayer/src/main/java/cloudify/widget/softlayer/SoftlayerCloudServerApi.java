@@ -151,9 +151,10 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         // it is strange that we add a machine detail on the context, but it was less work.
         overrides.setProperty(SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED_FIRST_PRICE_ID, connectDetails.networkId );
         overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
-        if (connectDetails.isApiKey()) {
-            overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
-        }
+        overrides.put("jclouds.timeouts.AccountClient.getActivePackages", String.valueOf(10 * 60 * 1000));
+        //if (connectDetails.isApiKey()) {
+        overrides.put("jclouds.keystone.credential-type", "apiAccessKeyCredentials");
+        //}
 
         String cloudProvider = CloudProvider.SOFTLAYER.label;
         logger.info("building new context for provider [{}]", cloudProvider);

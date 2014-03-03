@@ -35,15 +35,6 @@ public class SoftlayerConnectDetails implements IConnectDetails {
         return this;
     }
 
-    public boolean isApiKey() {
-        return isApiKey;
-    }
-
-    public SoftlayerConnectDetails setApiKey(boolean isApiKey) {
-        this.isApiKey = isApiKey;
-        return this;
-    }
-
     public String getNetworkId() {
         return networkId;
     }

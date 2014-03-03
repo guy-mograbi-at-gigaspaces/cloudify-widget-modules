@@ -72,4 +72,9 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
     public String imageId(){
         return imageId;
     }
+
+    @Override
+    public String getMask() {
+        return null;
+    }
 }
