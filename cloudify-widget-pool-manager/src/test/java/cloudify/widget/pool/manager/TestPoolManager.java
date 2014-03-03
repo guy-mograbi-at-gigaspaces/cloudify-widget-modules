@@ -1,10 +1,9 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolStatus;
-import cloudify.widget.pool.manager.settings.ManagerSettingsHandler;
-import cloudify.widget.pool.manager.settings.dto.ManagerSettings;
-import cloudify.widget.pool.manager.settings.dto.PoolSettings;
-import cloudify.widget.pool.manager.settings.dto.ProviderSettings;
+import cloudify.widget.pool.manager.dto.ManagerSettings;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,59 +27,35 @@ import java.util.List;
 @ActiveProfiles({"softlayer","ibmprod"})
 public class TestPoolManager {
 
-    @Autowired
-    private PoolDao poolDao;
+    private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
 
     @Autowired
     private PoolManager poolManager;
 
-    @Autowired
-    private ManagerSettingsHandler managerSettingsHandler;
-
-    private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
-
-    @Test
-    public void testJdbConnection(){
-        List<MachineModel> machines = poolDao.getMachines();
-        logger.info("I have [{}] machines", machines);
-    }
-
     @Test
     public void testManagerApi() {
 
-        ManagerSettings managerSettings = managerSettingsHandler.read();
-        PoolSettings poolSettings = null;
+        ManagerSettings managerSettings = poolManager.getSettings();
+
+        // get softlayer pool settings
+        PoolSettings softlayerPoolSettings = null;
         for (PoolSettings ps : managerSettings.pools) {
-            // get softlayer pool settings
             if (ps.provider.name == ProviderSettings.ProviderName.softlayer) {
-                poolSettings = ps;
+                softlayerPoolSettings = ps;
                 break;
             }
         }
 
-        Assert.notNull(poolSettings, "pool settings should not be null");
+        Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
-        PoolStatus poolStatus = poolManager.getStatus(poolSettings);
+        PoolStatus poolStatus = poolManager.getStatus(softlayerPoolSettings);
 
         Assert.notNull(poolStatus, "pool status should not be null");
 
-        logger.info("poolStatus.minNodes [{}]", poolStatus.minNodes);
-        logger.info("poolStatus.maxNodes [{}]", poolStatus.maxNodes);
-        logger.info("poolStatus.currentSize [{}]", poolStatus.currentSize);
-
-        Assert.isTrue(poolStatus.currentSize >= poolStatus.minNodes && poolStatus.currentSize <= poolStatus.maxNodes);
+        Assert.isTrue(poolStatus.currentSize >= poolStatus.minNodes && poolStatus.currentSize <= poolStatus.maxNodes,
+                String.format("current size [%s] must be greater than or equal to min size [%s] and less than or equal to max size [%s]",
+                        poolStatus.currentSize, poolStatus.minNodes, poolStatus.maxNodes));
 
     }
 
-    public void setManagerSettingsHandler(ManagerSettingsHandler managerSettingsHandler) {
-        this.managerSettingsHandler = managerSettingsHandler;
-    }
-
-    public PoolDao getPoolDao() {
-        return poolDao;
-    }
-
-    public void setPoolDao(PoolDao poolDao) {
-        this.poolDao = poolDao;
-    }
 }

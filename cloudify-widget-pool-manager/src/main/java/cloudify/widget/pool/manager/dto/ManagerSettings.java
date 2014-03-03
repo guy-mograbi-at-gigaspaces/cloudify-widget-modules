@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.settings.dto;
+package cloudify.widget.pool.manager.dto;
 
 import java.util.LinkedList;
 import java.util.List;

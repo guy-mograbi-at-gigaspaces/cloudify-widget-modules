@@ -3,7 +3,7 @@ package cloudify.widget.pool.manager;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.ec2.Ec2CloudServerApi;
 import cloudify.widget.hpcloudcompute.HpCloudComputeCloudServerApi;
-import cloudify.widget.pool.manager.settings.dto.ProviderSettings;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
 import cloudify.widget.softlayer.SoftlayerCloudServerApi;
 
 /**

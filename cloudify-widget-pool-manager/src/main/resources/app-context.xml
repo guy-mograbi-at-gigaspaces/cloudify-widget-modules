@@ -9,19 +9,20 @@
     <context:property-placeholder location="classpath:/conf/dev/me.properties"/>
 
 
+
+    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
+        <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
+    </bean>
+
+    <bean id="managerSettingsHandler" class="cloudify.widget.pool.manager.ManagerSettingsJsonHandler">
+        <property name="managerSettingsFileLoader" ref="managerSettingsLoader" />
+    </bean>
+
+
     <bean id="bootstrapMonitor" class="cloudify.widget.pool.manager.BootstrapMonitor">
             <property name="applicationUrlPattern" value="https://%s:8443"/>
     </bean>
 
-
-    <bean id="cleanPool" class="cloudify.widget.pool.manager.tasks.CleanPool">
-        <property name="cloudServerApi"  ref="cloudServer"/>
-        <property name="tag"  value="${tag}"/>
-    </bean>
-    
-    <bean id="monitorPool" class="cloudify.widget.pool.manager.tasks.MonitorPool">
-        <property name="poolMonitor" ref="poolMonitor"/>
-    </bean>
 
     <beans profile="softlayer">
         <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
@@ -58,12 +59,6 @@
 
 
     <beans profile="ibmprod">
-        <bean id="poolMonitor" class="cloudify.widget.pool.manager.PoolMonitor">
-            <property name="tag" value="${tag}"/>
-            <property name="serverApi" ref="cloudServer"/>
-            <property name="bootstrapMonitor" ref="bootstrapMonitor"/>
-            <property name="poolDao" ref="poolDao"/>
-        </bean>
     </beans>
 
 

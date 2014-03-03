@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.settings;
+package cloudify.widget.pool.manager;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

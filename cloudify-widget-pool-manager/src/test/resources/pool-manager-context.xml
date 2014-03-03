@@ -10,12 +10,4 @@
 
     <bean id="manager" class="cloudify.widget.pool.manager.PoolManager"></bean>
 
-    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.settings.ManagerSettingsFileLoader">
-        <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
-    </bean>
-
-    <bean id="managerSettingsHandler" class="cloudify.widget.pool.manager.settings.ManagerSettingsJsonHandler">
-        <property name="managerSettingsFileLoader" ref="managerSettingsLoader" />
-    </bean>
-
 </beans>
