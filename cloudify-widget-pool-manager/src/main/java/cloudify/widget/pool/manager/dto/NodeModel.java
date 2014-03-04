@@ -7,11 +7,13 @@ package cloudify.widget.pool.manager.dto;
  */
 public class NodeModel {
 
+    public static final int INITIAL_ID = -1;
+
     public static enum NodeStatus {
         CREATING, BOOTSTRAPPING, READY, OCCUPIED;
     }
 
-    public long id;
+    public long id = INITIAL_ID;
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
