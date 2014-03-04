@@ -18,6 +18,9 @@ import java.util.Map;
 public class AccountDaoImpl implements IAccountDao {
 
     private static final String TABLE_NAME = "account";
+    private static final String delQuery = "delete from " + TABLE_NAME + " where id = ?";
+    private static final String sql = "select * from " + TABLE_NAME + " where uuid = ?";
+
     private JdbcTemplate jdbcTemplate;
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
@@ -43,15 +46,13 @@ public class AccountDaoImpl implements IAccountDao {
 
     @Override
     public boolean deleteAccount( Long id ) {
-        String delQuery = "delete from " + TABLE_NAME + " where id = ?";
+
         int count = jdbcTemplate.update(delQuery, new Object[]{id});
         return count > 0;
     }
 
     @Override
     public AccountModel readAccountByUuid( String uuid ) {
-
-        String sql = "select * from " + TABLE_NAME + " where uuid = ?";
 
         AccountModel accountModel  =
                 ( AccountModel )jdbcTemplate.queryForObject(sql, new Object[]{uuid}, new AccountRowMapper());

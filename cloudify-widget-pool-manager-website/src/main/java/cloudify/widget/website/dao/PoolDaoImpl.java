@@ -26,13 +26,14 @@ public class PoolDaoImpl implements IPoolDao {
     private static final String TABLE_NAME = "pool_configuration";
 
     private JdbcTemplate jdbcTemplate;
+    private final static String delQuery = "delete from " + TABLE_NAME + " where id = ?";
+    private final static String selectSql = "select * from " + TABLE_NAME + " where id = ?";
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static{
-//        objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -53,7 +54,6 @@ public class PoolDaoImpl implements IPoolDao {
                 logger.error( "Unable to parse poolSetting to JSON", e );
             }
         }
-
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).
                 withTableName(TABLE_NAME).
                 usingGeneratedKeyColumns("id");
@@ -72,7 +72,7 @@ public class PoolDaoImpl implements IPoolDao {
         Long accountId = poolSettings.getAccountId();
         Long id = poolSettings.getId();
         PoolSettings settings = poolSettings.getPoolSettings();
-        String poolSettingsJson = parsePoolSettingToJson( settings );
+        String poolSettingsJson = parsePoolSettingToJson(settings);
 
         jdbcTemplate.update( "update " + TABLE_NAME +
                " set account_id = ?, pool_setting = ? where id = ?", accountId, poolSettingsJson, id );
@@ -80,7 +80,6 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public boolean deletePool( Long id ) {
-        String delQuery = "delete from " + TABLE_NAME + " where id = ?";
         int count = jdbcTemplate.update(delQuery, new Object[]{id});
         return count > 0;
     }
@@ -88,10 +87,8 @@ public class PoolDaoImpl implements IPoolDao {
     @Override
     public PoolConfigurationModel readPool(Long id) {
 
-        String sql = "select * from " + TABLE_NAME + " where id = ?";
-
-        PoolConfigurationModel poolConfigurationModel  =
-                ( PoolConfigurationModel )jdbcTemplate.queryForObject(sql, new Object[]{id}, new PoolRowMapper( objectMapper ));
+        PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )
+                jdbcTemplate.queryForObject(selectSql, new Object[]{id}, new PoolRowMapper( objectMapper ));
         return poolConfigurationModel;
     }
 
