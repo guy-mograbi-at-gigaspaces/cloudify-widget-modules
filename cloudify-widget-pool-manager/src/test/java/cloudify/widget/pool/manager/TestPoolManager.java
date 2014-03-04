@@ -134,7 +134,7 @@ public class TestPoolManager {
 
         Assert.isTrue(affectedByUpdate == 1, "exactly one node should be updated");
 
-        logger.info("reading node after update... using id [{}]", nodeModel.id);
+        logger.info("reading node after update, using id [{}]...", nodeModel.id);
         NodeModel node = poolManager.getNode(nodeModel.id);
         logger.info("got node [{}]", node);
 
@@ -143,8 +143,14 @@ public class TestPoolManager {
         Assert.isTrue(node.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPING,
                 String.format("node status should be updated to [%s], but is [%s]", NodeModel.NodeStatus.BOOTSTRAPPING.name(), node.nodeStatus));
 
-        // TODO test removeNode()
+        logger.info("removing node with id [{}]...", node.id);
+        poolManager.removeNode(node.id);
 
+        logger.info("reading node after remove, using id [{}]...", nodeModel.id);
+        node = poolManager.getNode(nodeModel.id);
+        logger.info("got node [{}]", node);
+
+        Assert.isNull(node);
     }
 
     private PoolSettings getSoftlayerPoolSettings(ManagerSettings managerSettings) {

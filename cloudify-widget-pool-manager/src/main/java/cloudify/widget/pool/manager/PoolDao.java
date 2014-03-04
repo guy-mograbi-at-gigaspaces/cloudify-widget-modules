@@ -2,6 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.NodeModel;
 import com.mysql.jdbc.Statement;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -68,9 +69,13 @@ public class PoolDao {
     }
 
     public NodeModel read(long nodeId) {
-        return jdbcTemplate.queryForObject("select * from nodes where " + NODE_ID + " = ?",
-                new Object[]{nodeId},
-                new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
+        try {
+            return jdbcTemplate.queryForObject("select * from nodes where " + NODE_ID + " = ?",
+                    new Object[]{nodeId},
+                    new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public int update(NodeModel nodeModel) {
@@ -78,7 +83,7 @@ public class PoolDao {
                 nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, nodeModel.cloudifyVersion, nodeModel.id);
     }
 
-    public int delete(String id) {
+    public int delete(long id) {
         return jdbcTemplate.update("delete from nodes where id = ?", id);
     }
 

@@ -60,7 +60,7 @@ public class PoolManager {
         return poolDao.create(nodeModel);
     }
 
-    public int removeNode(String nodeId) {
+    public int removeNode(long nodeId) {
         return poolDao.delete(nodeId);
     }
 
