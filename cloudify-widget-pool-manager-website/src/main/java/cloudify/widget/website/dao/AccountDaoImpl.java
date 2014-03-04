@@ -1,6 +1,9 @@
 package cloudify.widget.website.dao;
 
+import cloudify.widget.website.dao.mappers.AccountRowMapper;
+import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;
+import cloudify.widget.website.models.PoolConfigurationModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
@@ -43,5 +46,15 @@ public class AccountDaoImpl implements IAccountDao {
         String delQuery = "delete from " + TABLE_NAME + " where id = ?";
         int count = jdbcTemplate.update(delQuery, new Object[]{id});
         return count > 0;
+    }
+
+    @Override
+    public AccountModel readAccountByUuid( String uuid ) {
+
+        String sql = "select * from " + TABLE_NAME + " where uuid = ?";
+
+        AccountModel accountModel  =
+                ( AccountModel )jdbcTemplate.queryForObject(sql, new Object[]{uuid}, new AccountRowMapper());
+        return accountModel;
     }
 }

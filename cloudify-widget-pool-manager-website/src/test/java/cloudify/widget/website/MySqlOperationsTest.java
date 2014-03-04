@@ -88,6 +88,14 @@ public class MySqlOperationsTest {
         Long accountId2 = accountDao.createAccount(accountModel2);
         logger.info( "Account 2 created, uuid [{}], id [{}]", accountModel2.getUuid(), accountId2 );
 
+        AccountModel readAccountModel1 = accountDao.readAccountByUuid(accountModel1.getUuid());
+        Assert.assertEquals("uuid of read account is not as expected ", accountModel1.getUuid(), readAccountModel1.getUuid() );
+        Assert.assertEquals("id of read account is not as expected ", accountId1, readAccountModel1.getId() );
+
+        AccountModel readAccountModel2 = accountDao.readAccountByUuid(accountModel2.getUuid());
+        Assert.assertEquals("uuid of read account is not as expected ", accountModel2.getUuid(), readAccountModel2.getUuid() );
+        Assert.assertEquals("id of read account is not as expected ", accountId2, readAccountModel2.getId() );
+
         boolean account1Deleted = accountDao.deleteAccount( accountId1 );
         Assert.assertTrue("Account with id [" + accountId1 + "] was not deleted", account1Deleted);
 

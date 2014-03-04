@@ -14,4 +14,5 @@ public interface IAccountDao {
 
     public boolean deleteAccount( Long id );
 
+    public AccountModel readAccountByUuid( String uuid );
 }
