@@ -22,4 +22,6 @@ public interface IPoolDao {
     public boolean deletePool( Long id );
 
     public PoolConfigurationModel readPool( Long id );
+
+    public PoolConfigurationModel readPoolByAccountId( Long accountId );
 }

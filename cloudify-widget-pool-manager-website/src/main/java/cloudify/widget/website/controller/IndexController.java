@@ -70,7 +70,7 @@ public class IndexController {
     @ResponseBody
     public ResponseEntity<String> getPoolConfiguration( @PathVariable("accountId") Long accountId ) {
 
-        PoolConfigurationModel poolConfigurationModel = poolDao.readPool( accountId );
+        PoolConfigurationModel poolConfigurationModel = poolDao.readPoolByAccountId( accountId );
         ResponseEntity<String> retValue;
 
         if( poolConfigurationModel == null ) {
