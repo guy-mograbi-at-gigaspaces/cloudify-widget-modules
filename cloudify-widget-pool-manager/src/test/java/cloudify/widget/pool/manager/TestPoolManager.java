@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,6 +32,7 @@ import java.util.List;
 @ActiveProfiles({"softlayer", "ibmprod"})
 public class TestPoolManager {
 
+    private static final String SCHEMA = "pool_manager_test";
     private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
 
     @Autowired
@@ -41,14 +43,24 @@ public class TestPoolManager {
 
     @Before
     public void init() {
-        String statement = readSqlFromFile("init.sql");
-        jdbcTemplate.update(statement);
+
+        jdbcTemplate.update("create schema " + SCHEMA);
+        jdbcTemplate.update("use " + SCHEMA);
+
+        // going through all files under the 'sql' folder, and executing all of them.
+        Iterator<File> sqlFileIterator = org.apache.commons.io.FileUtils.iterateFiles(
+                FileUtils.getFileInClasspath("sql"), new String[]{"sql"}, false);
+        while (sqlFileIterator.hasNext()) {
+            File file = sqlFileIterator.next();
+            String statement = readSqlFromFile(file);
+            jdbcTemplate.update(statement);
+        }
+
     }
 
     @After
     public void destroy() {
-        String statement = readSqlFromFile("destroy.sql");
-        jdbcTemplate.update(statement);
+        jdbcTemplate.update("drop schema " + SCHEMA);
     }
 
     @Test
@@ -176,8 +188,7 @@ public class TestPoolManager {
         return softlayerPoolSettings;
     }
 
-    private String readSqlFromFile(String filePath) {
-        File file = FileUtils.getFileInClasspath(filePath);
+    private String readSqlFromFile(File file) {
 
         String statement = null;
         try {
