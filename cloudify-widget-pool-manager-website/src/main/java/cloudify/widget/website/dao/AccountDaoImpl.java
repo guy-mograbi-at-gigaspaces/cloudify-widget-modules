@@ -1,13 +1,10 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.dao.mappers.AccountRowMapper;
-import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;
-import cloudify.widget.website.models.PoolConfigurationModel;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
-import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 

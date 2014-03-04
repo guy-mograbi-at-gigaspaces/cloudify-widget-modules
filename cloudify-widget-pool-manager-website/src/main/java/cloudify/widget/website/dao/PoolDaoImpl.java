@@ -5,15 +5,12 @@ import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.PoolConfigurationModel;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.object.SqlUpdate;
 
 import java.io.IOException;
-import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
