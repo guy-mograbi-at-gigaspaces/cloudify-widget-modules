@@ -1,5 +1,6 @@
 package cloudify.widget.pool.manager;
 
+import cloudify.widget.common.FileUtils;
 import cloudify.widget.pool.manager.dto.*;
 import org.junit.After;
 import org.junit.Before;
@@ -15,7 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
 
-import javax.sql.DataSource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,8 @@ import java.util.List;
  * Time: 4:42 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:app-context.xml", "classpath:pool-manager-context.xml"})
-@ActiveProfiles({"softlayer","ibmprod"})
+@ContextConfiguration(locations = {"classpath:app-context.xml", "classpath:pool-manager-test-context.xml"})
+@ActiveProfiles({"softlayer", "ibmprod"})
 public class TestPoolManager {
 
     private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
@@ -36,48 +36,25 @@ public class TestPoolManager {
     @Autowired
     private PoolManager poolManager;
 
-/*
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-*/
 
     @Before
     public void init() {
-
-/*
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader("/init.sql"));
-        } catch (FileNotFoundException e) {
-            logger.error("failed to find sql file", e);
-        }
-
-        LineNumberReader fileReader = new LineNumberReader(in);
-        String statement = null;
-        try {
-            statement = JdbcTestUtils.readScript(fileReader);
-        } catch (IOException e) {
-            logger.error("failed to read script from file");
-        }
-
+        String statement = readSqlFromFile("init.sql");
         jdbcTemplate.update(statement);
-*/
-
     }
 
     @After
     public void destroy() {
-
+        String statement = readSqlFromFile("destroy.sql");
+        jdbcTemplate.update(statement);
     }
 
     @Test
     public void test() {
-
+        Assert.notNull(jdbcTemplate);
     }
-
 
     @Test
     public void testPoolStatus() {
@@ -98,7 +75,6 @@ public class TestPoolManager {
                         poolStatus.currentSize, poolStatus.minNodes, poolStatus.maxNodes));
 
     }
-
 
 
     @Test
@@ -186,6 +162,7 @@ public class TestPoolManager {
         Assert.isNull(node, String.format("node should be null after it is removed, but instead returned [%s]", node));
     }
 
+
     private PoolSettings getSoftlayerPoolSettings(ManagerSettings managerSettings) {
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = null;
@@ -197,6 +174,20 @@ public class TestPoolManager {
             }
         }
         return softlayerPoolSettings;
+    }
+
+    private String readSqlFromFile(String filePath) {
+        File file = FileUtils.getFileInClasspath(filePath);
+
+        String statement = null;
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(file));
+            LineNumberReader fileReader = new LineNumberReader(in);
+            statement = JdbcTestUtils.readScript(fileReader);
+        } catch (IOException e) {
+            logger.error("failed to read sql script from file", e);
+        }
+        return statement;
     }
 
 }

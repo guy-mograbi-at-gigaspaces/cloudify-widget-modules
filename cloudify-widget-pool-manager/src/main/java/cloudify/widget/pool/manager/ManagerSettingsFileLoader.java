@@ -1,11 +1,8 @@
 package cloudify.widget.pool.manager;
 
-import org.apache.commons.io.FileUtils;
+import cloudify.widget.common.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-
-import java.io.IOException;
 
 /**
  * User: eliranm
@@ -33,13 +30,7 @@ public class ManagerSettingsFileLoader {
             throw new RuntimeException("manager settings file not configured, please fix configuration for managerSettingsFilePath");
         }
 
-        ClassPathResource resource = new ClassPathResource(managerSettingsFilePath);
-        String content = null;
-        try {
-            content = FileUtils.readFileToString(resource.getFile());
-        } catch (IOException e) {
-            logger.error(String.format("failed to read manager settings file from path [%s]", managerSettingsFilePath), e);
-        }
+        String content = FileUtils.readFileInClasspathToString(managerSettingsFilePath);
         logger.debug("manager settings file read, content is [{}]", content);
         return content;
     }

@@ -15,6 +15,7 @@ public class HpCloudComputeConnectDetails implements IConnectDetails {
     private String secretKey;
     private String apiVersion;
 
+    public HpCloudComputeConnectDetails() {}
 
     public HpCloudComputeConnectDetails( String project, String key, String secretKey ) {
         this( project, key, secretKey, "1.1" );
