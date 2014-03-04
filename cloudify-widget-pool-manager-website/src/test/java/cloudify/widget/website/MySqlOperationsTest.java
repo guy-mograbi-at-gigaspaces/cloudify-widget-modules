@@ -1,6 +1,9 @@
 package cloudify.widget.website;
 
-import cloudify.widget.pool.manager.PoolSettings;
+import cloudify.widget.pool.manager.PoolManager;
+import cloudify.widget.pool.manager.dto.ManagerSettings;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -31,40 +34,64 @@ public class MySqlOperationsTest {
     @Autowired
     private IPoolDao poolDao;
 
+    public void setPoolManager(PoolManager poolManager) {
+        this.poolManager = poolManager;
+    }
+
+    @Autowired
+    private PoolManager poolManager;
+
+
+
     @Test
     public void testPool() {
 
-        PoolConfigurationModel poolModel1 = createPoolConfigurationModel( (long)1, "test1" );
-        PoolConfigurationModel poolModel2 = createPoolConfigurationModel( (long)2, "test2" );
+        PoolConfigurationModel poolModel1 = createPoolConfigurationModel( (long)1 );
+        PoolConfigurationModel poolModel2 = createPoolConfigurationModel( (long)2  );
 
-        Long poolId1 = poolDao.createPool( poolModel1 );
+        Long poolId1 = poolDao.createPool(poolModel1);
         logger.info( "Pool 1 created, poolSettings [{}], account Id [{}], id [{}]",
-                        poolModel1.getPoolSettings().name, poolModel1.getAccountId(), poolId1 );
+                        "authKey1", poolModel1.getAccountId(), poolId1 );
 
         Long poolId2 = poolDao.createPool( poolModel2 );
-        logger.info( "Pool 2 created, poolSettings [{}], account Id [{}], id [{}]",
-                poolModel2.getPoolSettings().name, poolModel2.getAccountId(), poolId2 );
+        logger.info( "Pool 2 created, account Id [{}], id [{}]", poolModel2.getAccountId(), poolId2 );
 
         PoolConfigurationModel poolConfigurationModel = poolDao.readPool(poolId1);
         logger.info( "Pool with id [{}] was [{}]", poolId1, poolConfigurationModel != null ? "found" : "not found" );
         Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId1 + "] should not be null", poolConfigurationModel );
         Assert.assertEquals( "Retrieved account Id is not as expected", poolModel1.getAccountId(), poolConfigurationModel.getAccountId() );
-        Assert.assertEquals( "Retrieved pool configuration is not as expected", poolModel1.getPoolSettings().name, poolConfigurationModel.getPoolSettings().name );
+        Assert.assertEquals( "Retrieved pool configuration authKey is not as expected", poolModel1.getPoolSettings().getAuthKey(), poolConfigurationModel.getPoolSettings().getAuthKey() );
+        Assert.assertEquals( "Retrieved pool configuration id is not as expected", poolModel1.getPoolSettings().getId(), poolConfigurationModel.getPoolSettings().getId() );
+        Assert.assertEquals( "Retrieved pool configuration max nodes is not as expected", poolModel1.getPoolSettings().getMaxNodes(), poolConfigurationModel.getPoolSettings().getMaxNodes() );
+        Assert.assertEquals( "Retrieved pool configuration min nodes is not as expected", poolModel1.getPoolSettings().getMinNodes(), poolConfigurationModel.getPoolSettings().getMinNodes() );
+        Assert.assertNotNull("Retrieved pool configuration cannot be null", poolConfigurationModel.getPoolSettings());
 
         poolConfigurationModel = poolDao.readPool(poolId2);
         logger.info( "Pool with id [{}] was ", poolId2, poolConfigurationModel != null ? "found" : "not found" );
         Assert.assertNotNull( "retrieved PoolConfiguration id [" + poolId2 + "] should not be null", poolConfigurationModel );
-        Assert.assertEquals("Retrieved account Id is not as expected", poolModel2.getAccountId(), poolConfigurationModel.getAccountId());
-        Assert.assertEquals( "Retrieved pool configuration is not as expected", poolModel2.getPoolSettings().name, poolConfigurationModel.getPoolSettings().name );
+        Assert.assertEquals( "Retrieved account Id is not as expected", poolModel2.getAccountId(), poolConfigurationModel.getAccountId() );
+        Assert.assertEquals( "Retrieved pool configuration authKey is not as expected", poolModel2.getPoolSettings().getAuthKey(), poolConfigurationModel.getPoolSettings().getAuthKey() );
+        Assert.assertEquals( "Retrieved pool configuration id is not as expected", poolModel2.getPoolSettings().getId(), poolConfigurationModel.getPoolSettings().getId() );
+        Assert.assertEquals( "Retrieved pool configuration max nodes is not as expected", poolModel2.getPoolSettings().getMaxNodes(), poolConfigurationModel.getPoolSettings().getMaxNodes() );
+        Assert.assertEquals("Retrieved pool configuration min nodes is not as expected", poolModel2.getPoolSettings().getMinNodes(), poolConfigurationModel.getPoolSettings().getMinNodes());
+        Assert.assertNotNull("Retrieved pool configuration cannot be null", poolConfigurationModel.getPoolSettings());
 
-        PoolConfigurationModel updatedPoolModel1 = createPoolConfigurationModel( (long)111, "updated_content_test1" );
+
+        ProviderSettings updatedProviderSettings = new ProviderSettings();
+        updatedProviderSettings.setName( ProviderSettings.ProviderName.hp );
+
+         PoolConfigurationModel updatedPoolModel1 = createPoolConfigurationModel( (long)1 );
         updatedPoolModel1.setId( poolId1 );
         poolDao.updatePool( updatedPoolModel1 );
 
         PoolConfigurationModel updatedPoolConfigurationModel = poolDao.readPool(poolId1);
         logger.info( "Updated Pool with id [{}] was ", poolId1, updatedPoolConfigurationModel != null ? "found" : "not found" );
         Assert.assertEquals("Retrieved account Id is not as expected", updatedPoolModel1.getAccountId(), updatedPoolConfigurationModel.getAccountId());
-        Assert.assertEquals( "Retrieved pool configuration is not as expected", updatedPoolModel1.getPoolSettings().name, updatedPoolConfigurationModel.getPoolSettings().name );
+        Assert.assertEquals( "Retrieved pool configuration authKey is not as expected", updatedPoolModel1.getPoolSettings().getAuthKey(), updatedPoolConfigurationModel.getPoolSettings().getAuthKey() );
+        Assert.assertEquals( "Retrieved pool configuration id is not as expected", updatedPoolModel1.getPoolSettings().getId(), updatedPoolConfigurationModel.getPoolSettings().getId() );
+        Assert.assertEquals("Retrieved pool configuration max nodes is not as expected", updatedPoolModel1.getPoolSettings().getMaxNodes(), updatedPoolConfigurationModel.getPoolSettings().getMaxNodes());
+        Assert.assertEquals( "Retrieved pool configuration min nodes is not as expected", updatedPoolModel1.getPoolSettings().getMinNodes(), updatedPoolConfigurationModel.getPoolSettings().getMinNodes() );
+        Assert.assertNotNull("Retrieved pool configuration cannot be null", poolConfigurationModel.getPoolSettings());
 
 
 
@@ -104,11 +131,14 @@ public class MySqlOperationsTest {
 
     }
 
-    private static PoolConfigurationModel createPoolConfigurationModel( long accountId, String poolSettingsStr ){
+    private PoolConfigurationModel createPoolConfigurationModel( long accountId ){
+
         PoolConfigurationModel poolModel = new PoolConfigurationModel();
         poolModel.setAccountId( accountId );
-        PoolSettings poolSettings = new PoolSettings();
-        poolSettings.name = poolSettingsStr;
+
+        ManagerSettings managerSettings = poolManager.getSettings();
+
+        PoolSettings poolSettings = managerSettings.getPools().get( 0 );
         poolModel.setPoolSettings( poolSettings );
 
         return poolModel;

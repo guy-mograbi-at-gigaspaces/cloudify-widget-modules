@@ -31,11 +31,21 @@
         <property name="jdbcTemplate" ref="jdbcTemplate"></property>
     </bean>
 
-    <!--
+    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
+        <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
+    </bean>
 
-    <bean id="poolDao" class="cloudify.widget.pool.manager.PoolDao">
+    <bean id="managerSettingsHandler" class="cloudify.widget.pool.manager.ManagerSettingsJsonHandler">
+        <property name="managerSettingsFileLoader" ref="managerSettingsLoader" />
+    </bean>
+
+    <bean id="managerPoolDao" class="cloudify.widget.pool.manager.PoolDao">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-    -->
+
+    <bean id="manager" class="cloudify.widget.pool.manager.PoolManager">
+        <property name="poolDao" ref="managerPoolDao" />
+        <property name="managerSettingsHandler" ref="managerSettingsHandler" />
+    </bean>
 
 </beans>
