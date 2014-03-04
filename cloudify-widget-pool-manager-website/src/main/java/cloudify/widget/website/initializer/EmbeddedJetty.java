@@ -1,14 +1,13 @@
 package cloudify.widget.website.initializer;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -23,7 +22,12 @@ public class EmbeddedJetty {
     private static final String MAPPING_URL = "/*";
     private static final String DEFAULT_PROFILE = "dev";
 
+    private static String configLocation;
+
     public static void main(String[] args) throws Exception {
+        if( !ArrayUtils.isEmpty( args ) ){
+            configLocation = args[ 0 ];
+        }
         new EmbeddedJetty().startJetty(getPortFromArgs(args));
     }
 
@@ -60,7 +64,12 @@ public class EmbeddedJetty {
     private static WebApplicationContext getContext() {
         XmlWebApplicationContext context = new XmlWebApplicationContext();
 //        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(CONFIG_LOCATION);
+        String[] configLocations = configLocation == null ?
+                new String[]{ CONFIG_LOCATION } : new String[]{ CONFIG_LOCATION, configLocation };
+        System.out.println("Setting:" + configLocation);
+
+        context.setConfigLocations(configLocations);
+
         context.getEnvironment().setDefaultProfiles(DEFAULT_PROFILE);
         return context;
     }

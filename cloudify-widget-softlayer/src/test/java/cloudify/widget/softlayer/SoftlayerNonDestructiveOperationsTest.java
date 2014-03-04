@@ -2,11 +2,9 @@ package cloudify.widget.softlayer;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CollectionUtils;
-import cloudify.widget.common.StringUtils;
 import cloudify.widget.common.MachineIsRunningCondition;
 import cloudify.widget.common.WaitTimeout;
 import junit.framework.Assert;
-import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -16,8 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
