@@ -9,5 +9,14 @@ import java.util.List;
 * Time: 3:21 PM
 */
 public class ManagerSettings {
-    public List<PoolSettings> pools = new LinkedList<PoolSettings>();
+
+    private List<PoolSettings> pools = new LinkedList<PoolSettings>();
+
+    public List<PoolSettings> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<PoolSettings> pools) {
+        this.pools = pools;
+    }
 }

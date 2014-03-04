@@ -14,10 +14,10 @@ public class Ec2ProviderSettings extends ProviderSettings {
     public Ec2MachineOptions machineOptions;
 
     public void setConnectDetails(Ec2ConnectDetails connectDetails) {
-        super.connectDetails = connectDetails;
+        super.setConnectDetails(connectDetails);
     }
 
     public void setMachineOptions(Ec2MachineOptions machineOptions) {
-        super.machineOptions = machineOptions;
+        super.setMachineOptions(machineOptions);
     }
 }

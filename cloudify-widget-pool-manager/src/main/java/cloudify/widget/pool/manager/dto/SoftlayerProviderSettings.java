@@ -14,10 +14,10 @@ public class SoftlayerProviderSettings extends ProviderSettings {
     public SoftlayerMachineOptions machineOptions;
 
     public void setConnectDetails(SoftlayerConnectDetails connectDetails) {
-        super.connectDetails = connectDetails;
+        super.setConnectDetails(connectDetails);
     }
 
     public void setMachineOptions(SoftlayerMachineOptions machineOptions) {
-        super.machineOptions = machineOptions;
+        super.setMachineOptions(machineOptions);
     }
 }
