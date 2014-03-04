@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -22,7 +23,8 @@ import java.io.IOException;
  * Time: 4:51 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:app-context.xml", "classpath:pool-manager-test-context.xml"})
+@ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
+@ActiveProfiles({"softlayer"})
 public class TestDeserializer {
 
     private static Logger logger = LoggerFactory.getLogger(TestDeserializer.class);
@@ -38,20 +40,20 @@ public class TestDeserializer {
         Assert.assertNotNull("manager settings should not be null", managerSettings);
 
         ProviderSettings hpProviderSettings = null;
-        for (PoolSettings pool : managerSettings.pools) {
-            if (ProviderSettings.ProviderName.hp == pool.provider.name) {
-                hpProviderSettings = pool.provider;
+        for (PoolSettings pool : managerSettings.getPools()) {
+            if (ProviderSettings.ProviderName.hp == pool.getProvider().getName()) {
+                hpProviderSettings = pool.getProvider();
                 break;
             }
         }
 
         Assert.assertNotNull(String.format("hp provider settings should be found in manager settings [%s]", managerSettings), hpProviderSettings);
 
-        Assert.assertNotNull("hp provider connect details settings should not be null", hpProviderSettings.connectDetails);
+        Assert.assertNotNull("hp provider connect details settings should not be null", hpProviderSettings.getConnectDetails());
 
         Assert.assertThat(
-                String.format("connect details for hp provider should be of type [%s], but instead found type [%s]", HpCloudComputeConnectDetails.class, hpProviderSettings.connectDetails.getClass()),
-                hpProviderSettings.connectDetails,
+                String.format("connect details for hp provider should be of type [%s], but instead found type [%s]", HpCloudComputeConnectDetails.class, hpProviderSettings.getConnectDetails().getClass()),
+                hpProviderSettings.getConnectDetails(),
                 CoreMatchers.instanceOf(HpCloudComputeConnectDetails.class));
     }
 

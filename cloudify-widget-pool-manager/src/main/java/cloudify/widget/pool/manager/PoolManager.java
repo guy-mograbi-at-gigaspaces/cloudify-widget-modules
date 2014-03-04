@@ -25,22 +25,22 @@ public class PoolManager {
 
     public PoolStatus getStatus(PoolSettings poolSettings) {
 
-        ProviderSettings provider = poolSettings.provider;
+        ProviderSettings provider = poolSettings.getProvider();
         if (provider == null) {
             throw new RuntimeException("provider not found in pool settings");
         }
 
         CloudServerApi cloudServerApi = getCloudServerApi(provider);
 
-        logger.debug("connecting to cloud server api [{}] using connect details [{}]", cloudServerApi, provider.connectDetails);
-        cloudServerApi.connect(provider.connectDetails);
+        logger.debug("connecting to cloud server api [{}] using connect details [{}]", cloudServerApi, provider.getConnectDetails());
+        cloudServerApi.connect(provider.getConnectDetails());
 
-        String mask = provider.machineOptions.getMask();
+        String mask = provider.getMachineOptions().getMask();
         logger.debug("returning status with mask [{}]", mask);
 
         return new PoolStatus()
-                .minNodes(poolSettings.minNodes)
-                .maxNodes(poolSettings.maxNodes)
+                .minNodes(poolSettings.getMinNodes())
+                .maxNodes(poolSettings.getMaxNodes())
                 .currentSize(cloudServerApi.getAllMachinesWithTag(mask).size());
     }
 
@@ -49,7 +49,7 @@ public class PoolManager {
     }
 
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
-        return poolDao.readAll(poolSettings.id);
+        return poolDao.readAll(poolSettings.getId());
     }
 
     public NodeModel getNode(long nodeId) {
@@ -70,7 +70,7 @@ public class PoolManager {
 
 
     private CloudServerApi getCloudServerApi(ProviderSettings provider) {
-        CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.name);
+        CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.getName());
         if (cloudServerApi == null) {
             throw new RuntimeException("cloud server api could not be instantiated");
         }

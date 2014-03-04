@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *     super.connectDetails = connectDetails;
  * }
  * </pre>
- *
+ * <p/>
  * <p>
  * or a null pointer exception will be thrown when calling:
  * </p>
@@ -38,10 +38,34 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public class ProviderSettings {
 
     public static enum ProviderName {
-        hp,softlayer,ec2;
+        hp, softlayer, ec2;
     }
 
-    public ProviderName name;
-    public IConnectDetails connectDetails;
-    public MachineOptions machineOptions;
+    private ProviderName name;
+    private IConnectDetails connectDetails;
+    private MachineOptions machineOptions;
+
+    public ProviderName getName() {
+        return name;
+    }
+
+    public void setName(ProviderName name) {
+        this.name = name;
+    }
+
+    public IConnectDetails getConnectDetails() {
+        return connectDetails;
+    }
+
+    public void setConnectDetails(IConnectDetails connectDetails) {
+        this.connectDetails = connectDetails;
+    }
+
+    public MachineOptions getMachineOptions() {
+        return machineOptions;
+    }
+
+    public void setMachineOptions(MachineOptions machineOptions) {
+        this.machineOptions = machineOptions;
+    }
 }

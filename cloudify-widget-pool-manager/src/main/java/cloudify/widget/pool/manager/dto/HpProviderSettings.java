@@ -14,10 +14,10 @@ public class HpProviderSettings extends ProviderSettings {
     public HpCloudComputeMachineOptions machineOptions;
 
     public void setConnectDetails(HpCloudComputeConnectDetails connectDetails) {
-        super.connectDetails = connectDetails;
+        super.setConnectDetails(connectDetails);
     }
 
     public void setMachineOptions(HpCloudComputeMachineOptions machineOptions) {
-        super.machineOptions = machineOptions;
+        super.setMachineOptions(machineOptions);
     }
 }

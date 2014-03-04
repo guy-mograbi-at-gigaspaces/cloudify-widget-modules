@@ -28,7 +28,7 @@ import java.util.List;
  * Time: 4:42 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:app-context.xml", "classpath:pool-manager-test-context.xml"})
+@ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
 @ActiveProfiles({"softlayer", "ibmprod"})
 public class TestPoolManager {
 
@@ -99,10 +99,10 @@ public class TestPoolManager {
         int nodesSize = 3;
         List<NodeModel> nodes = new ArrayList<NodeModel>(nodesSize);
 
-        logger.info("creating [{}] nodes for pool with provider [{}]...", nodesSize, softlayerPoolSettings.provider.name);
+        logger.info("creating [{}] nodes for pool with provider [{}]...", nodesSize, softlayerPoolSettings.getProvider().getName());
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
-                    .setPoolId(softlayerPoolSettings.id)
+                    .setPoolId(softlayerPoolSettings.getId())
                     .setNodeStatus(NodeModel.NodeStatus.CREATING)
                     .setMachineId("test_machine_id")
                     .setCloudifyVersion("1.1.0"));
@@ -134,11 +134,11 @@ public class TestPoolManager {
         Assert.isNull(readNode,
                 String.format("non existing node should be null when read from the pool, but instead returned [%s]", readNode));
 
-        logger.info("listing nodes for pool with provider [{}]...", softlayerPoolSettings.provider.name);
+        logger.info("listing nodes for pool with provider [{}]...", softlayerPoolSettings.getProvider().getName());
         List<NodeModel> softlayerNodeModels = poolManager.listNodes(softlayerPoolSettings);
         logger.info("returned nodes [{}]", softlayerNodeModels);
 
-        Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.id));
+        Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getId()));
         Assert.notEmpty(softlayerNodeModels, "nodes in softlayer pool should not be empty");
         Assert.isTrue(softlayerNodeModels.size() == nodesSize,
                 String.format("amount of nodes in softlayer pool should be [%s], but instead is [%s]", nodesSize, softlayerNodeModels.size()));
@@ -178,8 +178,8 @@ public class TestPoolManager {
     private PoolSettings getSoftlayerPoolSettings(ManagerSettings managerSettings) {
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = null;
-        for (PoolSettings ps : managerSettings.pools) {
-            if (ps.provider.name == ProviderSettings.ProviderName.softlayer) {
+        for (PoolSettings ps : managerSettings.getPools()) {
+            if (ps.getProvider().getName() == ProviderSettings.ProviderName.softlayer) {
                 logger.info("found softlayer pool settings [{}]", ps);
                 softlayerPoolSettings = ps;
                 break;
