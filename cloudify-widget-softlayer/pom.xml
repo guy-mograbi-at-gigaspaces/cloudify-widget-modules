@@ -13,11 +13,13 @@
     </parent>
 
     <dependencies>
+<!--
         <dependency>
             <groupId>cloudify.widget</groupId>
             <artifactId>modules</artifactId>
             <version>1.0.0</version>
         </dependency>
+-->
         <dependency>
             <groupId>cloudify.widget</groupId>
             <artifactId>common</artifactId>

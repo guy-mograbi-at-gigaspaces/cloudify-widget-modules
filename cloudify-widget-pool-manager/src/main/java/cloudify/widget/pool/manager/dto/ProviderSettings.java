@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.settings.dto;
+package cloudify.widget.pool.manager.dto;
 
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.api.clouds.MachineOptions;
@@ -33,9 +33,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         visible = true) // we want the 'name' property to be in the output as well
 @JsonSubTypes({
         @JsonSubTypes.Type(value = HpProviderSettings.class, name = "hp"),
+        @JsonSubTypes.Type(value = Ec2ProviderSettings.class, name = "ec2"),
         @JsonSubTypes.Type(value = SoftlayerProviderSettings.class, name = "softlayer")})
 public class ProviderSettings {
-    public String name;
+
+    public static enum ProviderName {
+        hp,softlayer,ec2;
+    }
+
+    public ProviderName name;
     public IConnectDetails connectDetails;
     public MachineOptions machineOptions;
 }

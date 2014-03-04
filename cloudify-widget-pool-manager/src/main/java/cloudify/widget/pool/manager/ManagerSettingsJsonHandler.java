@@ -1,6 +1,6 @@
-package cloudify.widget.pool.manager.settings;
+package cloudify.widget.pool.manager;
 
-import cloudify.widget.pool.manager.settings.dto.ManagerSettings;
+import cloudify.widget.pool.manager.dto.ManagerSettings;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

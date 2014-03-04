@@ -1,10 +1,9 @@
-package cloudify.widget.pool.manager.tests;
+package cloudify.widget.pool.manager;
 
 import cloudify.widget.hpcloudcompute.HpCloudComputeConnectDetails;
-import cloudify.widget.pool.manager.settings.ManagerSettingsHandler;
-import cloudify.widget.pool.manager.settings.dto.ManagerSettings;
-import cloudify.widget.pool.manager.settings.dto.PoolSettings;
-import cloudify.widget.pool.manager.settings.dto.ProviderSettings;
+import cloudify.widget.pool.manager.dto.ManagerSettings;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class TestDeserializer {
 
         ProviderSettings hpProviderSettings = null;
         for (PoolSettings pool : managerSettings.pools) {
-            if ("hp".equals(pool.provider.name)) {
+            if (ProviderSettings.ProviderName.hp == pool.provider.name) {
                 hpProviderSettings = pool.provider;
                 break;
             }

@@ -49,7 +49,7 @@ public class MyMain {
 //        PoolStatus poolStatus = monitor.getPoolStatus();
 //        logger.info("status is [{}]", poolStatus);
 
-        runTask(applicationContext, "monitorPool");
+//        runTask(applicationContext, "monitorPool");
 
 //        runTask(applicationContext, "cleanPool");
 

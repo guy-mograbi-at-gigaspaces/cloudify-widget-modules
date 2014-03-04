@@ -1,6 +1,6 @@
 package cloudify.widget.website.models;
 
-import cloudify.widget.pool.manager.PoolSettings;
+import cloudify.widget.pool.manager.dto.PoolSettings;
 
 import java.io.Serializable;
 

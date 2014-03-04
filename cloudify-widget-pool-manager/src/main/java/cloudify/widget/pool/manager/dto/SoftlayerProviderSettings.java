@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.settings.dto;
+package cloudify.widget.pool.manager.dto;
 
 import cloudify.widget.softlayer.SoftlayerConnectDetails;
 import cloudify.widget.softlayer.SoftlayerMachineOptions;

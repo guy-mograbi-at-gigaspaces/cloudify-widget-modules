@@ -75,6 +75,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
 
     @Override
     public String getMask() {
-        return null;
+        return name;
     }
 }

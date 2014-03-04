@@ -1,4 +1,4 @@
-package cloudify.widget.pool.manager.settings.dto;
+package cloudify.widget.pool.manager.dto;
 
 /**
  * User: eliranm
@@ -6,6 +6,7 @@ package cloudify.widget.pool.manager.settings.dto;
  * Time: 3:21 PM
  */
 public class PoolSettings {
+
     public String id;
     public String authKey;
     public int maxNodes;
