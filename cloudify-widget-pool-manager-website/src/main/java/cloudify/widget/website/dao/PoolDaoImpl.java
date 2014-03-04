@@ -27,7 +27,7 @@ public class PoolDaoImpl implements IPoolDao {
 
     private JdbcTemplate jdbcTemplate;
     private final static String delQuery = "delete from " + TABLE_NAME + " where id = ?";
-    private final static String selectSql = "select * from " + TABLE_NAME + " where id = ?";
+    private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
 
@@ -85,10 +85,10 @@ public class PoolDaoImpl implements IPoolDao {
     }
 
     @Override
-    public PoolConfigurationModel readPool(Long id) {
-
+    public PoolConfigurationModel readPool(Long accountId) {
+        logger.info( "select query is [{}]", selectSqlByAccountId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )
-                jdbcTemplate.queryForObject(selectSql, new Object[]{id}, new PoolRowMapper( objectMapper ));
+                jdbcTemplate.queryForObject(selectSqlByAccountId, new Object[]{accountId}, new PoolRowMapper( objectMapper ));
         return poolConfigurationModel;
     }
 
