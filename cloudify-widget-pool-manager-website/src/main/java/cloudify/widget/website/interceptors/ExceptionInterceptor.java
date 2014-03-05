@@ -37,11 +37,13 @@ public class ExceptionInterceptor extends HandlerInterceptorAdapter {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         logger.info("got an exception : " + ex);
 
-        if ( ex instanceof BaseException ){
-            BaseException baseException = (BaseException) ex;
-            sendError( response, baseException );
-        }else{
-            sendError( response, new InternalServerError("unknown error, caused by " + ex.getMessage()));
+        if( ex != null ){
+            if (ex instanceof BaseException) {
+                BaseException baseException = (BaseException) ex;
+                sendError(response, baseException);
+            } else {
+                sendError(response, new InternalServerError("unknown error, caused by " + ex.getMessage()));
+            }
         }
 
         super.afterCompletion(request, response, handler, null);
