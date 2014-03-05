@@ -4,5 +4,26 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <import resource="classpath:/conf/dev/dev-context.xml"/>
+
     <context:component-scan base-package="cloudify.widget.website.controller" />
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="#{conf.jdbcDriverClassName}"/>
+        <property name="url" value="#{conf.jdbcUrl}"/>
+        <property name="username" value="#{conf.jdbcUsername}"/>
+        <property name="password" value="#{conf.jdbcPassword}"/>
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <bean id="accountDao" class="cloudify.widget.website.dao.AccountDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+    </bean>
+
+    <bean id="poolDao" class="cloudify.widget.website.dao.PoolDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+    </bean>
 </beans>
