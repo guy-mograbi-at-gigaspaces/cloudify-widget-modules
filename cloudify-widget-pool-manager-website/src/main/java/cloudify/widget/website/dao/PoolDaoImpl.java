@@ -2,6 +2,7 @@ package cloudify.widget.website.dao;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.dao.mappers.PoolRowMapper;
+import cloudify.widget.website.models.AccountModel;
 import cloudify.widget.website.models.PoolConfigurationModel;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,8 @@ public class PoolDaoImpl implements IPoolDao {
 
     private final static String delQuery = "delete from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlById = "select * from " + TABLE_NAME + " where id = ?";
-    private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
+    private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ? and id = ?";
+    private final static String selectAllByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
 
@@ -84,7 +87,7 @@ public class PoolDaoImpl implements IPoolDao {
         return count > 0;
     }
 
-    @Override
+//    @Override
     public PoolConfigurationModel readPool(Long id) {
         logger.info( "select query is [{}]", selectSqlById );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )
@@ -93,11 +96,21 @@ public class PoolDaoImpl implements IPoolDao {
     }
 
     @Override
-    public PoolConfigurationModel readPoolByAccountId(Long accountId) {
-        logger.info( "select query is [{}] accountId [{}]", selectSqlByAccountId, accountId );
+    public PoolConfigurationModel readPoolByAccountId( Long poolId, AccountModel accountModel) {
+        Long accountId = accountModel.id;
+        logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
-                selectSqlByAccountId, new Object[]{accountId}, new PoolRowMapper( objectMapper ));
+                selectAllByAccountId, new Object[]{accountId, poolId }, new PoolRowMapper( objectMapper ));
         return poolConfigurationModel;
+    }
+
+    @Override
+    public List<PoolConfigurationModel> readPools(AccountModel accountModel) {
+        Long accountId = accountModel.id;
+        logger.info( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
+        List<PoolConfigurationModel> pools =  jdbcTemplate.query(
+                selectAllByAccountId, new Object[]{accountId}, new PoolRowMapper( objectMapper ));
+        return pools;
     }
 
     private static String parsePoolSettingToJson( PoolSettings poolSettings ){

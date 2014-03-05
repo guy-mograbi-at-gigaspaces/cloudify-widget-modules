@@ -51,6 +51,8 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         return accountDao;
     }
 
+
+
     public void setAccountDao(IAccountDao accountDao) {
         this.accountDao = accountDao;
     }

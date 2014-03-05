@@ -10,10 +10,22 @@
 
     <import resource="classpath:/conf/dev/dev-context.xml"/>
 
+    <mvc:annotation-driven/>
     <context:component-scan base-package="cloudify.widget.website.controller" />
 
+
     <mvc:interceptors>
-        <bean class="cloudify.widget.website.interceptors.AuthenticationInterceptor" />
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="cloudify.widget.website.interceptors.AuthenticationInterceptor" >
+            </bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="cloudify.widget.website.interceptors.ExceptionInterceptor" >
+            </bean>
+        </mvc:interceptor>
+
     </mvc:interceptors>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
