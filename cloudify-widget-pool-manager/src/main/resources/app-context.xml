@@ -9,6 +9,7 @@
     <context:property-placeholder location="classpath:/conf/dev/me.properties"/>
 
 
+    <bean id="threadPool" class="cloudify.widget.pool.manager.ThreadPool" init-method="init" destroy-method="destroy" />
 
     <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
         <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />

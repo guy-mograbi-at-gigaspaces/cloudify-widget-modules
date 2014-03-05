@@ -16,4 +16,8 @@
         <constructor-arg name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean id="threadPool" class="cloudify.widget.pool.manager.ThreadPool">
+
+    </bean>
+
 </beans>
