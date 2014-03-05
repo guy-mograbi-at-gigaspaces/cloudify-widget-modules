@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -68,7 +69,13 @@ public class IndexController {
 
     @RequestMapping(value="/pool/{accountId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<String> getPoolConfiguration( @PathVariable("accountId") Long accountId ) {
+    public ResponseEntity<String> getPoolConfiguration( @RequestHeader String accountUuid , @PathVariable("accountId") Long accountId ) {
+
+        AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
+
+        if ( !accountModel.id.equals(accountId) ){
+            return new ResponseEntity<String>(HttpStatus.FORBIDDEN);
+        }
 
         PoolConfigurationModel poolConfigurationModel = poolDao.readPoolByAccountId( accountId );
         ResponseEntity<String> retValue;
