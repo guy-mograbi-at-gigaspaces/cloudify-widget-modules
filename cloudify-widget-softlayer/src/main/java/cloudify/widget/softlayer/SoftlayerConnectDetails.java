@@ -11,12 +11,13 @@ import cloudify.widget.api.clouds.IConnectDetails;
 public class SoftlayerConnectDetails implements IConnectDetails {
     public String username;
     public String key;
-    public boolean isApiKey;
 
     /**
      * this should've been on the template builder, but it was simpler to add it on the context.
      */
     public String networkId;
+
+    public SoftlayerConnectDetails() {}
 
     public String getUsername() {
         return username;
@@ -33,15 +34,6 @@ public class SoftlayerConnectDetails implements IConnectDetails {
 
     public SoftlayerConnectDetails setKey(String key) {
         this.key = key;
-        return this;
-    }
-
-    public boolean isApiKey() {
-        return isApiKey;
-    }
-
-    public SoftlayerConnectDetails setApiKey(boolean isApiKey) {
-        this.isApiKey = isApiKey;
         return this;
     }
 

@@ -1,14 +1,6 @@
 package cloudify.widget.ec2;
 
-import cloudify.widget.api.clouds.CloudExecResponse;
-import cloudify.widget.api.clouds.CloudProvider;
-import cloudify.widget.api.clouds.CloudServer;
-import cloudify.widget.api.clouds.CloudServerApi;
-import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.api.clouds.IConnectDetails;
-import cloudify.widget.api.clouds.ISecurityGroupDetails;
-import cloudify.widget.api.clouds.ISshDetails;
-import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -19,12 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.domain.ComputeMetadata;
-import org.jclouds.compute.domain.ExecResponse;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.compute.domain.Template;
-import org.jclouds.compute.domain.TemplateBuilder;
+import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
@@ -36,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import static com.google.common.collect.Collections2.transform;
@@ -80,30 +66,37 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public CloudServer get(String serverId) {
         CloudServer cloudServer = null;
-
-//        VirtualGuest virtualGuest = ec2Api.getVirtualGuestClient().getVirtualGuest(0);
-//        logger.info("virtual guest: [{}]", virtualGuest);
-
-/*        Server server = softLayerApi.get(serverId);
-        if (server != null) {
-            cloudServer = new SoftlayerCloudServer(server);
-        }*/
-
+        NodeMetadata nodeMetadata = computeService.getNodeMetadata(serverId);
+        if (nodeMetadata != null) {
+            cloudServer = new Ec2CloudServer( computeService, nodeMetadata );
+        }
         return cloudServer;
     }
 
     @Override
     public void delete(String id) {
 
+        if (id != null) {
+            try {
+                computeService.destroyNode(id);
+            }
+            catch (Throwable e) {
+                throw new Ec2CloudServerApiOperationFailureException(
+                        String.format("delete operation failed for server with id [%s].", id), e);
+            }
+        }
     }
 
     @Override
     public void rebuild(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        computeService.rebootNode( id );
     }
 
     @Override
     public Collection<? extends CloudServerCreated> create( MachineOptions machineOpts ) {
+
+        logger.info( "Starting to create new node(s)..." );
+        long startTime = System.currentTimeMillis();
 
         Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
         String name = ec2MachineOptions.name();
@@ -119,6 +112,10 @@ public class Ec2CloudServerApi implements CloudServerApi {
             }
             throw new RuntimeException( e );
         }
+
+        long endTime = System.currentTimeMillis();
+        long totalTimeSec = ( endTime - startTime )/1000;
+        logger.info( "After create new node, creating took [" + ( totalTimeSec ) + "] sec." );
 
         List<CloudServerCreated> newNodesList = new ArrayList<CloudServerCreated>( newNodes.size() );
         for( NodeMetadata newNode : newNodes ){
@@ -142,8 +139,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public void setConnectDetails(IConnectDetails connectDetails) {
         logger.info("connecting");
-        if (!( connectDetails instanceof Ec2ConnectDetails )){
-            throw new RuntimeException("expected SoftlayerConnectDetails implementation");
+        if (!(connectDetails instanceof Ec2ConnectDetails)) {
+            throw new RuntimeException("expected Ec2ConnectDetails implementation");
         }
         this.connectDetails = (Ec2ConnectDetails) connectDetails;
 
@@ -161,17 +158,12 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         logger.info("creating compute service context");
 
-        Properties overrides = new Properties();
-//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_AMI_QUERY, "");
-//        overrides.setProperty(AWSEC2Constants.PROPERTY_EC2_CC_AMI_QUERY, "");
-
         String cloudProvider = CloudProvider.AWS_EC2.label;
         logger.info("building new context for provider [{}]", cloudProvider);
-        ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
-                .overrides(overrides)
-                .credentials(accessId, secretAccessKey)
-//                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
-                .buildView(ComputeServiceContext.class);
+
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(cloudProvider)
+                .credentials(accessId, secretAccessKey);
+        ComputeServiceContext context = contextBuilder.buildView(ComputeServiceContext.class);
 
         return context;
     }
@@ -182,11 +174,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         String hardwareId = machineOptions.hardwareId();
         String locationId = machineOptions.locationId();
         String imageId = machineOptions.imageId();
-        OsFamily osFamily = machineOptions.osFamily();
 
-        if( osFamily != null ){
-            templateBuilder.osFamily(osFamily);
-        }
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
         }
@@ -197,7 +185,13 @@ public class Ec2CloudServerApi implements CloudServerApi {
             templateBuilder.imageId(imageId);
         }
 
+        logger.info( "Before building template" );
+        long startTime = System.currentTimeMillis();
         Template template = templateBuilder.build();
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        logger.info( "After building template, build took [" + ( totalTime ) + "] msec." );
+
         if( machineOptions.tags() != null ){
             template.getOptions().tags( machineOptions.tags() );
         }
@@ -213,17 +207,16 @@ public class Ec2CloudServerApi implements CloudServerApi {
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
 
-        Ec2SshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
+        Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = softlayerSshDetails.user();
-        String password = softlayerSshDetails.password();
-        int port = softlayerSshDetails.port();
+        String user = ec2SshDetails.user();
+        String privateKey = ec2SshDetails.privateKey();
+        int port = ec2SshDetails.port();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
         SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
-        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).password(password).build();
-        //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
+        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).privateKey(privateKey).build();
 
         SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, port),
                 loginCredentials );
@@ -254,7 +247,6 @@ public class Ec2CloudServerApi implements CloudServerApi {
             }
         });
 
-//        NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
         if( nodeMetadatas.isEmpty() ){
             throw new RuntimeException( "Machine [" + ip + "] was not found" );
         }
@@ -263,9 +255,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         LoginCredentials loginCredentials = nodeMetadata.getCredentials();
         String user = loginCredentials.getUser();
-        String password = loginCredentials.getPassword();
+        String privateKey = loginCredentials.getPrivateKey();
         int port = nodeMetadata.getLoginPort();
 
-        return new Ec2SshDetails( port, user, password );
+        return new Ec2SshDetails( port, user, privateKey );
     }
 }

@@ -6,7 +6,6 @@ import cloudify.widget.common.StringUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 
