@@ -23,6 +23,8 @@ public class PoolDaoImpl implements IPoolDao {
     private static final String TABLE_NAME = "pool_configuration";
 
     private JdbcTemplate jdbcTemplate;
+    private SimpleJdbcInsert jdbcInsert;
+
     private final static String delQuery = "delete from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlById = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
@@ -37,6 +39,9 @@ public class PoolDaoImpl implements IPoolDao {
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).
+                withTableName(TABLE_NAME).
+                usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -52,9 +57,6 @@ public class PoolDaoImpl implements IPoolDao {
                 logger.error( "Unable to parse poolSetting to JSON", e );
             }
         }
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).
-                withTableName(TABLE_NAME).
-                usingGeneratedKeyColumns("id");
 
         Map<String,Object> parametersMap = new HashMap<String,Object>(2);
         parametersMap.put( "account_id", accountId );

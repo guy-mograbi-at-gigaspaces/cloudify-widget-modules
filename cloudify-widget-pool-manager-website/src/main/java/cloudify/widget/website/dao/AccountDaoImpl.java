@@ -19,19 +19,16 @@ public class AccountDaoImpl implements IAccountDao {
     private static final String sql = "select * from " + TABLE_NAME + " where uuid = ?";
 
     private JdbcTemplate jdbcTemplate;
+    private SimpleJdbcInsert jdbcInsert;
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 
-
         this.jdbcTemplate = jdbcTemplate;
+        jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).withTableName(TABLE_NAME).usingGeneratedKeyColumns("id");
     }
 
     @Override
     public Long createAccount( AccountModel account ) {
-
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).
-                                    withTableName(TABLE_NAME).
-                                    usingGeneratedKeyColumns("id");
 
         Map<String,Object> parametersMap = new HashMap<String,Object>(1);
         parametersMap.put( "uuid", account.getUuid() );
