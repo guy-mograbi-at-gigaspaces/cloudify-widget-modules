@@ -1,6 +1,9 @@
 package cloudify.widget.website.dao;
 
+import cloudify.widget.website.models.AccountModel;
 import cloudify.widget.website.models.PoolConfigurationModel;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,7 +24,7 @@ public interface IPoolDao {
 
     public boolean deletePool( Long id );
 
-    public PoolConfigurationModel readPool( Long id );
+    public List<PoolConfigurationModel> readPools( AccountModel accountModel );
 
-    public PoolConfigurationModel readPoolByAccountId( Long accountId );
+    public PoolConfigurationModel readPoolByAccountId( Long poolId, AccountModel accountModel  );
 }

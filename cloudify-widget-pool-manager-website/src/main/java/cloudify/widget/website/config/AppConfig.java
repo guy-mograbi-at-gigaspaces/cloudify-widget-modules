@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = "cloudify.widget.website")
 public class AppConfig {
-    private String jdbcUsername;
-    private String jdbcPassword;
-    private String jdbcDriverClassName;
-    private String jdbcUrl;
+    private String jdbcUsername = "root";
+    private String jdbcPassword = "root";
+    private String jdbcDriverClassName = "com.mysql.jdbc.Driver";
+    private String jdbcUrl = "jdbc:mysql://localhost:3306/manager-website";
 
     public String getJdbcUsername() {
         return jdbcUsername;
