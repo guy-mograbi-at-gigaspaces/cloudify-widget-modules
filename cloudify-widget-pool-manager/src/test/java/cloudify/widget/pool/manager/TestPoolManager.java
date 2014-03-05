@@ -73,7 +73,8 @@ public class TestPoolManager {
 
         ManagerSettings managerSettings = poolManager.getSettings();
 
-        PoolSettings softlayerPoolSettings = getSoftlayerPoolSettings(managerSettings);
+        logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
+        PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
 
         Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
@@ -94,7 +95,8 @@ public class TestPoolManager {
 
         ManagerSettings managerSettings = poolManager.getSettings();
 
-        PoolSettings softlayerPoolSettings = getSoftlayerPoolSettings(managerSettings);
+        logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
+        PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
 
         int nodesSize = 3;
         List<NodeModel> nodes = new ArrayList<NodeModel>(nodesSize);
@@ -174,19 +176,6 @@ public class TestPoolManager {
         Assert.isNull(node, String.format("node should be null after it is removed, but instead returned [%s]", node));
     }
 
-
-    private PoolSettings getSoftlayerPoolSettings(ManagerSettings managerSettings) {
-        logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
-        PoolSettings softlayerPoolSettings = null;
-        for (PoolSettings ps : managerSettings.getPools()) {
-            if (ps.getProvider().getName() == ProviderSettings.ProviderName.softlayer) {
-                logger.info("found softlayer pool settings [{}]", ps);
-                softlayerPoolSettings = ps;
-                break;
-            }
-        }
-        return softlayerPoolSettings;
-    }
 
     private String readSqlFromFile(File file) {
 

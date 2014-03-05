@@ -68,4 +68,23 @@ public class ProviderSettings {
     public void setMachineOptions(MachineOptions machineOptions) {
         this.machineOptions = machineOptions;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProviderSettings that = (ProviderSettings) o;
+        if (!connectDetails.equals(that.connectDetails)) return false;
+        if (!machineOptions.equals(that.machineOptions)) return false;
+        if (name != that.name) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + connectDetails.hashCode();
+        result = 31 * result + machineOptions.hashCode();
+        return result;
+    }
 }
