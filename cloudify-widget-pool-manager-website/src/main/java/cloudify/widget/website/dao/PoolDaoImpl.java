@@ -100,7 +100,7 @@ public class PoolDaoImpl implements IPoolDao {
         Long accountId = accountModel.id;
         logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
-                selectAllByAccountId, new Object[]{accountId, poolId }, new PoolRowMapper( objectMapper ));
+                selectSqlByAccountId, new Object[]{accountId, poolId }, new PoolRowMapper( objectMapper ));
         return poolConfigurationModel;
     }
 

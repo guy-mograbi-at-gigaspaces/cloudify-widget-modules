@@ -26,7 +26,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     private IAccountDao accountDao;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         logger.info("in interceptor");
         String accountUuid = request.getHeader("AccountUuid");
 
