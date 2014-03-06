@@ -22,7 +22,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
-    @Autowired
     private IAccountDao accountDao;
 
     @Override
@@ -38,7 +37,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
 
         if ( accountModel == null ){
-            response.sendError(401, "{'message' : 'account uuid " + accountUuid + " not found'}");
+            response.sendError(401, "{'message' : 'Account with uuid [" + accountUuid + "] not found'}");
             return false;
         }
 
@@ -50,8 +49,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     public IAccountDao getAccountDao() {
         return accountDao;
     }
-
-
 
     public void setAccountDao(IAccountDao accountDao) {
         this.accountDao = accountDao;

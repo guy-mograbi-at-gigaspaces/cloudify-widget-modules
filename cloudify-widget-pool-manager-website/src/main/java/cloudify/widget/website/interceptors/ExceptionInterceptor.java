@@ -22,12 +22,10 @@ public class ExceptionInterceptor extends HandlerInterceptorAdapter {
     private static Logger logger = LoggerFactory.getLogger(ExceptionInterceptor.class);
     private ObjectMapper mapper = new ObjectMapper();
 
-
     public void sendError(  HttpServletResponse response, BaseException baseException ) throws Exception{
         HashMap<String,Object> responseContent = new HashMap<String, Object>();
         responseContent.put("message", baseException.message);
         responseContent.put("info", baseException.info);
-
 
         String responseJson = mapper.writeValueAsString( responseContent );
         response.sendError( baseException.status, responseJson );

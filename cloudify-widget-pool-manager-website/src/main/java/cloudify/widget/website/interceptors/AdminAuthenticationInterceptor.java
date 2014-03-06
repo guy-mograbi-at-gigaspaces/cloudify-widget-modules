@@ -1,8 +1,11 @@
 package cloudify.widget.website.interceptors;
 
 import cloudify.widget.common.StringUtils;
+import cloudify.widget.website.config.AppConfig;
 import cloudify.widget.website.dao.IAccountDao;
+import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
+import cloudify.widget.website.models.PoolConfigurationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +25,52 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(AdminAuthenticationInterceptor.class);
 
-    @Autowired
     private IAccountDao accountDao;
+
+    private IPoolDao poolDao;
+
+    @Autowired
+    private AppConfig conf;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         logger.info("in Admin interceptor");
-        String accountUuid = request.getHeader("AdminUuid");
+        String adminUuid = request.getHeader("AdminUuid");
 
-        if ( StringUtils.isEmpty(accountUuid) ){
+        if( StringUtils.isEmpty( adminUuid ) ){
             response.sendError(401, "{'message' : 'admin uuid missing on request header'}");
             return false;
         }
-
-/*
-        AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
-
-        if ( accountModel == null ){
-            response.sendError(401, "{'message' : 'admin uuid " + accountUuid + " not found'}");
-            return false;
+        else{
+             boolean adminUidsIdentical = StringUtils.equals( conf.getAdminUuid(), adminUuid );
+            if( !adminUidsIdentical ){
+                response.sendError(401, "{'message' : 'admin uuid authentication failed'}");
+                return false;
+            }
         }
 
-        request.setAttribute("account", accountModel);
-*/
+        String accountUuid = request.getHeader("AccountUuid");
+        if( !StringUtils.isEmpty( accountUuid ) ) {
+            AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
+            if( accountModel == null ) {
+                response.sendError(401, "{'message' : 'Account with uuid [" + accountUuid + "] not found'}");
+                return false;
+            }
+
+            request.setAttribute("account", accountModel);
+        }
+
+        String poolIdStr = request.getHeader("poolId");
+        if( !StringUtils.isEmpty( poolIdStr ) ) {
+            Long poolId = Long.parseLong( poolIdStr );
+            PoolConfigurationModel poolConfigurationModel = poolDao.readPoolById( poolId );
+            if( poolConfigurationModel == null ) {
+                response.sendError(401, "{'message' : 'Pool Configuration with id [" + poolId + "] not found'}");
+                return false;
+            }
+
+            request.setAttribute("poolConfig", poolConfigurationModel);
+        }
 
         return super.preHandle(request, response, handler);
     }
@@ -55,5 +81,21 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     public void setAccountDao(IAccountDao accountDao) {
         this.accountDao = accountDao;
+    }
+
+    public AppConfig getConf() {
+        return conf;
+    }
+
+    public void setConf(AppConfig conf) {
+        this.conf = conf;
+    }
+
+    public IPoolDao getPoolDao() {
+        return poolDao;
+    }
+
+    public void setPoolDao(IPoolDao poolDao) {
+        this.poolDao = poolDao;
     }
 }

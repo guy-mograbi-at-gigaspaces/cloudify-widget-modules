@@ -31,6 +31,7 @@ public class PoolDaoImpl implements IPoolDao {
     private final static String selectSqlById = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ? and id = ?";
     private final static String selectAllByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
+    private final static String selectSqlByPoolId = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectAll = "select * from " + TABLE_NAME;
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
@@ -103,6 +104,15 @@ public class PoolDaoImpl implements IPoolDao {
         logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByAccountId, new Object[]{accountId, poolId }, poolRowMapper );
+        return poolConfigurationModel;
+    }
+
+    @Override
+    public PoolConfigurationModel readPoolById( Long poolId ) {
+
+        logger.info( "select query is [{}] poolId [{}]", selectSqlByPoolId, poolId );
+        PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
+                selectSqlByAccountId, new Object[]{ poolId }, poolRowMapper );
         return poolConfigurationModel;
     }
 

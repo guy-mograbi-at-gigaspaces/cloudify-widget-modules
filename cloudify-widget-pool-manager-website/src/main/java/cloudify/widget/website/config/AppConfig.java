@@ -5,11 +5,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan(basePackages = "cloudify.widget.website")
-public class AppConfig {
+    public class AppConfig {
     private String jdbcUsername = "root";
     private String jdbcPassword = "root";
     private String jdbcDriverClassName = "com.mysql.jdbc.Driver";
     private String jdbcUrl = "jdbc:mysql://localhost:3306/manager-website";
+    private String adminUuid;
 
     public String getJdbcUsername() {
         return jdbcUsername;
@@ -41,5 +42,13 @@ public class AppConfig {
 
     public void setJdbcUrl(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
+    }
+
+    public String getAdminUuid() {
+        return adminUuid;
+    }
+
+    public void setAdminUuid(String adminUuid) {
+        this.adminUuid = adminUuid;
     }
 }
