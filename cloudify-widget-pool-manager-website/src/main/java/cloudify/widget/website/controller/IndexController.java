@@ -37,18 +37,15 @@ public class IndexController {
         return "hello world!";
     }
 
-    @RequestMapping(value="/account/{uuid}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/account", method=RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<AccountModel> getAccount( @PathVariable("uuid") String uuid ) {
+    public ResponseEntity<AccountModel> getAccount( @ModelAttribute("account") AccountModel accountModel ) {
 
-        AccountModel accountModel = accountDao.readAccountByUuid( uuid );
         ResponseEntity<AccountModel> retValue;
-
         if( accountModel == null ) {
             retValue = new ResponseEntity<AccountModel>( HttpStatus.NOT_FOUND );
         }
         else{
-
             retValue = new ResponseEntity<AccountModel>( accountModel, HttpStatus.OK );
         }
 
@@ -56,7 +53,6 @@ public class IndexController {
     }
 
     @RequestMapping(value="/pools", method=RequestMethod.GET)
-
     public @ResponseBody List<PoolConfigurationModel> getPools(@ModelAttribute("account") AccountModel accountModel){
         try{
             return poolDao.readPools( accountModel );
@@ -67,7 +63,7 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value="/pool/{poolId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/pool/{poolId}", method=RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<PoolConfigurationModel> getPoolConfiguration( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ) {
 
@@ -82,6 +78,28 @@ public class IndexController {
         }
 
         return retValue;
+    }
+
+    @RequestMapping(value="/admin/accounts", method=RequestMethod.GET)
+    public @ResponseBody List<AccountModel> getAccounts(){
+        try{
+            return accountDao.readAccounts();
+        }catch(Exception e){
+            logger.error("unable to map pool to JSON", e);
+            return null;
+//            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
+        }
+    }
+
+    @RequestMapping(value="/admin/pools", method=RequestMethod.GET)
+    public @ResponseBody List<PoolConfigurationModel> getPools(){
+        try{
+            return poolDao.readPools();
+        }catch(Exception e){
+            logger.error("unable to map pool to JSON", e);
+            return null;
+//            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
+        }
     }
 
     @ModelAttribute("account")

@@ -1,13 +1,16 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.dao.mappers.AccountRowMapper;
+import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;
+import cloudify.widget.website.models.PoolConfigurationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,10 +22,12 @@ public class AccountDaoImpl implements IAccountDao {
     private static final String TABLE_NAME = "account";
     private static final String delQuery = "delete from " + TABLE_NAME + " where id = ?";
     private static final String selectSql = "select * from " + TABLE_NAME + " where uuid = ?";
+    private static final String selectAllSql = "select * from " + TABLE_NAME;
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert jdbcInsert;
 
+    private static final AccountRowMapper accountRowMapper = new AccountRowMapper();
     private static final Logger logger = LoggerFactory.getLogger(AccountDaoImpl.class);
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
@@ -53,7 +58,14 @@ public class AccountDaoImpl implements IAccountDao {
     public AccountModel readAccountByUuid( String uuid ) {
         logger.info( "select query is [{}] uuid [{}]", selectSql, uuid );
         AccountModel accountModel  =
-                ( AccountModel )jdbcTemplate.queryForObject(selectSql, new Object[]{uuid}, new AccountRowMapper());
+                ( AccountModel )jdbcTemplate.queryForObject(selectSql, new Object[]{uuid}, accountRowMapper );
         return accountModel;
+    }
+
+    @Override
+    public List<AccountModel> readAccounts() {
+        logger.info( "select query is [{}]", selectAllSql );
+        List<AccountModel> pools =  jdbcTemplate.query( selectAllSql, accountRowMapper );
+        return pools;
     }
 }

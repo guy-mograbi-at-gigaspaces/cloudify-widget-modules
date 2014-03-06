@@ -1,6 +1,9 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.models.AccountModel;
+import cloudify.widget.website.models.PoolConfigurationModel;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,4 +18,6 @@ public interface IAccountDao {
     public boolean deleteAccount( Long id );
 
     public AccountModel readAccountByUuid( String uuid );
+
+    public List<AccountModel> readAccounts();
 }

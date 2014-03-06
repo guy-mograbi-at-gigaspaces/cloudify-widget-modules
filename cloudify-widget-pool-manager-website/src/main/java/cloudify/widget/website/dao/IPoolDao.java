@@ -26,5 +26,7 @@ public interface IPoolDao {
 
     public List<PoolConfigurationModel> readPools( AccountModel accountModel );
 
+    public List<PoolConfigurationModel> readPools();
+
     public PoolConfigurationModel readPoolByAccountId( Long poolId, AccountModel accountModel  );
 }

@@ -31,10 +31,12 @@ public class PoolDaoImpl implements IPoolDao {
     private final static String selectSqlById = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ? and id = ?";
     private final static String selectAllByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
+    private final static String selectAll = "select * from " + TABLE_NAME;
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final PoolRowMapper poolRowMapper = new PoolRowMapper( objectMapper );
 
     static{
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -91,7 +93,7 @@ public class PoolDaoImpl implements IPoolDao {
     public PoolConfigurationModel readPool(Long id) {
         logger.info( "select query is [{}]", selectSqlById );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )
-                jdbcTemplate.queryForObject(selectSqlById, new Object[]{id}, new PoolRowMapper( objectMapper ));
+                jdbcTemplate.queryForObject(selectSqlById, new Object[]{id}, poolRowMapper );
         return poolConfigurationModel;
     }
 
@@ -100,7 +102,7 @@ public class PoolDaoImpl implements IPoolDao {
         Long accountId = accountModel.id;
         logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
-                selectSqlByAccountId, new Object[]{accountId, poolId }, new PoolRowMapper( objectMapper ));
+                selectSqlByAccountId, new Object[]{accountId, poolId }, poolRowMapper );
         return poolConfigurationModel;
     }
 
@@ -109,7 +111,14 @@ public class PoolDaoImpl implements IPoolDao {
         Long accountId = accountModel.id;
         logger.info( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
         List<PoolConfigurationModel> pools =  jdbcTemplate.query(
-                selectAllByAccountId, new Object[]{accountId}, new PoolRowMapper( objectMapper ));
+                selectAllByAccountId, new Object[]{accountId}, poolRowMapper );
+        return pools;
+    }
+
+    @Override
+    public List<PoolConfigurationModel> readPools() {
+        logger.info( "select query is [{}]", selectAll );
+        List<PoolConfigurationModel> pools =  jdbcTemplate.query( selectAll, poolRowMapper );
         return pools;
     }
 

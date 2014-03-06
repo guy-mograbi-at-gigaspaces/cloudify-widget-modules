@@ -15,6 +15,11 @@
 
 
     <mvc:interceptors>
+<!--        <mvc:interceptor>
+            <mvc:mapping path="/admin/**"/>
+            <bean class="cloudify.widget.website.interceptors.AdminAuthenticationInterceptor" >
+            </bean>
+        </mvc:interceptor>-->
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
             <bean class="cloudify.widget.website.interceptors.AuthenticationInterceptor" >
