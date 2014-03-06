@@ -52,8 +52,9 @@ public class IndexController {
         return retValue;
     }
 
-    @RequestMapping(value="/pools", method=RequestMethod.GET)
-    public @ResponseBody List<PoolConfigurationModel> getPools(@ModelAttribute("account") AccountModel accountModel){
+    @RequestMapping(value="/account/pools", method=RequestMethod.GET)
+    @ResponseBody
+    public List<PoolConfigurationModel> getPools(@ModelAttribute("account") AccountModel accountModel){
         try{
             return poolDao.readPools( accountModel );
         }catch(Exception e){
@@ -81,7 +82,8 @@ public class IndexController {
     }
 
     @RequestMapping(value="/admin/accounts", method=RequestMethod.GET)
-    public @ResponseBody List<AccountModel> getAccounts(){
+    @ResponseBody
+    public List<AccountModel> getAccounts(){
         try{
             return accountDao.readAccounts();
         }catch(Exception e){
@@ -92,7 +94,8 @@ public class IndexController {
     }
 
     @RequestMapping(value="/admin/pools", method=RequestMethod.GET)
-    public @ResponseBody List<PoolConfigurationModel> getPools(){
+    @ResponseBody
+    public List<PoolConfigurationModel> getPools(){
         try{
             return poolDao.readPools();
         }catch(Exception e){

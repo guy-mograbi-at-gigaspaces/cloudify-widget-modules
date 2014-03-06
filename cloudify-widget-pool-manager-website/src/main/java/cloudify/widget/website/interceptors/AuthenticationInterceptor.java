@@ -22,6 +22,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
+    @Autowired
     private IAccountDao accountDao;
 
     @Override
