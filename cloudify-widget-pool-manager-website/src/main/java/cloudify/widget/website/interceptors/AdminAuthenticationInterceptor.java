@@ -25,8 +25,10 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(AdminAuthenticationInterceptor.class);
 
+    @Autowired
     private IAccountDao accountDao;
 
+    @Autowired
     private IPoolDao poolDao;
 
     @Autowired

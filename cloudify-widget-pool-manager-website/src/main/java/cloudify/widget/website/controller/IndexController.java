@@ -37,7 +37,7 @@ public class IndexController {
         return "hello world!";
     }
 
-    @RequestMapping(value="/account", method=RequestMethod.GET)
+    @RequestMapping(value="/admin/account", method=RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<AccountModel> getAccount( @ModelAttribute("account") AccountModel accountModel ) {
 
