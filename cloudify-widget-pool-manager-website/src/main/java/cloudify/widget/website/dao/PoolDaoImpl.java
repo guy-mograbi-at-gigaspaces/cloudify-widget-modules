@@ -28,7 +28,8 @@ public class PoolDaoImpl implements IPoolDao {
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert jdbcInsert;
 
-    private final static String delQuery = "delete from " + TABLE_NAME + " where id = ?";
+    private final static String delQueryById = "delete from " + TABLE_NAME + " where id = ?";
+    private final static String delQueryByIdAndAccountId = "delete from " + TABLE_NAME + " where id = ? and account_id = ?";
     private final static String selectSqlById = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectSqlByAccountId = "select * from " + TABLE_NAME + " where account_id = ? and id = ?";
     private final static String selectAllByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
@@ -101,10 +102,17 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public boolean deletePool( Long id ) {
-        int count = jdbcTemplate.update(delQuery, new Object[]{id});
+        int count = jdbcTemplate.update(delQueryById, new Object[]{id});
         return count > 0;
     }
 
+    @Override
+    public boolean deletePool( Long poolId, Long accountId ) {
+        int count = jdbcTemplate.update(delQueryByIdAndAccountId, new Object[]{poolId, accountId});
+        return count > 0;
+    }
+
+/*
 //    @Override
     public PoolConfigurationModel readPool(Long id) {
         logger.info( "select query is [{}]", selectSqlById );
@@ -112,10 +120,10 @@ public class PoolDaoImpl implements IPoolDao {
                 jdbcTemplate.queryForObject(selectSqlById, new Object[]{id}, poolRowMapper );
         return poolConfigurationModel;
     }
+*/
 
     @Override
-    public PoolConfigurationModel readPoolByAccountId( Long poolId, AccountModel accountModel) {
-        Long accountId = accountModel.id;
+    public PoolConfigurationModel readPoolByAccountId( Long poolId, Long accountId) {
         logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByAccountId, new Object[]{accountId, poolId }, poolRowMapper );

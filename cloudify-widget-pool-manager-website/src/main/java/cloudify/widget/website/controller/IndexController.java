@@ -56,7 +56,7 @@ public class IndexController {
     @ResponseBody
     public ResponseEntity<PoolConfigurationModel> getPoolConfiguration( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ) {
 
-        PoolConfigurationModel poolConfigurationModel = poolDao.readPoolByAccountId( poolId, accountModel);
+        PoolConfigurationModel poolConfigurationModel = poolDao.readPoolByAccountId( poolId, accountModel.getId());
         ResponseEntity<PoolConfigurationModel> retValue;
 
         if( poolConfigurationModel == null ) {
@@ -158,6 +158,27 @@ public class IndexController {
             return false;
         }
     }
+
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}/delete", method=RequestMethod.POST)
+    @ResponseBody
+    public boolean deleteAccountPool( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId ){
+        try{
+            return poolDao.deletePool( poolId, accountId );
+        }catch(Exception e){
+            return false;
+        }
+    }
+
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}", method=RequestMethod.GET)
+    @ResponseBody
+    public PoolConfigurationModel getAccountPool( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId ){
+        try{
+            return poolDao.readPoolByAccountId( poolId, accountId );
+        }catch(Exception e){
+            return null;
+        }
+    }
+
 
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)

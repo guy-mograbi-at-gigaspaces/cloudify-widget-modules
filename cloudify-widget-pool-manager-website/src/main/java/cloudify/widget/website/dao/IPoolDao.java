@@ -25,14 +25,14 @@ public interface IPoolDao {
     public boolean updatePool( Long id, Long accountId, String poolSettingsJson );
 
     public boolean deletePool( Long id );
+    public boolean deletePool( Long id, Long accountId );
 
     public List<PoolConfigurationModel> readPools( AccountModel accountModel );
-
     public List<PoolConfigurationModel> readPools( Long accountId );
 
     public List<PoolConfigurationModel> readPools();
 
-    public PoolConfigurationModel readPoolByAccountId( Long poolId, AccountModel accountModel  );
+    public PoolConfigurationModel readPoolByAccountId( Long poolId, Long accountId );
 
     public PoolConfigurationModel readPoolById( Long poolId );
 }
