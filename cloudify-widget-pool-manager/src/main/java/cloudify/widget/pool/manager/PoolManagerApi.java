@@ -1,6 +1,5 @@
 package cloudify.widget.pool.manager;
 
-import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class PoolManagerApi {
         return settingsDataAccessManager.read();
     }
 
-    // node models api
+    // nodes api
 
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
         return nodesDataAccessManager.listNodes(poolSettings);
@@ -48,17 +47,22 @@ public class PoolManagerApi {
         return nodesDataAccessManager.getNode(nodeId);
     }
 
-    public boolean addNode(NodeModel nodeModel) {
+    public boolean createNode(NodeModel nodeModel) {
+        // TODO replace with executor logic
         return nodesDataAccessManager.addNode(nodeModel);
     }
 
-    public int removeNode(long nodeId) {
+    public int deleteNode(long nodeId) {
+        // TODO replace with executor logic
         return nodesDataAccessManager.removeNode(nodeId);
     }
 
-    public int updateNode(NodeModel nodeModel) {
-        return nodesDataAccessManager.updateNode(nodeModel);
+    // TODO externalize!
+/*
+    public void runScriptOnNode(NodeModel nodeModel, File script) {
+        return executor.runScriptOnNode(nodeModel, script);
     }
+*/
 
     // task errors api
 

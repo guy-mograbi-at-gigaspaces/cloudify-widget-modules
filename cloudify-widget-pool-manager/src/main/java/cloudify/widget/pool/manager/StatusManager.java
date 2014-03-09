@@ -16,9 +16,10 @@ public class StatusManager {
 
     private static Logger logger = LoggerFactory.getLogger(StatusManager.class);
 
+    public void updateStatus(PoolStatus poolStatus) {
+    }
 
     public void setStatus(PoolStatus poolStatus) {
-        // TODO implement when needed
     }
 
     public PoolStatus getStatus(PoolSettings poolSettings) {
@@ -28,7 +29,7 @@ public class StatusManager {
             throw new RuntimeException("provider not found in pool settings");
         }
 
-        CloudServerApi cloudServerApi = getCloudServerApi(provider);
+        CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.getName());
 
         logger.debug("connecting to cloud server api [{}] using connect details [{}]", cloudServerApi, provider.getConnectDetails());
         cloudServerApi.connect(provider.getConnectDetails());
@@ -40,15 +41,6 @@ public class StatusManager {
                 .minNodes(poolSettings.getMinNodes())
                 .maxNodes(poolSettings.getMaxNodes())
                 .currentSize(cloudServerApi.getAllMachinesWithTag(mask).size());
-    }
-
-
-    private CloudServerApi getCloudServerApi(ProviderSettings provider) {
-        CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.getName());
-        if (cloudServerApi == null) {
-            throw new RuntimeException("cloud server api could not be instantiated");
-        }
-        return cloudServerApi;
     }
 
 }
