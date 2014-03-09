@@ -22,9 +22,9 @@ public class TaskExecutor {
 
     private int terminationTimeoutInSeconds = 30;
 
-    private PoolManager poolManager;
+    private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsManager taskErrorsManager;
+    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
 
     public void init() {
     }
@@ -47,8 +47,8 @@ public class TaskExecutor {
         try {
             command = task.newInstance();
             command.setPoolSettings(poolSettings);
-            command.setPoolManager(poolManager);
-            command.setTaskErrorsManager(taskErrorsManager);
+            command.setNodesDataAccessManager(nodesDataAccessManager);
+            command.setTaskErrorsDataAccessManager(taskErrorsDataAccessManager);
             command.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
             logger.error("task instantiation failed", e);
@@ -66,12 +66,12 @@ public class TaskExecutor {
         this.terminationTimeoutInSeconds = terminationTimeoutInSeconds;
     }
 
-    public void setPoolManager(PoolManager poolManager) {
-        this.poolManager = poolManager;
+    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
+        this.nodesDataAccessManager = nodesDataAccessManager;
     }
 
-    public void setTaskErrorsManager(TaskErrorsManager taskErrorsManager) {
-        this.taskErrorsManager = taskErrorsManager;
+    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
+        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
     }
 
     public void setExecutorService(ExecutorService executorService) {

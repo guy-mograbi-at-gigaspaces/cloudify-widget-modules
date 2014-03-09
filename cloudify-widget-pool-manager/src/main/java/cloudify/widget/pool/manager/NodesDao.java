@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 3/2/14
  * Time: 7:09 PM
  */
-public class PoolDao {
+public class NodesDao {
 
     public static final String TABLE_NAME = "nodes";
     public static final String COL_NODE_ID = "id";

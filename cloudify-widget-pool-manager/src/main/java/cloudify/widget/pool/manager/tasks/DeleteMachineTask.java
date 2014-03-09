@@ -2,8 +2,9 @@ package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.PoolManager;
-import cloudify.widget.pool.manager.TaskErrorsManager;
+import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.StatusManager;
+import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,11 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
 
     private static Logger logger = LoggerFactory.getLogger(DeleteMachineTask.class);
 
-    private PoolManager poolManager;
+    private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsManager taskErrorsManager;
+    private StatusManager statusManager;
+
+    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
 
     private PoolSettings poolSettings;
 
@@ -41,11 +44,11 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
         }
 
         // TODO ponder: is this really a job for the task?
-        PoolStatus status = poolManager.getStatus(poolSettings);
+        PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize <= status.minNodes) {
             String message = "failed to remove machine: pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
-            taskErrorsManager.addTaskError(new TaskErrorModel()
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message)
@@ -59,7 +62,7 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
         cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
         logger.info("machine deleted, removing node model in the database [{}]");
-        poolManager.removeNode(taskConfig.getNodeModel().id);
+        nodesDataAccessManager.removeNode(taskConfig.getNodeModel().id);
 
     }
 
@@ -70,13 +73,18 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
     }
 
     @Override
-    public void setPoolManager(PoolManager poolManager) {
-        this.poolManager = poolManager;
+    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
+        this.nodesDataAccessManager = nodesDataAccessManager;
     }
 
     @Override
-    public void setTaskErrorsManager(TaskErrorsManager taskErrorsManager) {
-        this.taskErrorsManager = taskErrorsManager;
+    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
+        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    }
+
+    @Override
+    public void setStatusManager(StatusManager statusManager) {
+        this.statusManager = statusManager;
     }
 
     @Override

@@ -2,7 +2,6 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.hpcloudcompute.HpCloudComputeConnectDetails;
 import cloudify.widget.pool.manager.dto.ManagerSettings;
-import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -30,12 +29,12 @@ public class TestDeserializer {
     private static Logger logger = LoggerFactory.getLogger(TestDeserializer.class);
 
     @Autowired
-    private ManagerSettingsHandler managerSettingsHandler;
+    private SettingsDataAccessManager settingsDataAccessManager;
 
     @Test
     public void testDeserializer() throws IOException {
 
-        ManagerSettings managerSettings = managerSettingsHandler.read();
+        ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         Assert.assertNotNull("manager settings should not be null", managerSettings);
 
@@ -51,7 +50,7 @@ public class TestDeserializer {
                 CoreMatchers.instanceOf(HpCloudComputeConnectDetails.class));
     }
 
-    public void setManagerSettingsHandler(ManagerSettingsHandler managerSettingsHandler) {
-        this.managerSettingsHandler = managerSettingsHandler;
+    public void setSettingsDataAccessManager(SettingsDataAccessManager settingsDataAccessManager) {
+        this.settingsDataAccessManager = settingsDataAccessManager;
     }
 }

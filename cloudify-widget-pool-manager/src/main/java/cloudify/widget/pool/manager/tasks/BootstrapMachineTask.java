@@ -3,8 +3,9 @@ package cloudify.widget.pool.manager.tasks;
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.PoolManager;
-import cloudify.widget.pool.manager.TaskErrorsManager;
+import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.StatusManager;
+import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.TaskErrorModel;
@@ -28,9 +29,9 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
 
     private static final TaskName TASK_NAME = TaskName.BOOTSTRAP_MACHINE;
 
-    private PoolManager poolManager;
+    private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsManager taskErrorsManager;
+    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
 
     private PoolSettings poolSettings;
 
@@ -66,7 +67,7 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
         if (cloudServer == null) {
             String message = String.format("node with id [%s] was not found", machineId);
             logger.error(message);
-            taskErrorsManager.addTaskError(new TaskErrorModel()
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message));
@@ -75,10 +76,10 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
 
         cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().privateIp); // TODO private ?
 
-        NodeModel updatedNodeModel = poolManager.getNode(taskConfig.getNodeModel().id);
+        NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
         logger.info("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
         updatedNodeModel.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
-        poolManager.updateNode(updatedNodeModel);
+        nodesDataAccessManager.updateNode(updatedNodeModel);
     }
 
 
@@ -88,13 +89,17 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
     }
 
     @Override
-    public void setPoolManager(PoolManager poolManager) {
-        this.poolManager = poolManager;
+    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
+        this.nodesDataAccessManager = nodesDataAccessManager;
     }
 
     @Override
-    public void setTaskErrorsManager(TaskErrorsManager taskErrorsManager) {
-        this.taskErrorsManager = taskErrorsManager;
+    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
+        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    }
+
+    @Override
+    public void setStatusManager(StatusManager statusManager) {
     }
 
     @Override

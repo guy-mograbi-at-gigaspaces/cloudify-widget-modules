@@ -3,8 +3,9 @@ package cloudify.widget.pool.manager.tasks;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.PoolManager;
-import cloudify.widget.pool.manager.TaskErrorsManager;
+import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.StatusManager;
+import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +23,11 @@ public class CreateMachineTask implements ITask {
 
     private PoolSettings poolSettings;
 
-    private PoolManager poolManager;
+    private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsManager taskErrorsManager;
+    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+
+    private StatusManager statusManager;
 
     private static final TaskName TASK_NAME = TaskName.CREATE_MACHINE;
 
@@ -34,13 +37,18 @@ public class CreateMachineTask implements ITask {
     }
 
     @Override
-    public void setPoolManager(PoolManager poolManager) {
-        this.poolManager = poolManager;
+    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
+        this.nodesDataAccessManager = nodesDataAccessManager;
     }
 
     @Override
-    public void setTaskErrorsManager(TaskErrorsManager taskErrorsManager) {
-        this.taskErrorsManager = taskErrorsManager;
+    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
+        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    }
+
+    @Override
+    public void setStatusManager(StatusManager statusManager) {
+        this.statusManager = statusManager;
     }
 
     @Override
@@ -67,11 +75,11 @@ public class CreateMachineTask implements ITask {
 
 
         // TODO ponder: is this really a job for the task?
-        PoolStatus status = poolManager.getStatus(poolSettings);
+        PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize >= status.maxNodes) {
             String message = "failed to create machine, pool has reached its maximum capacity as defined in the pool settings";
             logger.error(message);
-            taskErrorsManager.addTaskError(new TaskErrorModel()
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
@@ -92,7 +100,7 @@ public class CreateMachineTask implements ITask {
                     .setNodeStatus(NodeModel.NodeStatus.CREATED);
 //                    .setCloudifyVersion();
             logger.info("machine created, adding node to database [{}]", nodeModel);
-            poolManager.addNode(nodeModel);
+            nodesDataAccessManager.addNode(nodeModel);
         }
     }
 

@@ -1,7 +1,8 @@
 package cloudify.widget.pool.manager.tasks;
 
-import cloudify.widget.pool.manager.TaskErrorsManager;
-import cloudify.widget.pool.manager.PoolManager;
+import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.StatusManager;
+import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 
 /**
@@ -13,9 +14,11 @@ public interface ITask<T extends TaskConfig> extends Runnable {
 
     TaskName getTaskName();
 
-    void setPoolManager(PoolManager poolManager);
+    void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager);
 
-    void setTaskErrorsManager(TaskErrorsManager taskErrorsManager);
+    void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager);
+
+    void setStatusManager(StatusManager statusManager);
 
     void setPoolSettings(PoolSettings poolSettings);
 

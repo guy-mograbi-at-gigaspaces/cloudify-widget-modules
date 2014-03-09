@@ -11,6 +11,7 @@ import cloudify.widget.softlayer.SoftlayerCloudServerApi;
  * Date: 3/2/14
  * Time: 3:10 PM
  */
+// TODO extract to bean factory !
 public class CloudServerApiFactory {
 
     private CloudServerApiFactory() {

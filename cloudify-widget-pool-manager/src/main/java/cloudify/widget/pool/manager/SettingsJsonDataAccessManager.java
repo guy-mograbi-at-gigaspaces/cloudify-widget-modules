@@ -13,11 +13,11 @@ import java.io.IOException;
  * Date: 2/24/14
  * Time: 5:14 PM
  */
-public class ManagerSettingsJsonHandler implements ManagerSettingsHandler {
+public class SettingsJsonDataAccessManager implements SettingsDataAccessManager {
 
-    private static Logger logger = LoggerFactory.getLogger(ManagerSettingsJsonHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(SettingsJsonDataAccessManager.class);
 
-    private ManagerSettingsFileLoader managerSettingsFileLoader;
+    private SettingsFileLoader settingsFileLoader;
 
 
     @Override
@@ -27,17 +27,17 @@ public class ManagerSettingsJsonHandler implements ManagerSettingsHandler {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         ManagerSettings managerSettings = null;
         try {
-            managerSettings = mapper.readValue(managerSettingsFileLoader.asString(), ManagerSettings.class);
+            managerSettings = mapper.readValue(settingsFileLoader.asString(), ManagerSettings.class);
             logger.info("manager settings\n[{}]", mapper.writeValueAsString(managerSettings));
         } catch (IOException e) {
-            logger.error(String.format("failed to read manager settings file as json from string [%s]", managerSettingsFileLoader.asString()), e);
+            logger.error(String.format("failed to read manager settings file as json from string [%s]", settingsFileLoader.asString()), e);
         }
 
         return managerSettings;
     }
 
 
-    public void setManagerSettingsFileLoader(ManagerSettingsFileLoader managerSettingsFileLoader) {
-        this.managerSettingsFileLoader = managerSettingsFileLoader;
+    public void setSettingsFileLoader(SettingsFileLoader settingsFileLoader) {
+        this.settingsFileLoader = settingsFileLoader;
     }
 }

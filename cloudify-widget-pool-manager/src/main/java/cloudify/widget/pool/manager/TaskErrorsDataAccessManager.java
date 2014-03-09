@@ -13,9 +13,9 @@ import java.util.List;
  * Date: 3/9/14
  * Time: 2:09 PM
  */
-public class TaskErrorsManager {
+public class TaskErrorsDataAccessManager {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskErrorsManager.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskErrorsDataAccessManager.class);
 
     @Autowired
     private TaskErrorsDao taskErrorsDao;

@@ -36,7 +36,7 @@ public class TestPoolManager {
     private static final String SCHEMA = "pool_manager_test";
 
     @Autowired
-    private PoolManager poolManager;
+    private PoolManagerApi poolManagerApi;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -75,13 +75,13 @@ public class TestPoolManager {
         logger.info("testing manager task executor");
 
 
-        PoolSettings softlayerPoolSettings = poolManager.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
+        PoolSettings softlayerPoolSettings = poolManagerApi.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
         logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
 
         logger.info("executing delete machine task that's bound to fail...");
         taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings);
 
-        List<TaskErrorModel> taskErrorModels = poolManager.listTaskErrors(softlayerPoolSettings);
+        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
         TaskErrorModel taskErrorModel = null;
         for (TaskErrorModel model : taskErrorModels) {
             taskErrorModel = model;
@@ -98,7 +98,7 @@ public class TestPoolManager {
 
         logger.info("checking table for added node...");
         NodeModel nodeModel = null;
-        List<NodeModel> softlayerNodeModels = poolManager.listNodes(softlayerPoolSettings);
+        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings);
         for (NodeModel softlayerNodeModel : softlayerNodeModels) {
             nodeModel = softlayerNodeModel;
             logger.info("found node [{}]", nodeModel);
@@ -119,13 +119,13 @@ public class TestPoolManager {
             }
         }, softlayerPoolSettings);
 
-        Assert.isNull(poolManager.getNode(nodeModel.id), "node should not be found after deletion");
+        Assert.isNull(poolManagerApi.getNode(nodeModel.id), "node should not be found after deletion");
     }
 
     @Test
     public void testPoolStatus() {
 
-        ManagerSettings managerSettings = poolManager.getSettings();
+        ManagerSettings managerSettings = poolManagerApi.getSettings();
 
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
@@ -133,7 +133,7 @@ public class TestPoolManager {
         Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
         logger.info("getting pool status...");
-        PoolStatus poolStatus = poolManager.getStatus(softlayerPoolSettings);
+        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings);
 
         Assert.notNull(poolStatus, "pool status should not be null");
 
@@ -147,7 +147,7 @@ public class TestPoolManager {
     @Test
     public void testPoolCrud() {
 
-        ManagerSettings managerSettings = poolManager.getSettings();
+        ManagerSettings managerSettings = poolManagerApi.getSettings();
 
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
@@ -170,7 +170,7 @@ public class TestPoolManager {
 
         for (NodeModel node : nodes) {
             logger.info("adding node [{}] to pool...", node);
-            boolean added = poolManager.addNode(node);
+            boolean added = poolManagerApi.addNode(node);
             logger.info("added [{}]", added);
             Assert.isTrue(added, "add node should return true if it was successfully added in the pool");
             logger.info("node id [{}], initial id [{}]", node.id, NodeModel.INITIAL_ID);
@@ -180,18 +180,18 @@ public class TestPoolManager {
         // read
 
         logger.info("reading node with id [{}]...", firstNode.id);
-        NodeModel readNode = poolManager.getNode(firstNode.id);
+        NodeModel readNode = poolManagerApi.getNode(firstNode.id);
         logger.info("returned node [{}]", readNode);
         Assert.notNull(readNode, String.format("failed to read node with id [%s]", firstNode.id));
 
         logger.info("reading none existing node...");
-        readNode = poolManager.getNode(-2);
+        readNode = poolManagerApi.getNode(-2);
         logger.info("returned node [{}]", readNode);
         Assert.isNull(readNode,
                 String.format("non existing node should be null when read from the pool, but instead returned [%s]", readNode));
 
         logger.info("listing nodes for pool with provider [{}]...", softlayerPoolSettings.getProvider().getName());
-        List<NodeModel> softlayerNodeModels = poolManager.listNodes(softlayerPoolSettings);
+        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings);
         logger.info("returned nodes [{}]", softlayerNodeModels);
 
         Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getId()));
@@ -203,14 +203,14 @@ public class TestPoolManager {
 
         logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeModel.NodeStatus.BOOTSTRAPPED);
         firstNode.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
-        int affectedByUpdate = poolManager.updateNode(firstNode);
+        int affectedByUpdate = poolManagerApi.updateNode(firstNode);
         logger.info("affectedByUpdate [{}]", affectedByUpdate);
 
         Assert.isTrue(affectedByUpdate == 1,
                 String.format("exactly ONE node should be updated, but instead the amount affected by the update is [%s]", affectedByUpdate));
 
         logger.info("reading first node after update, using id [{}]...", firstNode.id);
-        NodeModel node = poolManager.getNode(firstNode.id);
+        NodeModel node = poolManagerApi.getNode(firstNode.id);
         logger.info("returned node [{}]", node);
 
         Assert.notNull(node, "failed to read a single node");
@@ -221,10 +221,10 @@ public class TestPoolManager {
         // delete
 
         logger.info("removing node with id [{}]...", node.id);
-        poolManager.removeNode(node.id);
+        poolManagerApi.removeNode(node.id);
 
         logger.info("reading node after remove, using id [{}]...", node.id);
-        node = poolManager.getNode(node.id);
+        node = poolManagerApi.getNode(node.id);
         logger.info("returned node [{}]", node);
 
         Assert.isNull(node, String.format("node should be null after it is removed, but instead returned [%s]", node));
