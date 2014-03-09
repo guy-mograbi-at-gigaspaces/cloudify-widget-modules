@@ -1,5 +1,7 @@
 package cloudify.widget.website.controller;
 
+import cloudify.widget.pool.manager.dto.ManagerSettings;
+import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -123,6 +125,27 @@ public class IndexController {
             logger.error("unable to map pool to JSON", e);
             return null;
 //            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
+        }
+    }
+
+    @RequestMapping(value="/admin/accounts/{accountId}/pools", method=RequestMethod.GET)
+    @ResponseBody
+    public List<PoolConfigurationModel> getAccountPools( @PathVariable("accountId") Long accountId ){
+        try{
+            return poolDao.readPools( accountId );
+        }catch(Exception e){
+            logger.error("unable to map pool to JSON", e);
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/accounts/{accountId}/pools", method=RequestMethod.POST)
+    @ResponseBody
+    public Long createAccountPool( @RequestBody String poolSettingJson, @PathVariable("accountId") Long accountId ){
+        try{
+            return poolDao.createPool( accountId, poolSettingJson );
+        }catch(Exception e){
+            return null;
         }
     }
 

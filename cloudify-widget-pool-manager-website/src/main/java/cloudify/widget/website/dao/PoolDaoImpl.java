@@ -1,5 +1,6 @@
 package cloudify.widget.website.dao;
 
+import cloudify.widget.common.StringUtils;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;
@@ -48,6 +49,18 @@ public class PoolDaoImpl implements IPoolDao {
         jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).
                 withTableName(TABLE_NAME).
                 usingGeneratedKeyColumns("id");
+    }
+
+    @Override
+    public Long createPool( Long accountId, String poolSettingsJson ) {
+
+        PoolConfigurationModel poolConfigurationModel = new PoolConfigurationModel();
+        poolConfigurationModel.setAccountId( accountId );
+        PoolSettings poolSettings =
+                StringUtils.isEmpty( poolSettingsJson ) ? null : parseJsonToPoolSetting( poolSettingsJson );
+        poolConfigurationModel.setPoolSettings( poolSettings );
+
+        return createPool( poolConfigurationModel );
     }
 
     @Override
@@ -119,6 +132,12 @@ public class PoolDaoImpl implements IPoolDao {
     @Override
     public List<PoolConfigurationModel> readPools(AccountModel accountModel) {
         Long accountId = accountModel.id;
+        return readPools(accountId);
+    }
+
+    @Override
+    public List<PoolConfigurationModel> readPools(Long accountId) {
+
         logger.info( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
         List<PoolConfigurationModel> pools =  jdbcTemplate.query(
                 selectAllByAccountId, new Object[]{accountId}, poolRowMapper );
@@ -144,4 +163,18 @@ public class PoolDaoImpl implements IPoolDao {
         }
         return poolSettingsJson;
     }
+
+    private static PoolSettings parseJsonToPoolSetting( String poolSettingsJson ){
+
+        PoolSettings poolSettings = null;
+        try {
+            poolSettings = objectMapper.readValue( poolSettingsJson, PoolSettings.class );
+        } catch (IOException e) {
+            if( logger.isErrorEnabled() ){
+                logger.error( "Unable to read JSON to PoolSettings instance", e );
+            }
+        }
+        return poolSettings;
+    }
 }
+  

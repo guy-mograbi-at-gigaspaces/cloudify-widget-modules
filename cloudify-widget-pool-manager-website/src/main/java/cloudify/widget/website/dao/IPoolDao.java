@@ -20,11 +20,15 @@ public interface IPoolDao {
      */
     public Long createPool( PoolConfigurationModel poolSettings );
 
+    public Long createPool( Long accountId, String poolSettingsJson );
+
     public void updatePool( PoolConfigurationModel poolSettings );
 
     public boolean deletePool( Long id );
 
     public List<PoolConfigurationModel> readPools( AccountModel accountModel );
+
+    public List<PoolConfigurationModel> readPools( Long accountId );
 
     public List<PoolConfigurationModel> readPools();
 
