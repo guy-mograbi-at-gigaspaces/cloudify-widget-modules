@@ -141,11 +141,21 @@ public class IndexController {
 
     @RequestMapping(value="/admin/accounts/{accountId}/pools", method=RequestMethod.POST)
     @ResponseBody
-    public Long createAccountPool( @RequestBody String poolSettingJson, @PathVariable("accountId") Long accountId ){
+    public Long createAccountPool( @PathVariable("accountId") Long accountId, @RequestBody String poolSettingJson ){
         try{
-            return poolDao.createPool( accountId, poolSettingJson );
+            return poolDao.createPool(accountId, poolSettingJson);
         }catch(Exception e){
             return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}", method=RequestMethod.POST)
+    @ResponseBody
+    public boolean updateAccountPool( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId, @RequestBody String newPoolSettingJson ){
+        try{
+            return poolDao.updatePool( poolId, accountId, newPoolSettingJson );
+        }catch(Exception e){
+            return false;
         }
     }
 

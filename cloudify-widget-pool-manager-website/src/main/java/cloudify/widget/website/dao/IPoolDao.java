@@ -19,10 +19,10 @@ public interface IPoolDao {
      * @return
      */
     public Long createPool( PoolConfigurationModel poolSettings );
-
     public Long createPool( Long accountId, String poolSettingsJson );
 
-    public void updatePool( PoolConfigurationModel poolSettings );
+    public boolean updatePool( PoolConfigurationModel poolSettings );
+    public boolean updatePool( Long id, Long accountId, String poolSettingsJson );
 
     public boolean deletePool( Long id );
 

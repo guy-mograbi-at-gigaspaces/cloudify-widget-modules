@@ -34,6 +34,8 @@ public class PoolDaoImpl implements IPoolDao {
     private final static String selectAllByAccountId = "select * from " + TABLE_NAME + " where account_id = ?";
     private final static String selectSqlByPoolId = "select * from " + TABLE_NAME + " where id = ?";
     private final static String selectAll = "select * from " + TABLE_NAME;
+    private final static String updateByIdAndAccountId = "update " + TABLE_NAME +
+                                                                " set pool_setting = ? where id = ? and account_id = ?";
 
     private static final Logger logger = LoggerFactory.getLogger(PoolDaoImpl.class);
 
@@ -52,18 +54,6 @@ public class PoolDaoImpl implements IPoolDao {
     }
 
     @Override
-    public Long createPool( Long accountId, String poolSettingsJson ) {
-
-        PoolConfigurationModel poolConfigurationModel = new PoolConfigurationModel();
-        poolConfigurationModel.setAccountId( accountId );
-        PoolSettings poolSettings =
-                StringUtils.isEmpty( poolSettingsJson ) ? null : parseJsonToPoolSetting( poolSettingsJson );
-        poolConfigurationModel.setPoolSettings( poolSettings );
-
-        return createPool( poolConfigurationModel );
-    }
-
-    @Override
     public Long createPool(PoolConfigurationModel poolConfiguration) {
 
         Long accountId = poolConfiguration.getAccountId();
@@ -77,6 +67,12 @@ public class PoolDaoImpl implements IPoolDao {
             }
         }
 
+        return createPool( accountId, poolSettingsJson );
+    }
+
+    @Override
+    public Long createPool( Long accountId, String poolSettingsJson ) {
+
         Map<String,Object> parametersMap = new HashMap<String,Object>(2);
         parametersMap.put( "account_id", accountId );
         parametersMap.put( "pool_setting", poolSettingsJson );
@@ -87,14 +83,20 @@ public class PoolDaoImpl implements IPoolDao {
     }
 
     @Override
-    public void updatePool( PoolConfigurationModel poolSettings ) {
+    public boolean updatePool( PoolConfigurationModel poolSettings ) {
         Long accountId = poolSettings.getAccountId();
         Long id = poolSettings.getId();
         PoolSettings settings = poolSettings.getPoolSettings();
         String poolSettingsJson = parsePoolSettingToJson(settings);
 
-        jdbcTemplate.update( "update " + TABLE_NAME +
-               " set account_id = ?, pool_setting = ? where id = ?", accountId, poolSettingsJson, id );
+        return updatePool( id, accountId, poolSettingsJson );
+    }
+
+    @Override
+    public boolean updatePool( Long id, Long accountId, String poolSettingsJson ) {
+
+        int numOfRows = jdbcTemplate.update( updateByIdAndAccountId, poolSettingsJson, id, accountId );
+        return numOfRows > 0;
     }
 
     @Override
