@@ -6,6 +6,7 @@ import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
 import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
+import cloudify.widget.pool.manager.dto.BootstrapProperties;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.TaskErrorModel;
@@ -57,6 +58,18 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
         }
 
         logger.info("script file read to string [{}]", script);
+
+
+        // TODO read file and replace placeholders with bootstrap properties from pool settings
+
+        BootstrapProperties bootstrapProperties = poolSettings.getBootstrapProperties();
+        script.replaceAll("##publicip##", bootstrapProperties.getPublicIp());
+        script.replaceAll("##privateip##", bootstrapProperties.getPrivateIp());
+        script.replaceAll("##cloudifyUrl##", bootstrapProperties.getCloudifyUrl());
+        script.replaceAll("##prebootstrapScript##", bootstrapProperties.getPreBootstrapScript());
+        script.replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath());
+        script.replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
+
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
         cloudServerApi.connect();
