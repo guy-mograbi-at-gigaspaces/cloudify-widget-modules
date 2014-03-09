@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
+ *
  * User: eliranm
  * Date: 3/2/14
  * Time: 1:49 PM
@@ -17,8 +18,12 @@ public class PoolManager {
 
     private static Logger logger = LoggerFactory.getLogger(PoolManager.class);
 
+    // TODO don't use dao directly - extract pool manager as a data access handler (like task-error), clean this class and make it a facade only.
     @Autowired
     private PoolDao poolDao;
+
+    @Autowired
+    private TaskErrorsManager taskErrorsManager;
 
     @Autowired
     private ManagerSettingsHandler managerSettingsHandler;
@@ -48,8 +53,10 @@ public class PoolManager {
         return managerSettingsHandler.read();
     }
 
+    // node models api
+
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
-        return poolDao.readAll(poolSettings.getId());
+        return poolDao.readAllOfPool(poolSettings.getId());
     }
 
     public NodeModel getNode(long nodeId) {
@@ -68,6 +75,16 @@ public class PoolManager {
         return poolDao.update(nodeModel);
     }
 
+    // task errors api
+
+    public List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings) {
+        return taskErrorsManager.listTaskErrors(poolSettings);
+    }
+
+    public TaskErrorModel getTaskError(long errorId) {
+        return taskErrorsManager.getTaskError(errorId);
+    }
+
 
     private CloudServerApi getCloudServerApi(ProviderSettings provider) {
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.getName());
@@ -84,6 +101,10 @@ public class PoolManager {
 
     public void setManagerSettingsHandler(ManagerSettingsHandler managerSettingsHandler) {
         this.managerSettingsHandler = managerSettingsHandler;
+    }
+
+    public void setTaskErrorsManager(TaskErrorsManager taskErrorsManager) {
+        this.taskErrorsManager = taskErrorsManager;
     }
 
 }

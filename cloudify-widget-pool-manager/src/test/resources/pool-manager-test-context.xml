@@ -10,14 +10,25 @@
     <context:component-scan base-package="cloudify.widget.pool.manager" />
 
 
-    <bean id="manager" class="cloudify.widget.pool.manager.PoolManager"></bean>
-
     <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <constructor-arg name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="threadPool" class="cloudify.widget.pool.manager.ThreadPool">
+    <!-- mocking task executor so tests don't have to use thread-waits -->
+    <bean id="synchronousExecutorService" class="cloudify.widget.pool.manager.SynchronousExecutorService">
+        <constructor-arg value="10" />
+    </bean>
 
+    <bean id="taskExecutor" class="cloudify.widget.pool.manager.ManagerTaskExecutor" init-method="init" destroy-method="destroy">
+        <property name="poolManager" ref="manager" />
+        <property name="taskErrorsManager" ref="taskErrorsManager" />
+        <property name="executorService" ref="synchronousExecutorService" />
+    </bean>
+
+
+
+    <bean id="nExecutions" class="java.lang.Integer">
+        <constructor-arg value="1" /> <!-- if we use more than one, we shouldn't use the SynchronousExecutorService executor mock, as it will execute threads subsequently -->
     </bean>
 
 </beans>

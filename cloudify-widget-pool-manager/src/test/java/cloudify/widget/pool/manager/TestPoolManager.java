@@ -2,6 +2,9 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.common.FileUtils;
 import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.pool.manager.tasks.CreateMachinePoolTask;
+import cloudify.widget.pool.manager.tasks.DeleteMachinePoolTask;
+import cloudify.widget.pool.manager.tasks.TaskData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +20,8 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,8 +34,9 @@ import java.util.List;
 @ActiveProfiles({"softlayer", "ibmprod"})
 public class TestPoolManager {
 
-    private static final String SCHEMA = "pool_manager_test";
     private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
+
+    private static final String SCHEMA = "pool_manager_test";
 
     @Autowired
     private PoolManager poolManager;
@@ -41,20 +44,22 @@ public class TestPoolManager {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private ManagerTaskExecutor managerTaskExecutor;
+
+    private ExecutorService executorService;
+
+    @Autowired
+    private Integer nExecutions;
+
+
     @Before
     public void init() {
 
+        // initializing test schema
         jdbcTemplate.update("create schema " + SCHEMA);
         jdbcTemplate.update("use " + SCHEMA);
-
-        // going through all files under the 'sql' folder, and executing all of them.
-        Iterator<File> sqlFileIterator = org.apache.commons.io.FileUtils.iterateFiles(
-                FileUtils.getFileInClasspath("sql"), new String[]{"sql"}, false);
-        while (sqlFileIterator.hasNext()) {
-            File file = sqlFileIterator.next();
-            String statement = readSqlFromFile(file);
-            jdbcTemplate.update(statement);
-        }
+        buildDatabase();
 
     }
 
@@ -63,9 +68,49 @@ public class TestPoolManager {
         jdbcTemplate.update("drop schema " + SCHEMA);
     }
 
+
     @Test
     public void test() {
         Assert.notNull(jdbcTemplate);
+    }
+
+
+    @Test(timeout = 10 * 60 * 1000)
+    public void testTaskExecutor() {
+        logger.info("testing manager task executor");
+
+        PoolSettings softlayerPoolSettings = poolManager.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
+        logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
+
+        logger.info("executing create machine task [{}] times...", nExecutions);
+        for (int i = 0; i < nExecutions; i++) {
+            managerTaskExecutor.execute(CreateMachinePoolTask.class, null, softlayerPoolSettings);
+        }
+
+        logger.info("checking table for added node model...");
+        NodeModel nodeModel = null;
+        List<NodeModel> softlayerNodeModels = poolManager.listNodes(softlayerPoolSettings);
+        for (NodeModel softlayerNodeModel : softlayerNodeModels) {
+            nodeModel = softlayerNodeModel;
+            logger.info("found node model [{}]", nodeModel);
+            break;
+        }
+
+        Assert.isTrue(nodeModel != null, "node model cannot be null after machine is created");
+
+        logger.info("node status is [{}]", nodeModel.nodeStatus);
+        Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
+                String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
+
+
+        final NodeModel finalNodeModel = nodeModel;
+        managerTaskExecutor.execute(DeleteMachinePoolTask.class, new TaskData() {
+            @Override
+            public NodeModel getNodeModel() {
+                return finalNodeModel;
+            }
+        }, softlayerPoolSettings);
+
     }
 
     @Test
@@ -105,7 +150,7 @@ public class TestPoolManager {
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
                     .setPoolId(softlayerPoolSettings.getId())
-                    .setNodeStatus(NodeModel.NodeStatus.CREATING)
+                    .setNodeStatus(NodeModel.NodeStatus.CREATED)
                     .setMachineId("test_machine_id")
                     .setCloudifyVersion("1.1.0"));
         }
@@ -147,8 +192,8 @@ public class TestPoolManager {
 
         // update
 
-        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeModel.NodeStatus.BOOTSTRAPPING);
-        firstNode.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPING);
+        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeModel.NodeStatus.BOOTSTRAPPED);
+        firstNode.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
         int affectedByUpdate = poolManager.updateNode(firstNode);
         logger.info("affectedByUpdate [{}]", affectedByUpdate);
 
@@ -161,8 +206,8 @@ public class TestPoolManager {
 
         Assert.notNull(node, "failed to read a single node");
 
-        Assert.isTrue(node.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPING,
-                String.format("node status should be updated to [%s], but is [%s]", NodeModel.NodeStatus.BOOTSTRAPPING.name(), node.nodeStatus));
+        Assert.isTrue(node.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be updated to [%s], but is [%s]", NodeModel.NodeStatus.BOOTSTRAPPED.name(), node.nodeStatus));
 
         // delete
 
@@ -177,21 +222,40 @@ public class TestPoolManager {
     }
 
 
-    private String readSqlFromFile(File file) {
+    private void buildDatabase() {
+        // going through all files under the 'sql' folder, and executing all of them.
+        Iterator<File> sqlFileIterator = org.apache.commons.io.FileUtils.iterateFiles(
+                FileUtils.getFileInClasspath("sql"), new String[]{"sql"}, false);
+        while (sqlFileIterator.hasNext()) {
+            File file = sqlFileIterator.next();
+            List<String> statements = readSqlStatementsFromFile(file);
+            for (String stmt : statements) {
+                jdbcTemplate.update(stmt);
+            }
+        }
+    }
 
-        String statement = null;
+    private String readSqlStatementFromFile(File file) {
+
+        String script = null;
         try {
             BufferedReader in = new BufferedReader(new FileReader(file));
             LineNumberReader fileReader = new LineNumberReader(in);
-            statement = JdbcTestUtils.readScript(fileReader);
+            script = JdbcTestUtils.readScript(fileReader);
         } catch (IOException e) {
             logger.error("failed to read sql script from file", e);
         }
-        return statement;
+        return script;
+    }
+
+    private List<String> readSqlStatementsFromFile(File file) {
+        String script = readSqlStatementFromFile(file);
+        List<String> statements = new ArrayList<String>();
+        JdbcTestUtils.splitSqlScript(script, ';', statements);
+        return statements;
     }
 
 }
-
 
 
 

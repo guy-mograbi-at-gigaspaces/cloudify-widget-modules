@@ -16,6 +16,12 @@ public class CloudServerApiFactory {
     private CloudServerApiFactory() {
     }
 
+    /**
+     * Creates a cloud server API according to provider name.
+     *
+     * @param providerName The desired provider name.
+     * @return A concrete API using the desired provider, or {@code null} if no such provider found.
+     */
     public static CloudServerApi create(ProviderSettings.ProviderName providerName) {
         if (ProviderSettings.ProviderName.hp == providerName) {
             return new HpCloudComputeCloudServerApi();

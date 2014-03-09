@@ -9,7 +9,19 @@
     <context:property-placeholder location="classpath:/conf/dev/me.properties"/>
 
 
-    <bean id="threadPool" class="cloudify.widget.pool.manager.ThreadPool" init-method="init" destroy-method="destroy" />
+    <bean id="manager" class="cloudify.widget.pool.manager.PoolManager" />
+
+    <bean id="taskErrorsManager" class="cloudify.widget.pool.manager.TaskErrorsManager" />
+
+    <bean id="fixedSizePool" class="cloudify.widget.pool.manager.FixedSizeExecutorServiceFactory">
+        <property name="poolSize" value="200" />
+    </bean>
+
+    <bean id="taskExecutor" class="cloudify.widget.pool.manager.ManagerTaskExecutor" init-method="init" destroy-method="destroy">
+        <property name="poolManager" ref="manager" />
+        <property name="taskErrorsManager" ref="taskErrorsManager" />
+        <property name="executorService" ref="fixedSizePool" />
+    </bean>
 
     <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
         <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
@@ -32,6 +44,14 @@
         <property name="password" value="${jdbc.password}"/>
     </bean>
 
+    <bean id="poolDao" class="cloudify.widget.pool.manager.PoolDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="taskErrorsDao" class="cloudify.widget.pool.manager.TaskErrorsDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <beans profile="softlayer">
         <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
             <property name="key" value="${softlayer_api_key}"/>
@@ -41,10 +61,6 @@
 
         <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
             <property name="connectDetails" ref="softlayerCloudCredentials"/>
-        </bean>
-
-        <bean id="poolDao" class="cloudify.widget.pool.manager.PoolDao">
-            <property name="dataSource" ref="dataSource"/>
         </bean>
 
         <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
