@@ -12,5 +12,6 @@ create table task_errors (
   task_name varchar(200),
   pool_id varchar(200),
   message varchar(2000),
+  info varchar(4000),
   primary key (id)
 );

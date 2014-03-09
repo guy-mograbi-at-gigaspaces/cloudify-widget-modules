@@ -15,6 +15,7 @@ public class TaskErrorModel {
     public TaskName taskName;
     public String poolId;
     public String message;
+    public String info;
 
     public TaskErrorModel setId(long id) {
         this.id = id;
@@ -36,6 +37,11 @@ public class TaskErrorModel {
         return this;
     }
 
+    public TaskErrorModel setInfo(String info) {
+        this.info = info;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "TaskErrorModel{" +
@@ -43,6 +49,7 @@ public class TaskErrorModel {
                 ", taskName=" + taskName +
                 ", poolId='" + poolId + '\'' +
                 ", message='" + message + '\'' +
+                ", info='" + info + '\'' +
                 '}';
     }
 }

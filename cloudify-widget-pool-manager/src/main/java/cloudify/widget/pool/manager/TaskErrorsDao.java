@@ -26,6 +26,7 @@ public class TaskErrorsDao {
     public static final String COL_TASK_NAME = "task_name";
     public static final String COL_POOL_ID = "pool_id";
     public static final String COL_MESSAGE = "message";
+    public static final String COL_INFO = "info";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -43,12 +44,13 @@ public class TaskErrorsDao {
                     @Override
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                         PreparedStatement ps = con.prepareStatement(
-                                "insert into " + TABLE_NAME + " (" + COL_TASK_NAME + "," + COL_POOL_ID + "," + COL_MESSAGE + ") values (?, ?, ?)",
+                                "insert into " + TABLE_NAME + " (" + COL_TASK_NAME + "," + COL_POOL_ID + "," + COL_MESSAGE + "," + COL_INFO + ") values (?, ?, ?, ?)",
                                 Statement.RETURN_GENERATED_KEYS // specify to populate the generated key holder
                         );
                         ps.setString(1, taskErrorModel.taskName.name());
                         ps.setString(2, taskErrorModel.poolId);
                         ps.setString(3, taskErrorModel.message);
+                        ps.setString(4, taskErrorModel.info);
                         return ps;
                     }
                 },
@@ -79,8 +81,8 @@ public class TaskErrorsDao {
 
     public int update(TaskErrorModel errorModel) {
         return jdbcTemplate.update(
-                "update " + TABLE_NAME + " set " + COL_TASK_NAME + " = ?," + COL_POOL_ID + " = ?," + COL_MESSAGE + " = ? where " + COL_ERROR_ID + " = ?",
-                errorModel.taskName.name(), errorModel.poolId, errorModel.message, errorModel.id);
+                "update " + TABLE_NAME + " set " + COL_TASK_NAME + " = ?," + COL_POOL_ID + " = ?," + COL_MESSAGE + " = ?," + COL_INFO + " = ? where " + COL_ERROR_ID + " = ?",
+                errorModel.taskName.name(), errorModel.poolId, errorModel.message, errorModel.info, errorModel.id);
     }
 
     public int delete(long errorId) {
