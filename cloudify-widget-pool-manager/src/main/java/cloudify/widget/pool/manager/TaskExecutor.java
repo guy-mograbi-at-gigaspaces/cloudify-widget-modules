@@ -1,8 +1,8 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.tasks.PoolTask;
-import cloudify.widget.pool.manager.tasks.TaskData;
+import cloudify.widget.pool.manager.tasks.ITask;
+import cloudify.widget.pool.manager.tasks.TaskConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class TaskExecutor {
         }
     }
 
-    public <T extends PoolTask> void execute(Class<T> task, TaskData taskData, PoolSettings poolSettings) {
+    public <T extends ITask> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
@@ -49,7 +49,7 @@ public class TaskExecutor {
             command.setPoolSettings(poolSettings);
             command.setPoolManager(poolManager);
             command.setTaskErrorsManager(taskErrorsManager);
-            command.setTaskData(taskData);
+            command.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
             logger.error("task instantiation failed", e);
         } catch (IllegalAccessException e) {

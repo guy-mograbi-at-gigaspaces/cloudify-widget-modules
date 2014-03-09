@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class DeleteMachinePoolTask implements PoolTask {
+public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(DeleteMachinePoolTask.class);
+    private static Logger logger = LoggerFactory.getLogger(DeleteMachineTask.class);
 
     private PoolManager poolManager;
 
@@ -23,7 +23,7 @@ public class DeleteMachinePoolTask implements PoolTask {
 
     private PoolSettings poolSettings;
 
-    private TaskData taskData;
+    private DeleteMachineTaskConfig taskConfig;
 
     private static final TaskName TASK_NAME = TaskName.DELETE_MACHINE;
 
@@ -55,11 +55,11 @@ public class DeleteMachinePoolTask implements PoolTask {
 
         logger.info("connecting to cloud server api with details [{}]", providerSettings.getConnectDetails());
         cloudServerApi.connect(providerSettings.getConnectDetails());
-        logger.info("deleting machine with id [{}]", taskData.getNodeModel().machineId);
-        cloudServerApi.delete(taskData.getNodeModel().machineId);
+        logger.info("deleting machine with id [{}]", taskConfig.getNodeModel().machineId);
+        cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
         logger.info("machine deleted, removing node model in the database [{}]");
-        poolManager.removeNode(taskData.getNodeModel().id);
+        poolManager.removeNode(taskConfig.getNodeModel().id);
 
     }
 
@@ -85,7 +85,7 @@ public class DeleteMachinePoolTask implements PoolTask {
     }
 
     @Override
-    public void setTaskData(TaskData taskData) {
-        this.taskData = taskData;
+    public void setTaskConfig(DeleteMachineTaskConfig taskConfig) {
+        this.taskConfig = taskConfig;
     }
 }

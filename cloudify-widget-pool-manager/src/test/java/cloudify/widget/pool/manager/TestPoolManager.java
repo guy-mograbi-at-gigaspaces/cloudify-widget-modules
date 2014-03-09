@@ -2,10 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.common.FileUtils;
 import cloudify.widget.pool.manager.dto.*;
-import cloudify.widget.pool.manager.tasks.CreateMachinePoolTask;
-import cloudify.widget.pool.manager.tasks.DeleteMachinePoolTask;
-import cloudify.widget.pool.manager.tasks.TaskData;
-import cloudify.widget.pool.manager.tasks.TaskName;
+import cloudify.widget.pool.manager.tasks.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +16,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -84,7 +79,7 @@ public class TestPoolManager {
         logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
 
         logger.info("executing delete machine task that's bound to fail...");
-        taskExecutor.execute(DeleteMachinePoolTask.class, null, softlayerPoolSettings);
+        taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings);
 
         List<TaskErrorModel> taskErrorModels = poolManager.listTaskErrors(softlayerPoolSettings);
         TaskErrorModel taskErrorModel = null;
@@ -98,7 +93,7 @@ public class TestPoolManager {
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            taskExecutor.execute(CreateMachinePoolTask.class, null, softlayerPoolSettings);
+            taskExecutor.execute(CreateMachineTask.class, null, softlayerPoolSettings);
         }
 
         logger.info("checking table for added node...");
@@ -117,7 +112,7 @@ public class TestPoolManager {
                 String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
 
         final NodeModel finalNodeModel = nodeModel;
-        taskExecutor.execute(DeleteMachinePoolTask.class, new TaskData() {
+        taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;

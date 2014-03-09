@@ -16,9 +16,9 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachinePoolTask implements PoolTask {
+public class CreateMachineTask implements ITask {
 
-    private static Logger logger = LoggerFactory.getLogger(CreateMachinePoolTask.class);
+    private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
 
     private PoolSettings poolSettings;
 
@@ -49,7 +49,7 @@ public class CreateMachinePoolTask implements PoolTask {
     }
 
     @Override
-    public void setTaskData(TaskData taskData) {
+    public void setTaskConfig(TaskConfig taskConfig) {
         // no need for task data for this task
     }
 
@@ -91,7 +91,7 @@ public class CreateMachinePoolTask implements PoolTask {
                     .setPoolId(poolSettings.getId())
                     .setNodeStatus(NodeModel.NodeStatus.CREATED);
 //                    .setCloudifyVersion();
-            logger.info("machine created, adding node model to database [{}]", nodeModel);
+            logger.info("machine created, adding node to database [{}]", nodeModel);
             poolManager.addNode(nodeModel);
         }
     }

@@ -9,7 +9,7 @@ import cloudify.widget.pool.manager.dto.PoolSettings;
  * Date: 3/6/14
  * Time: 12:39 PM
  */
-public interface PoolTask extends Runnable {
+public interface ITask<T extends TaskConfig> extends Runnable {
 
     TaskName getTaskName();
 
@@ -19,5 +19,5 @@ public interface PoolTask extends Runnable {
 
     void setPoolSettings(PoolSettings poolSettings);
 
-    void setTaskData(TaskData taskData);
+    void setTaskConfig(T taskConfig);
 }
