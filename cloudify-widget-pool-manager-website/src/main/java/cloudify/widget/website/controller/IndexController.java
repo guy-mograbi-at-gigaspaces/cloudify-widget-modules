@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 
 
 @SuppressWarnings("UnusedDeclaration")
@@ -31,25 +32,10 @@ public class IndexController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
-    public String showIndex(  @ModelAttribute("account") AccountModel accountModel ) {
+    public String showIndex( @ModelAttribute("account") AccountModel accountModel ) {
         logger.info("account model id is : " + accountModel.id );
         //throw new RuntimeException("this is me!!!!");
         return "hello world!";
-    }
-
-    @RequestMapping(value="/admin/account", method=RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<AccountModel> getAccount( @ModelAttribute("account") AccountModel accountModel ) {
-
-        ResponseEntity<AccountModel> retValue;
-        if( accountModel == null ) {
-            retValue = new ResponseEntity<AccountModel>( HttpStatus.NOT_FOUND );
-        }
-        else{
-            retValue = new ResponseEntity<AccountModel>( accountModel, HttpStatus.OK );
-        }
-
-        return retValue;
     }
 
     @RequestMapping(value="/account/pools", method=RequestMethod.GET)
@@ -64,7 +50,7 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value="/pool/{poolId}", method=RequestMethod.GET)
+    @RequestMapping(value="/admin/pool/{poolId}", method=RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<PoolConfigurationModel> getPoolConfiguration( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ) {
 
@@ -76,6 +62,21 @@ public class IndexController {
         }
         else{
             retValue = new ResponseEntity<PoolConfigurationModel>( poolConfigurationModel, HttpStatus.OK );
+        }
+
+        return retValue;
+    }
+
+    @RequestMapping(value="/admin/account", method=RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<AccountModel> getAccount( @ModelAttribute("account") AccountModel accountModel ) {
+
+        ResponseEntity<AccountModel> retValue;
+        if( accountModel == null ) {
+            retValue = new ResponseEntity<AccountModel>( HttpStatus.NOT_FOUND );
+        }
+        else{
+            retValue = new ResponseEntity<AccountModel>( accountModel, HttpStatus.OK );
         }
 
         return retValue;
@@ -98,6 +99,26 @@ public class IndexController {
     public List<PoolConfigurationModel> getPools(){
         try{
             return poolDao.readPools();
+        }catch(Exception e){
+            logger.error("unable to map pool to JSON", e);
+            return null;
+//            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
+        }
+    }
+
+    @RequestMapping(value="/admin/accounts", method=RequestMethod.POST)
+    @ResponseBody
+    public AccountModel createAccount(){
+        try{
+            String accountUuid = UUID.randomUUID().toString();
+
+            AccountModel accountModel = new AccountModel();
+            accountModel.setUuid( accountUuid );
+
+            Long accountId = accountDao.createAccount(accountModel);
+            accountModel.setId( accountId );
+
+            return accountModel;
         }catch(Exception e){
             logger.error("unable to map pool to JSON", e);
             return null;
