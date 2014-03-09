@@ -57,10 +57,7 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
             logger.error("failed to read bootstrap script file to string");
         }
 
-        logger.info("script file read to string [{}]", script);
-
-
-        // TODO read file and replace placeholders with bootstrap properties from pool settings
+        logger.info("script file read to string\n\n{}", script);
 
         BootstrapProperties bootstrapProperties = poolSettings.getBootstrapProperties();
         script.replaceAll("##publicip##", bootstrapProperties.getPublicIp());
@@ -69,6 +66,8 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
         script.replaceAll("##prebootstrapScript##", bootstrapProperties.getPreBootstrapScript());
         script.replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath());
         script.replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
+
+        logger.info("script file updated with bootstrap properties\n\n{}", script);
 
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
@@ -87,7 +86,7 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
             return;
         }
 
-        cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().privateIp); // TODO private ?
+        cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp); // TODO ponder why public ip ?
 
         NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
         logger.info("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
