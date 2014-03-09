@@ -5,6 +5,7 @@ import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.tasks.CreateMachinePoolTask;
 import cloudify.widget.pool.manager.tasks.DeleteMachinePoolTask;
 import cloudify.widget.pool.manager.tasks.TaskData;
+import cloudify.widget.pool.manager.tasks.TaskName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.util.*;
@@ -31,7 +33,7 @@ import java.util.concurrent.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
-@ActiveProfiles({"softlayer", "ibmprod"})
+@ActiveProfiles({"softlayer"})
 public class TestPoolManager {
 
     private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
@@ -45,9 +47,7 @@ public class TestPoolManager {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private ManagerTaskExecutor managerTaskExecutor;
-
-    private ExecutorService executorService;
+    private TaskExecutor taskExecutor;
 
     @Autowired
     private Integer nExecutions;
@@ -79,38 +79,52 @@ public class TestPoolManager {
     public void testTaskExecutor() {
         logger.info("testing manager task executor");
 
+
         PoolSettings softlayerPoolSettings = poolManager.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
         logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
 
+        logger.info("executing delete machine task that's bound to fail...");
+        taskExecutor.execute(DeleteMachinePoolTask.class, null, softlayerPoolSettings);
+
+        List<TaskErrorModel> taskErrorModels = poolManager.listTaskErrors(softlayerPoolSettings);
+        TaskErrorModel taskErrorModel = null;
+        for (TaskErrorModel model : taskErrorModels) {
+            taskErrorModel = model;
+            break;
+        }
+        Assert.notNull(taskErrorModel, "task error should not be null");
+        logger.info("task message is [{}]", taskErrorModel.message);
+        Assert.isTrue(taskErrorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
+
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            managerTaskExecutor.execute(CreateMachinePoolTask.class, null, softlayerPoolSettings);
+            taskExecutor.execute(CreateMachinePoolTask.class, null, softlayerPoolSettings);
         }
 
-        logger.info("checking table for added node model...");
+        logger.info("checking table for added node...");
         NodeModel nodeModel = null;
         List<NodeModel> softlayerNodeModels = poolManager.listNodes(softlayerPoolSettings);
         for (NodeModel softlayerNodeModel : softlayerNodeModels) {
             nodeModel = softlayerNodeModel;
-            logger.info("found node model [{}]", nodeModel);
+            logger.info("found node [{}]", nodeModel);
             break;
         }
 
-        Assert.isTrue(nodeModel != null, "node model cannot be null after machine is created");
+        Assert.isTrue(nodeModel != null, "node cannot be null after machine is created");
 
         logger.info("node status is [{}]", nodeModel.nodeStatus);
         Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
                 String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
 
-
         final NodeModel finalNodeModel = nodeModel;
-        managerTaskExecutor.execute(DeleteMachinePoolTask.class, new TaskData() {
+        taskExecutor.execute(DeleteMachinePoolTask.class, new TaskData() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;
             }
         }, softlayerPoolSettings);
 
+        Assert.isNull(poolManager.getNode(nodeModel.id), "node should not be found after deletion");
     }
 
     @Test

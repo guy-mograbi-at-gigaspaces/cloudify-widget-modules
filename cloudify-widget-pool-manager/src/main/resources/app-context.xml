@@ -17,7 +17,7 @@
         <property name="poolSize" value="200" />
     </bean>
 
-    <bean id="taskExecutor" class="cloudify.widget.pool.manager.ManagerTaskExecutor" init-method="init" destroy-method="destroy">
+    <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
         <property name="poolManager" ref="manager" />
         <property name="taskErrorsManager" ref="taskErrorsManager" />
         <property name="executorService" ref="fixedSizePool" />

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -15,9 +14,9 @@ import java.util.concurrent.TimeUnit;
  * Date: 3/5/14
  * Time: 5:35 PM
  */
-public class ManagerTaskExecutor {
+public class TaskExecutor {
 
-    private static Logger logger = LoggerFactory.getLogger(ManagerTaskExecutor.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskExecutor.class);
 
     private ExecutorService executorService;
 
