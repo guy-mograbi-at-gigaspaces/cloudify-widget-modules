@@ -308,7 +308,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         HpCloudComputeSshDetails hpCloudSshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details

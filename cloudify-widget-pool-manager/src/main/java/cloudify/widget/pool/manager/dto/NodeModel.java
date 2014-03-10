@@ -10,7 +10,7 @@ public class NodeModel {
     public static final int INITIAL_ID = -1;
 
     public static enum NodeStatus {
-        CREATING, BOOTSTRAPPING, READY, OCCUPIED;
+        CREATED, BOOTSTRAPPED, READY, OCCUPIED;
     }
 
     public long id = INITIAL_ID;

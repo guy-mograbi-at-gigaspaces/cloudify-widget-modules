@@ -19,13 +19,14 @@ import java.util.List;
  * Date: 3/2/14
  * Time: 7:09 PM
  */
-public class PoolDao {
+public class NodesDao {
 
-    public static final String NODE_ID = "id";
-    public static final String POOL_ID = "pool_id";
-    public static final String NODE_STATUS = "node_status";
-    public static final String MACHINE_ID = "machine_id";
-    public static final String CLOUDIFY_VERSION = "cloudify_version";
+    public static final String TABLE_NAME = "nodes";
+    public static final String COL_NODE_ID = "id";
+    public static final String COL_POOL_ID = "pool_id";
+    public static final String COL_NODE_STATUS = "node_status";
+    public static final String COL_MACHINE_ID = "machine_id";
+    public static final String COL_CLOUDIFY_VERSION = "cloudify_version";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -43,7 +44,7 @@ public class PoolDao {
                     @Override
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                         PreparedStatement ps = con.prepareStatement(
-                                "insert into nodes (" + POOL_ID + "," + NODE_STATUS + "," + MACHINE_ID + "," + CLOUDIFY_VERSION + ") values (?, ?, ?, ?)",
+                                "insert into " + TABLE_NAME + " (" + COL_POOL_ID + "," + COL_NODE_STATUS + "," + COL_MACHINE_ID + "," + COL_CLOUDIFY_VERSION + ") values (?, ?, ?, ?)",
                                 Statement.RETURN_GENERATED_KEYS // specify to populate the generated key holder
                         );
                         ps.setString(1, nodeModel.poolId);
@@ -62,15 +63,15 @@ public class PoolDao {
         return affected > 0;
     }
 
-    public List<NodeModel> readAll(String poolId) {
-        return jdbcTemplate.query("select * from nodes where " + POOL_ID + " = ?",
+    public List<NodeModel> readAllOfPool(String poolId) {
+        return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
                 new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
     }
 
     public NodeModel read(long nodeId) {
         try {
-            return jdbcTemplate.queryForObject("select * from nodes where " + NODE_ID + " = ?",
+            return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?",
                     new Object[]{nodeId},
                     new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
         } catch (EmptyResultDataAccessException e) {
@@ -79,12 +80,13 @@ public class PoolDao {
     }
 
     public int update(NodeModel nodeModel) {
-        return jdbcTemplate.update("update nodes set " + POOL_ID + " = ?," + NODE_STATUS + " = ?," + MACHINE_ID + " = ?," + CLOUDIFY_VERSION + " = ? where " + NODE_ID + " = ?",
+        return jdbcTemplate.update(
+                "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_CLOUDIFY_VERSION + " = ? where " + COL_NODE_ID + " = ?",
                 nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, nodeModel.cloudifyVersion, nodeModel.id);
     }
 
-    public int delete(long id) {
-        return jdbcTemplate.update("delete from nodes where id = ?", id);
+    public int delete(long nodeId) {
+        return jdbcTemplate.update("delete from " + TABLE_NAME + " where id = ?", nodeId);
     }
 
 }
