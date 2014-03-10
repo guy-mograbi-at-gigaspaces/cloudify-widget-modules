@@ -91,4 +91,16 @@ public class BootstrapProperties {
         result = 31 * result + (recipeRelativePath != null ? recipeRelativePath.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "BootstrapProperties{" +
+                "publicIp='" + publicIp + '\'' +
+                ", privateIp='" + privateIp + '\'' +
+                ", cloudifyUrl='" + cloudifyUrl + '\'' +
+                ", preBootstrapScript='" + preBootstrapScript + '\'' +
+                ", recipeUrl='" + recipeUrl + '\'' +
+                ", recipeRelativePath='" + recipeRelativePath + '\'' +
+                '}';
+    }
 }
