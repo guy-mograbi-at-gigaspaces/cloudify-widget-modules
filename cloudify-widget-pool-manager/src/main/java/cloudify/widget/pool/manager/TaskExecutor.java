@@ -26,6 +26,8 @@ public class TaskExecutor {
 
     private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
 
+    private StatusManager statusManager;
+
     public void init() {
     }
 
@@ -49,6 +51,7 @@ public class TaskExecutor {
             command.setPoolSettings(poolSettings);
             command.setNodesDataAccessManager(nodesDataAccessManager);
             command.setTaskErrorsDataAccessManager(taskErrorsDataAccessManager);
+            command.setStatusManager(statusManager);
             command.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
             logger.error("task instantiation failed", e);
@@ -76,5 +79,9 @@ public class TaskExecutor {
 
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
+    }
+
+    public void setStatusManager(StatusManager statusManager) {
+        this.statusManager = statusManager;
     }
 }

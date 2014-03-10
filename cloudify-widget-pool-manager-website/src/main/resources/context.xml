@@ -13,6 +13,9 @@
     <mvc:annotation-driven/>
     <context:component-scan base-package="cloudify.widget.website.controller" />
 
+    <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
+    <bean id="taskErrorsDataAccessManager" class="cloudify.widget.pool.manager.TaskErrorsDataAccessManager" />
+
 
     <mvc:interceptors>
         <mvc:interceptor>
@@ -50,21 +53,29 @@
 
     <!-- pool manager context -->
 
-    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
-        <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
+<!--    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
+        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
+    </bean>-->
+
+    <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
+        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
     </bean>
 
-    <bean id="managerSettingsHandler" class="cloudify.widget.pool.manager.ManagerSettingsJsonHandler">
-        <property name="managerSettingsFileLoader" ref="managerSettingsLoader" />
-    </bean>
-
-    <bean id="managerPoolDao" class="cloudify.widget.pool.manager.PoolDao">
+    <bean id="managerPoolDao" class="cloudify.widget.pool.manager.NodesDao">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="manager" class="cloudify.widget.pool.manager.PoolManager">
-        <property name="poolDao" ref="managerPoolDao" />
-        <property name="managerSettingsHandler" ref="managerSettingsHandler" />
+    <bean id="settingsDataAccessManager" class="cloudify.widget.pool.manager.SettingsJsonDataAccessManager">
+        <property name="settingsFileLoader" ref="settingsLoader" />
+    </bean>
+
+    <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
+
+    <bean id="manager" class="cloudify.widget.pool.manager.PoolManagerApi">
+        <property name="settingsDataAccessManager" ref="settingsDataAccessManager" />
+        <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
+        <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
+        <property name="statusManager" ref="statusManager" />
     </bean>
 
 

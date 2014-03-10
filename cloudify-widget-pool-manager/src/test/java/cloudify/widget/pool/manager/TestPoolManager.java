@@ -50,6 +50,9 @@ public class TestPoolManager {
     @Autowired
     private Integer nExecutions;
 
+    @Autowired
+    private String bootstrapScriptResourcePath;
+
 
     @Before
     public void init() {
@@ -81,7 +84,7 @@ public class TestPoolManager {
         PoolSettings softlayerPoolSettings = poolManagerApi.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
         logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
 
-        // delete - (should fail, true negative)
+        // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
         taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings);
@@ -118,17 +121,24 @@ public class TestPoolManager {
         Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
                 String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
 
+        final NodeModel finalNodeModel = nodeModel;
+
         // bootstrap
 
+        taskExecutor.execute(BootstrapMachineTask.class, new BootstrapMachineTaskConfig() {
+            @Override
+            public String getBootstrapScriptResourcePath() {
+                return bootstrapScriptResourcePath;
+            }
 
-        // TODO
-//        taskExecutor.bootstrap(nodeModel);
-
-
+            @Override
+            public NodeModel getNodeModel() {
+                return finalNodeModel;
+            }
+        }, softlayerPoolSettings);
 
         // delete
 
-        final NodeModel finalNodeModel = nodeModel;
         taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
             @Override
             public NodeModel getNodeModel() {

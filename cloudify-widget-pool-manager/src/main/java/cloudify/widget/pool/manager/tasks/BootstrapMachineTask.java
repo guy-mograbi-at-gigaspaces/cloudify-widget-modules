@@ -41,6 +41,11 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
     @Override
     public void run() {
 
+        if (taskConfig.getNodeModel().nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED) {
+            logger.info("node is already bootstrapped, aborting bootstrap task");
+            return;
+        }
+
         File scriptFile = null;
         try {
             scriptFile = ResourceUtils.getFile(taskConfig.getBootstrapScriptResourcePath());
