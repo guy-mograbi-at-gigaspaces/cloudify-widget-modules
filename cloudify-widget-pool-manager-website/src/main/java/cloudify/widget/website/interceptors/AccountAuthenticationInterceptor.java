@@ -1,11 +1,8 @@
 package cloudify.widget.website.interceptors;
 
 import cloudify.widget.common.StringUtils;
-import cloudify.widget.website.config.AppConfig;
 import cloudify.widget.website.dao.IAccountDao;
-import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
-import cloudify.widget.website.models.PoolConfigurationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

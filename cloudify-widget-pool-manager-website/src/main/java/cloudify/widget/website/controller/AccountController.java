@@ -70,6 +70,14 @@ public class AccountController {
         }
     }
 
+    @RequestMapping(value="/account/pools/{poolId}", method=RequestMethod.POST)
+    @ResponseBody
+    public boolean updatePoolConfiguration( @ModelAttribute("account") AccountModel accountModel,
+                                            @PathVariable("poolId") Long poolId, @RequestBody String poolSettingJson ) {
+
+        return poolDao.updatePool( poolId, accountModel.getId(), poolSettingJson );
+    }
+
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)
     {
