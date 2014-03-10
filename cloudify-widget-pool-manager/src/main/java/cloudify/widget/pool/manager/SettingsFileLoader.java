@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
  * Date: 2/27/14
  * Time: 3:33 PM
  */
-public class ManagerSettingsFileLoader {
+public class SettingsFileLoader {
 
-    private static Logger logger = LoggerFactory.getLogger(ManagerSettingsFileLoader.class);
+    private static Logger logger = LoggerFactory.getLogger(SettingsFileLoader.class);
 
-    private String managerSettingsFilePath;
+    private String settingsFilePath;
 
     private String content;
 
@@ -26,17 +26,17 @@ public class ManagerSettingsFileLoader {
     }
 
     private String fromFile() {
-        if (managerSettingsFilePath == null) {
+        if (settingsFilePath == null) {
             throw new RuntimeException("manager settings file not configured, please fix configuration for managerSettingsFilePath");
         }
 
-        String content = FileUtils.readFileInClasspathToString(managerSettingsFilePath);
+        String content = FileUtils.readFileInClasspathToString(settingsFilePath);
         logger.debug("manager settings file read, content is [{}]", content);
         return content;
     }
 
-    public void setManagerSettingsFilePath(String managerSettingsFilePath) {
-        this.managerSettingsFilePath = managerSettingsFilePath;
+    public void setSettingsFilePath(String settingsFilePath) {
+        this.settingsFilePath = settingsFilePath;
     }
 
 }

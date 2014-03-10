@@ -9,14 +9,37 @@
     <context:property-placeholder location="classpath:/conf/dev/me.properties"/>
 
 
+    <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
+    <bean id="taskErrorsDataAccessManager" class="cloudify.widget.pool.manager.TaskErrorsDataAccessManager" />
 
-    <bean id="managerSettingsLoader" class="cloudify.widget.pool.manager.ManagerSettingsFileLoader">
-        <property name="managerSettingsFilePath" value="conf/dev/manager-settings.json" />
+    <bean id="fixedSizePool" class="cloudify.widget.pool.manager.FixedSizeExecutorServiceFactory">
+        <property name="poolSize" value="200" />
     </bean>
 
-    <bean id="managerSettingsHandler" class="cloudify.widget.pool.manager.ManagerSettingsJsonHandler">
-        <property name="managerSettingsFileLoader" ref="managerSettingsLoader" />
+    <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
+        <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
+        <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
+        <property name="executorService" ref="fixedSizePool" />
     </bean>
+
+    <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
+        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
+    </bean>
+
+    <bean id="settingsDataAccessManager" class="cloudify.widget.pool.manager.SettingsJsonDataAccessManager">
+        <property name="settingsFileLoader" ref="settingsLoader" />
+    </bean>
+
+    <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
+
+    <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApi">
+        <property name="settingsDataAccessManager" ref="settingsDataAccessManager" />
+        <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
+        <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
+        <property name="statusManager" ref="statusManager" />
+    </bean>
+
+
 
 
     <bean id="bootstrapMonitor" class="cloudify.widget.pool.manager.BootstrapMonitor">
@@ -31,6 +54,14 @@
         <property name="password" value="${jdbc.password}"/>
     </bean>
 
+    <bean id="nodesDao" class="cloudify.widget.pool.manager.NodesDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="taskErrorsDao" class="cloudify.widget.pool.manager.TaskErrorsDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <beans profile="softlayer">
         <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
             <property name="key" value="${softlayer_api_key}"/>
@@ -40,10 +71,6 @@
 
         <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
             <property name="connectDetails" ref="softlayerCloudCredentials"/>
-        </bean>
-
-        <bean id="poolDao" class="cloudify.widget.pool.manager.PoolDao">
-            <property name="dataSource" ref="dataSource"/>
         </bean>
 
         <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">

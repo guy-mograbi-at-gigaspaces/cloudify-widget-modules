@@ -226,7 +226,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("running ssh script on server [{}], script [{}], use-command-line [{}]", serverIp, script, useCommandLineSsh);

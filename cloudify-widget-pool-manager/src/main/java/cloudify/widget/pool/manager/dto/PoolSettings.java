@@ -14,6 +14,7 @@ public class PoolSettings {
     private String authKey;
     private int maxNodes;
     private int minNodes;
+    private BootstrapProperties bootstrapProperties;
     private ProviderSettings provider;
 
     public String getId() {
@@ -56,16 +57,28 @@ public class PoolSettings {
         this.provider = provider;
     }
 
+    public BootstrapProperties getBootstrapProperties() {
+        return bootstrapProperties;
+    }
+
+    public void setBootstrapProperties(BootstrapProperties bootstrapProperties) {
+        this.bootstrapProperties = bootstrapProperties;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         PoolSettings that = (PoolSettings) o;
+
         if (maxNodes != that.maxNodes) return false;
         if (minNodes != that.minNodes) return false;
         if (!authKey.equals(that.authKey)) return false;
+        if (!bootstrapProperties.equals(that.bootstrapProperties)) return false;
         if (!id.equals(that.id)) return false;
         if (!provider.equals(that.provider)) return false;
+
         return true;
     }
 
@@ -75,6 +88,7 @@ public class PoolSettings {
         result = 31 * result + authKey.hashCode();
         result = 31 * result + maxNodes;
         result = 31 * result + minNodes;
+        result = 31 * result + bootstrapProperties.hashCode();
         result = 31 * result + provider.hashCode();
         return result;
     }

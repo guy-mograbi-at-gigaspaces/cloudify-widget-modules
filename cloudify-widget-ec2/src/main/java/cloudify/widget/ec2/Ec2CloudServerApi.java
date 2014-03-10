@@ -205,7 +205,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
