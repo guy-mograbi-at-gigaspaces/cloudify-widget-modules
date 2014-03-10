@@ -78,6 +78,14 @@ public class AccountController {
         return poolDao.updatePool( poolId, accountModel.getId(), poolSettingJson );
     }
 
+    @RequestMapping(value="/account/pools/{poolId}/delete", method=RequestMethod.POST)
+    @ResponseBody
+    public boolean deletePoolConfiguration( @ModelAttribute("account") AccountModel accountModel,
+                                            @PathVariable("poolId") Long poolId ) {
+
+        return poolDao.deletePool( poolId, accountModel.getId() );
+    }
+
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)
     {
