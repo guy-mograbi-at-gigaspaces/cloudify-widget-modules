@@ -199,7 +199,6 @@ public class IndexController {
         }
     }
 
-
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)
     {

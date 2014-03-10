@@ -83,7 +83,30 @@ public class AccountController {
     public boolean deletePoolConfiguration( @ModelAttribute("account") AccountModel accountModel,
                                             @PathVariable("poolId") Long poolId ) {
 
-        return poolDao.deletePool( poolId, accountModel.getId() );
+        return poolDao.deletePool(poolId, accountModel.getId());
+    }
+
+    @RequestMapping(value="/account/pools/{poolId}/status", method=RequestMethod.GET)
+    @ResponseBody
+    public String getPoolStatus( @ModelAttribute("account") AccountModel accountModel,
+                                 @PathVariable("poolId") Long poolId ){
+        try{
+            return "TBD pool status";
+        }catch(Exception e){
+            logger.error("unable to retrieve pool status", e);
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/account/pools/status", method=RequestMethod.GET)
+    @ResponseBody
+    public String getPoolsStatus( @ModelAttribute("account") AccountModel accountModel){
+        try{
+            return "TBD pools status";
+        }catch(Exception e){
+            logger.error("unable to retrieve pool status", e);
+            return null;
+        }
     }
 
     @ModelAttribute("account")
