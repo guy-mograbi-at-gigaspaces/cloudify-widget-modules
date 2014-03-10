@@ -117,7 +117,7 @@ public class TestPoolManager {
 
         Assert.isTrue(nodeModel != null, "node cannot be null after machine is created");
 
-        logger.info("node status is [{}]", nodeModel.nodeStatus);
+        logger.info("after create machine, node status is [{}]", nodeModel.nodeStatus);
         Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
                 String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
 
@@ -137,6 +137,10 @@ public class TestPoolManager {
             }
         }, softlayerPoolSettings);
 
+        logger.info("after bootstrap machine, node status is [{}]", finalNodeModel.nodeStatus);
+        Assert.isTrue(finalNodeModel.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be [%s]", NodeModel.NodeStatus.BOOTSTRAPPED));
+
         // delete
 
         taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
@@ -146,7 +150,7 @@ public class TestPoolManager {
             }
         }, softlayerPoolSettings);
 
-        Assert.isNull(poolManagerApi.getNode(nodeModel.id), "node should not be found after deletion");
+        Assert.isNull(poolManagerApi.getNode(finalNodeModel.id), "node should not be found after deletion");
     }
 
     @Test
