@@ -1,5 +1,6 @@
 package cloudify.widget.website.dao.mappers;
 
+import cloudify.widget.common.StringUtils;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.models.PoolConfigurationModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,15 +34,16 @@ public class PoolRowMapper implements RowMapper{
         poolConfigurationModel.setAccountId( rs.getLong( "account_id" ) );
         String poolSettingsJson = rs.getString( "pool_setting" );
         PoolSettings poolSettings = null;
-        try {
-            poolSettings = objectMapper.readValue( poolSettingsJson, PoolSettings.class );
-        }
-        catch (IOException e) {
-            if( logger.isErrorEnabled() ){
-                logger.error( "Unable to read Pool settings json, poolSettingsJson=" + poolSettingsJson, e );
-            }
+        if( !StringUtils.isEmpty( poolSettingsJson ) ) {
+            try {
+                poolSettings = objectMapper.readValue(poolSettingsJson, PoolSettings.class);
+            } catch (IOException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("Unable to read Pool settings json, poolSettingsJson=" + poolSettingsJson, e);
+                }
 
-            throw new RuntimeException( "Unable to read Pool settings json, poolSettingsJson=" + poolSettingsJson, e );
+                throw new RuntimeException("Unable to read Pool settings json, poolSettingsJson=" + poolSettingsJson, e);
+            }
         }
 
         poolConfigurationModel.setPoolSettings( poolSettings );
