@@ -1,6 +1,7 @@
 package cloudify.widget.website;
 
-import cloudify.widget.pool.manager.PoolManager;
+import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.SettingsDataAccessManager;
 import cloudify.widget.pool.manager.dto.ManagerSettings;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.ProviderSettings;
@@ -34,12 +35,8 @@ public class MySqlOperationsTest {
     @Autowired
     private IPoolDao poolDao;
 
-    public void setPoolManager(PoolManager poolManager) {
-        this.poolManager = poolManager;
-    }
-
     @Autowired
-    private PoolManager poolManager;
+    private SettingsDataAccessManager settingsDataAccessManager;
 
     @Test
     public void testPool() {
@@ -139,7 +136,7 @@ public class MySqlOperationsTest {
         PoolConfigurationModel poolModel = new PoolConfigurationModel();
         poolModel.setAccountId( accountId );
 
-        ManagerSettings managerSettings = poolManager.getSettings();
+        ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         PoolSettings poolSettings = managerSettings.getPools().get(0);
         poolModel.setPoolSettings( poolSettings );
@@ -150,7 +147,7 @@ public class MySqlOperationsTest {
     private static AccountModel createAccountModel(){
         String accountUuid = createUuid();
         AccountModel accountModel = new AccountModel();
-        accountModel.setUuid( accountUuid );
+        accountModel.setUuid(accountUuid);
 
         return accountModel;
     }
@@ -158,5 +155,9 @@ public class MySqlOperationsTest {
     private static String createUuid(){
         UUID accountUuid = UUID.randomUUID();
         return accountUuid.toString();
+    }
+
+    public void setSettingsDataAccessManager(SettingsDataAccessManager settingsDataAccessManager) {
+        this.settingsDataAccessManager = settingsDataAccessManager;
     }
 }

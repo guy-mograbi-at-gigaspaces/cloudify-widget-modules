@@ -22,6 +22,7 @@
     <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
         <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
+        <property name="statusManager" ref="statusManager" />
         <property name="executorService" ref="synchronousExecutorService" />
     </bean>
 
@@ -29,5 +30,8 @@
         <constructor-arg value="1" /> <!-- if we use more than one, we shouldn't use the SynchronousExecutorService executor mock, as it will execute threads subsequently -->
     </bean>
 
+    <bean id="bootstrapScriptResourcePath" class="java.lang.String">
+        <constructor-arg value="classpath*:bootstrap_machine.sh" />
+    </bean>
 
 </beans>
