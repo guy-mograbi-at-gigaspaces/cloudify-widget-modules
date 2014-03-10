@@ -147,6 +147,58 @@ public class IndexController {
         }
     }
 
+    @RequestMapping(value="/admin/pools/{poolId}/status", method=RequestMethod.GET)
+    @ResponseBody
+    public String getAccountPoolStatus( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
+        try{
+            return "TBD status";
+        }catch(Exception e){
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/pools/status", method=RequestMethod.GET)
+    @ResponseBody
+    public String getAccountPoolsStatus( @ModelAttribute("account") AccountModel accountModel ){
+        try{
+            return "TBD pools statuses";
+        }catch(Exception e){
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/pools/{poolId}/addMachine", method=RequestMethod.POST)
+    @ResponseBody
+    public String addMachine( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
+        try{
+            return "TBD add machine";
+        }catch(Exception e){
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/pools/{poolId}/nodes/{nodeId}/bootstrap", method=RequestMethod.POST)
+    @ResponseBody
+    public String nodeBootstrap( @ModelAttribute("account") AccountModel accountModel,
+                                            @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId ){
+        try{
+            return "TBD node bootstrap";
+        }catch(Exception e){
+            return null;
+        }
+    }
+
+    @RequestMapping(value="/admin/pools/{poolId}/nodes/{nodeId}/delete", method=RequestMethod.POST)
+    @ResponseBody
+    public String nodeDelete( @ModelAttribute("account") AccountModel accountModel,
+                                            @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId ){
+        try{
+            return "TBD node delete";
+        }catch(Exception e){
+            return null;
+        }
+    }
+
 
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)
