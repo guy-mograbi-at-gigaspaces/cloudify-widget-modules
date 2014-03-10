@@ -1,7 +1,5 @@
 package cloudify.widget.website.controller;
 
-import cloudify.widget.pool.manager.dto.ManagerSettings;
-import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -10,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -35,38 +32,9 @@ public class IndexController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public String showIndex( @ModelAttribute("account") AccountModel accountModel ) {
-        logger.info("account model id is : " + accountModel.id );
+        logger.info("account model id is : " + ( ( accountModel == null ) ? "n/a" : accountModel.id ) );
         //throw new RuntimeException("this is me!!!!");
         return "hello world!";
-    }
-
-    @RequestMapping(value="/account/pools", method=RequestMethod.GET)
-    @ResponseBody
-    public List<PoolConfigurationModel> getPools(@ModelAttribute("account") AccountModel accountModel){
-        try{
-            return poolDao.readPools( accountModel );
-        }catch(Exception e){
-            logger.error("unable to map pool to JSON", e);
-            return null;
-//            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
-        }
-    }
-
-    @RequestMapping(value="/admin/pool/{poolId}", method=RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<PoolConfigurationModel> getPoolConfiguration( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ) {
-
-        PoolConfigurationModel poolConfigurationModel = poolDao.readPoolByAccountId( poolId, accountModel.getId());
-        ResponseEntity<PoolConfigurationModel> retValue;
-
-        if( poolConfigurationModel == null ) {
-            retValue = new ResponseEntity<PoolConfigurationModel>( HttpStatus.NOT_FOUND );
-        }
-        else{
-            retValue = new ResponseEntity<PoolConfigurationModel>( poolConfigurationModel, HttpStatus.OK );
-        }
-
-        return retValue;
     }
 
     @RequestMapping(value="/admin/account", method=RequestMethod.GET)
@@ -173,7 +141,7 @@ public class IndexController {
     @ResponseBody
     public PoolConfigurationModel getAccountPool( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId ){
         try{
-            return poolDao.readPoolByAccountId( poolId, accountId );
+            return poolDao.readPoolByIdAndAccountId(poolId, accountId);
         }catch(Exception e){
             return null;
         }

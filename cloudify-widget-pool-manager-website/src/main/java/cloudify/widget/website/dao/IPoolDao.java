@@ -32,7 +32,7 @@ public interface IPoolDao {
 
     public List<PoolConfigurationModel> readPools();
 
-    public PoolConfigurationModel readPoolByAccountId( Long poolId, Long accountId );
+    public PoolConfigurationModel readPoolByIdAndAccountId( Long poolId, Long accountId );
 
     public PoolConfigurationModel readPoolById( Long poolId );
 }

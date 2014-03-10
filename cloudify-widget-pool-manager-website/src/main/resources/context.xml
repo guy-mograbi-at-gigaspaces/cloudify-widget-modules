@@ -16,19 +16,21 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/admin/**"/>
-            <bean class="cloudify.widget.website.interceptors.AdminAuthenticationInterceptor" >
-            </bean>
+            <bean class="cloudify.widget.website.interceptors.AdminAuthenticationInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/account/**"/>
+            <bean class="cloudify.widget.website.interceptors.AccountAuthenticationInterceptor"/>
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
             <mvc:exclude-mapping path="/admin/**"/>
-            <bean class="cloudify.widget.website.interceptors.AuthenticationInterceptor" >
-            </bean>
+            <mvc:exclude-mapping path="/account/**"/>
+            <bean class="cloudify.widget.website.interceptors.AuthenticationInterceptor"/>
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
-            <bean class="cloudify.widget.website.interceptors.ExceptionInterceptor" >
-            </bean>
+            <bean class="cloudify.widget.website.interceptors.ExceptionInterceptor"/>
         </mvc:interceptor>
 
     </mvc:interceptors>

@@ -29,9 +29,6 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
     private IAccountDao accountDao;
 
     @Autowired
-    private IPoolDao poolDao;
-
-    @Autowired
     private AppConfig conf;
 
     @Override
@@ -62,18 +59,6 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
             request.setAttribute("account", accountModel);
         }
 
-        String poolIdStr = request.getHeader("poolId");
-        if( !StringUtils.isEmpty( poolIdStr ) ) {
-            Long poolId = Long.parseLong( poolIdStr );
-            PoolConfigurationModel poolConfigurationModel = poolDao.readPoolById( poolId );
-            if( poolConfigurationModel == null ) {
-                response.sendError(401, "{'message' : 'Pool Configuration with id [" + poolId + "] not found'}");
-                return false;
-            }
-
-            request.setAttribute("poolConfig", poolConfigurationModel);
-        }
-
         return super.preHandle(request, response, handler);
     }
 
@@ -91,13 +76,5 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     public void setConf(AppConfig conf) {
         this.conf = conf;
-    }
-
-    public IPoolDao getPoolDao() {
-        return poolDao;
-    }
-
-    public void setPoolDao(IPoolDao poolDao) {
-        this.poolDao = poolDao;
     }
 }

@@ -123,7 +123,7 @@ public class PoolDaoImpl implements IPoolDao {
 */
 
     @Override
-    public PoolConfigurationModel readPoolByAccountId( Long poolId, Long accountId) {
+    public PoolConfigurationModel readPoolByIdAndAccountId( Long poolId, Long accountId) {
         logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByAccountId, new Object[]{accountId, poolId }, poolRowMapper );
