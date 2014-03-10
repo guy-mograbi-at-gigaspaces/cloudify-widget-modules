@@ -73,8 +73,6 @@ public class CreateMachineTask implements ITask {
             return;
         }
 
-
-        // TODO ponder: is this really a job for the task?
         PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize >= status.maxNodes) {
             String message = "failed to create machine, pool has reached its maximum capacity as defined in the pool settings";
@@ -87,19 +85,15 @@ public class CreateMachineTask implements ITask {
             return;
         }
 
-
-        logger.info("connecting to cloud server api with details [{}]", providerSettings.getConnectDetails());
         cloudServerApi.connect(providerSettings.getConnectDetails());
-        logger.info("creating machine(s) with options [{}]", providerSettings.getMachineOptions());
-        Collection<? extends CloudServerCreated> cloudServerCreateds = cloudServerApi.create(providerSettings.getMachineOptions());
 
+        Collection<? extends CloudServerCreated> cloudServerCreateds = cloudServerApi.create(providerSettings.getMachineOptions());
         for (CloudServerCreated created : cloudServerCreateds) {
             NodeModel nodeModel = new NodeModel()
                     .setMachineId(created.getId())
                     .setPoolId(poolSettings.getId())
                     .setNodeStatus(NodeModel.NodeStatus.CREATED);
-//                    .setCloudifyVersion();
-            logger.info("machine created, adding node to database [{}]", nodeModel);
+            logger.debug("machine created, adding node to database [{}]", nodeModel);
             nodesDataAccessManager.addNode(nodeModel);
         }
     }

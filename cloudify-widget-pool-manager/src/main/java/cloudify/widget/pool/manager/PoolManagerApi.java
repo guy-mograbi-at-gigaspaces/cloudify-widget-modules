@@ -1,98 +1,36 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
  * User: eliranm
- * Date: 3/9/14
- * Time: 7:50 PM
+ * Date: 3/10/14
+ * Time: 5:39 PM
  */
-public class PoolManagerApi {
+public interface PoolManagerApi {
 
-    private static Logger logger = LoggerFactory.getLogger(PoolManagerApi.class);
+    PoolStatus getStatus(String poolSettingsId);
 
+    Collection<PoolStatus> listStatuses();
 
-    @Autowired
-    private NodesDataAccessManager nodesDataAccessManager;
+    ManagerSettings getSettings();
 
-    @Autowired
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    List<NodeModel> listNodes(String poolSettingsId);
 
-    @Autowired
-    private SettingsDataAccessManager settingsDataAccessManager;
+    NodeModel getNode(long nodeId);
 
-    @Autowired
-    private StatusManager statusManager;
+    void createNode(String poolSettingsId);
 
-    public PoolStatus getStatus(PoolSettings poolSettings) {
-        return statusManager.getStatus(poolSettings);
-    }
+    void deleteNode(long nodeId);
 
-    public ManagerSettings getSettings() {
-        return settingsDataAccessManager.read();
-    }
+    void bootstrapNode(long nodeId);
 
-    // nodes api
+    List<TaskErrorModel> listTaskErrors(String poolSettingsId);
 
-    public List<NodeModel> listNodes(PoolSettings poolSettings) {
-        return nodesDataAccessManager.listNodes(poolSettings);
-    }
+    TaskErrorModel getTaskError(long errorId);
 
-    public NodeModel getNode(long nodeId) {
-        return nodesDataAccessManager.getNode(nodeId);
-    }
-
-    public boolean createNode(NodeModel nodeModel) {
-        // TODO replace with executor logic
-        return nodesDataAccessManager.addNode(nodeModel);
-    }
-
-    public int deleteNode(long nodeId) {
-        // TODO replace with executor logic
-        return nodesDataAccessManager.removeNode(nodeId);
-    }
-
-    // TODO externalize!
-/*
-    public void runScriptOnNode(NodeModel nodeModel, File script) {
-        return executor.runScriptOnNode(nodeModel, script);
-    }
-*/
-
-    // task errors api
-
-    public List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings) {
-        return taskErrorsDataAccessManager.listTaskErrors(poolSettings);
-    }
-
-    public TaskErrorModel getTaskError(long errorId) {
-        return taskErrorsDataAccessManager.getTaskError(errorId);
-    }
-
-    public int removeTaskError(long errorId) {
-        return taskErrorsDataAccessManager.removeTaskError(errorId);
-    }
-
-
-
-    public void setSettingsDataAccessManager(SettingsDataAccessManager settingsDataAccessManager) {
-        this.settingsDataAccessManager = settingsDataAccessManager;
-    }
-
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
-    }
-
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
-    }
-
-    public void setStatusManager(StatusManager statusManager) {
-        this.statusManager = statusManager;
-    }
+    void removeTaskError(long errorId);
 }

@@ -89,7 +89,7 @@ public class TestPoolManager {
         logger.info("executing delete machine task that's bound to fail...");
         taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings);
 
-        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
+        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings.getId());
         TaskErrorModel taskErrorModel = null;
         for (TaskErrorModel model : taskErrorModels) {
             taskErrorModel = model;
@@ -108,7 +108,7 @@ public class TestPoolManager {
 
         logger.info("checking table for added node...");
         NodeModel nodeModel = null;
-        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings);
+        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings.getId());
         for (NodeModel softlayerNodeModel : softlayerNodeModels) {
             nodeModel = softlayerNodeModel;
             logger.info("found node [{}]", nodeModel);
@@ -164,7 +164,7 @@ public class TestPoolManager {
         Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
         logger.info("getting pool status...");
-        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings);
+        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings.getId());
 
         Assert.notNull(poolStatus, "pool status should not be null");
 
