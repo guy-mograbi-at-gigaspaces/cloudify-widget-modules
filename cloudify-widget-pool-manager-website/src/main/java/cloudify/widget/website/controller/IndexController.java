@@ -1,5 +1,7 @@
 package cloudify.widget.website.controller;
 
+import cloudify.widget.pool.manager.PoolManagerApi;
+import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -28,6 +30,13 @@ public class IndexController {
 
     @Autowired
     private IPoolDao poolDao;
+
+    @Autowired
+    private PoolManagerApi poolManagerApi;
+
+    public void setPoolManagerApi(PoolManagerApi poolManagerApi) {
+        this.poolManagerApi = poolManagerApi;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
@@ -149,10 +158,20 @@ public class IndexController {
 
     @RequestMapping(value="/admin/pools/{poolId}/status", method=RequestMethod.GET)
     @ResponseBody
-    public String getAccountPoolStatus( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
+    public PoolStatus getAccountPoolStatus( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
         try{
-            return "TBD status";
-        }catch(Exception e){
+            PoolStatus retValue = null;
+            PoolConfigurationModel poolConfiguration = getAccountPool(accountModel.getId(), poolId);
+            if( poolConfiguration != null ){
+                PoolSettings poolSettings = poolConfiguration.getPoolSettings();
+                if( poolSettings != null ){
+                    retValue = poolManagerApi.getStatus( poolSettings );
+                }
+            }
+
+            return retValue;
+        }
+        catch(Exception e){
             return null;
         }
     }
@@ -171,6 +190,10 @@ public class IndexController {
     @ResponseBody
     public String addMachine( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
         try{
+
+            NodeModel nodeModel = new NodeModel();
+//            nodeModel.setPoolUuid(  );
+//            poolManagerApi.createNode(  );
             return "TBD add machine";
         }catch(Exception e){
             return null;
@@ -193,6 +216,7 @@ public class IndexController {
     public String nodeDelete( @ModelAttribute("account") AccountModel accountModel,
                                             @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId ){
         try{
+            poolManagerApi.deleteNode( nodeId );
             return "TBD node delete";
         }catch(Exception e){
             return null;
