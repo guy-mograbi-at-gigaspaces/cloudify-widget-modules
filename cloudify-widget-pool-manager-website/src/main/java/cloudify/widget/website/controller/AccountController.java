@@ -1,5 +1,8 @@
 package cloudify.widget.website.controller;
 
+import cloudify.widget.pool.manager.PoolManagerApi;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.PoolStatus;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -27,6 +30,13 @@ public class AccountController {
 
     @Autowired
     private IPoolDao poolDao;
+
+    @Autowired
+    private PoolManagerApi poolManagerApi;
+
+    public void setPoolManagerApi(PoolManagerApi poolManagerApi) {
+        this.poolManagerApi = poolManagerApi;
+    }
 
     @RequestMapping(value="/account/pools", method=RequestMethod.GET)
     @ResponseBody
@@ -87,12 +97,21 @@ public class AccountController {
 
     @RequestMapping(value="/account/pools/{poolId}/status", method=RequestMethod.GET)
     @ResponseBody
-    public String getPoolStatus( @ModelAttribute("account") AccountModel accountModel,
+    public PoolStatus getPoolStatus( @ModelAttribute("account") AccountModel accountModel,
                                  @PathVariable("poolId") Long poolId ){
         try{
-            return "TBD pool status";
-        }catch(Exception e){
-            logger.error("unable to retrieve pool status", e);
+            PoolStatus retValue = null;
+            PoolConfigurationModel poolConfiguration = poolDao.readPoolByIdAndAccountId(poolId, accountModel.getId());
+            if( poolConfiguration != null ){
+                PoolSettings poolSettings = poolConfiguration.getPoolSettings();
+                if( poolSettings != null ){
+                    retValue = poolManagerApi.getStatus( poolSettings );
+                }
+            }
+
+            return retValue;
+        }
+        catch(Exception e){
             return null;
         }
     }
