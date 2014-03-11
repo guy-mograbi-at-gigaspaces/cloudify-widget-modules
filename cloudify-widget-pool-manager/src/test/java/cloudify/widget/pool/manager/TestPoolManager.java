@@ -87,9 +87,9 @@ public class TestPoolManager {
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings);
+        taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings, null);
 
-        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings.getId());
+        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
         TaskErrorModel taskErrorModel = null;
         for (TaskErrorModel model : taskErrorModels) {
             taskErrorModel = model;
@@ -103,12 +103,21 @@ public class TestPoolManager {
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            taskExecutor.execute(CreateMachineTask.class, null, softlayerPoolSettings);
+            taskExecutor.execute(CreateMachineTask.class, null, softlayerPoolSettings, new TaskCallback() {
+                @Override
+                public void onSuccess(Object result) {
+                    // TODO
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                }
+            });
         }
 
         logger.info("checking table for added node...");
         NodeModel nodeModel = null;
-        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings.getId());
+        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings);
         for (NodeModel softlayerNodeModel : softlayerNodeModels) {
             nodeModel = softlayerNodeModel;
             logger.info("found node [{}]", nodeModel);
@@ -135,7 +144,7 @@ public class TestPoolManager {
             public NodeModel getNodeModel() {
                 return finalNodeModel;
             }
-        }, softlayerPoolSettings);
+        }, softlayerPoolSettings, null);
 
         logger.info("after bootstrap machine, node status is [{}]", finalNodeModel.nodeStatus);
         Assert.isTrue(finalNodeModel.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
@@ -148,7 +157,7 @@ public class TestPoolManager {
             public NodeModel getNodeModel() {
                 return finalNodeModel;
             }
-        }, softlayerPoolSettings);
+        }, softlayerPoolSettings, null);
 
         Assert.isNull(poolManagerApi.getNode(finalNodeModel.id), "node should not be found after deletion");
     }
@@ -164,7 +173,7 @@ public class TestPoolManager {
         Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
         logger.info("getting pool status...");
-        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings.getId());
+        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings);
 
         Assert.notNull(poolStatus, "pool status should not be null");
 

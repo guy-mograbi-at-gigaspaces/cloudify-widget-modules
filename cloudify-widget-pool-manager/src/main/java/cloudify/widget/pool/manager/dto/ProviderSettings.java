@@ -87,4 +87,13 @@ public class ProviderSettings {
         result = 31 * result + machineOptions.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ProviderSettings{" +
+                "name=" + name +
+                ", connectDetails=" + connectDetails +
+                ", machineOptions=" + machineOptions +
+                '}';
+    }
 }
