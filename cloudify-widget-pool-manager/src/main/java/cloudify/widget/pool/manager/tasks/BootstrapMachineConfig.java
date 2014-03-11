@@ -5,9 +5,11 @@ import cloudify.widget.pool.manager.dto.NodeModel;
 /**
  * User: eliranm
  * Date: 3/9/14
- * Time: 6:56 PM
+ * Time: 7:01 PM
  */
-public interface DeleteMachineTaskConfig extends TaskConfig {
+public interface BootstrapMachineConfig extends TaskConfig {
+
+    String getBootstrapScriptResourcePath();
 
     NodeModel getNodeModel();
 }

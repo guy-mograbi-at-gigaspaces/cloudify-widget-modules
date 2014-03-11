@@ -5,11 +5,12 @@ import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -17,15 +18,15 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachineTask implements ITask<TaskConfig, Collection<? extends CloudServerCreated>> {
+public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
 
-    private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
+    private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
 
     private PoolSettings poolSettings;
 
     private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     private StatusManager statusManager;
 
@@ -42,8 +43,8 @@ public class CreateMachineTask implements ITask<TaskConfig, Collection<? extends
     }
 
     @Override
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     @Override
@@ -62,42 +63,48 @@ public class CreateMachineTask implements ITask<TaskConfig, Collection<? extends
     }
 
     @Override
-    public Collection<? extends CloudServerCreated> call() throws Exception {
+    public Collection<NodeModel> call() throws Exception {
         logger.info("creating machine with pool settings [{}]", poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(providerSettings.getName());
         if (cloudServerApi == null) {
-            logger.error("failed to obtain an API object using provider [{}]", providerSettings.getName());
-            return null;
+            String message = String.format("failed to obtain cloud server API using provider [%s]", providerSettings.getName());
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
         PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize >= status.maxNodes) {
-            String message = "failed to create machine, pool has reached its maximum capacity as defined in the pool settings";
+            String message = "pool has reached its maximum capacity as defined in the pool settings";
             logger.error(message);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
-            return null;
+            throw new RuntimeException(message);
         }
 
+        logger.debug("connecting to provider [{}]", providerSettings.getName());
         cloudServerApi.connect(providerSettings.getConnectDetails());
+
+        Collection<NodeModel> nodeModelsCreated = new ArrayList<NodeModel>();
 
         Collection<? extends CloudServerCreated> cloudServerCreateds = cloudServerApi.create(providerSettings.getMachineOptions());
         for (CloudServerCreated created : cloudServerCreateds) {
             NodeModel nodeModel = new NodeModel()
                     .setMachineId(created.getId())
                     .setPoolId(poolSettings.getId())
-                    .setNodeStatus(NodeModel.NodeStatus.CREATED);
-            logger.debug("machine created, adding node to database [{}]", nodeModel);
+                    .setNodeStatus(NodeStatus.CREATED);
+            logger.debug("machine created, adding node to database. node model is [{}]", nodeModel);
             nodesDataAccessManager.addNode(nodeModel);
+            nodeModelsCreated.add(nodeModel);
         }
 
-        return cloudServerCreateds;
+        // TODO ponder: do we really need to pass this back?
+        return nodeModelsCreated;
     }
 
 }

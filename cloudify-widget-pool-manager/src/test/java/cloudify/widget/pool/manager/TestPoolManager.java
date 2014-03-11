@@ -89,23 +89,23 @@ public class TestPoolManager {
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings, null);
+        taskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
 
-        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
-        TaskErrorModel taskErrorModel = null;
-        for (TaskErrorModel model : taskErrorModels) {
-            taskErrorModel = model;
+        List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
+        ErrorModel errorModel = null;
+        for (ErrorModel model : errorModels) {
+            errorModel = model;
             break;
         }
-        Assert.notNull(taskErrorModel, "task error should not be null");
-        logger.info("task message is [{}]", taskErrorModel.message);
-        Assert.isTrue(taskErrorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
+        Assert.notNull(errorModel, "task error should not be null");
+        logger.info("task message is [{}]", errorModel.message);
+        Assert.isTrue(errorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
 
         // create
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            taskExecutor.execute(CreateMachineTask.class, null, softlayerPoolSettings, new TaskCallback() {
+            taskExecutor.execute(CreateMachine.class, null, softlayerPoolSettings, new TaskCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     // TODO
@@ -129,14 +129,14 @@ public class TestPoolManager {
         Assert.isTrue(nodeModel != null, "node cannot be null after machine is created");
 
         logger.info("after create machine, node status is [{}]", nodeModel.nodeStatus);
-        Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
-                String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
+        Assert.isTrue(nodeModel.nodeStatus == NodeStatus.CREATED,
+                String.format("node status should be [%s]", NodeStatus.CREATED));
 
         final NodeModel finalNodeModel = nodeModel;
 
         // bootstrap
 
-        taskExecutor.execute(BootstrapMachineTask.class, new BootstrapMachineTaskConfig() {
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -149,12 +149,12 @@ public class TestPoolManager {
         }, softlayerPoolSettings, null);
 
         logger.info("after bootstrap machine, node status is [{}]", finalNodeModel.nodeStatus);
-        Assert.isTrue(finalNodeModel.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
-                String.format("node status should be [%s]", NodeModel.NodeStatus.BOOTSTRAPPED));
+        Assert.isTrue(finalNodeModel.nodeStatus == NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be [%s]", NodeStatus.BOOTSTRAPPED));
 
         // delete
 
-        taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
+        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;
@@ -201,9 +201,8 @@ public class TestPoolManager {
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
                     .setPoolId(softlayerPoolSettings.getId())
-                    .setNodeStatus(NodeModel.NodeStatus.CREATED)
-                    .setMachineId("test_machine_id")
-                    .setCloudifyVersion("1.1.0"));
+                    .setNodeStatus(NodeStatus.CREATED)
+                    .setMachineId("test_machine_id"));
         }
 
         NodeModel firstNode = nodes.get(0);
@@ -243,8 +242,8 @@ public class TestPoolManager {
 
         // update
 
-        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeModel.NodeStatus.BOOTSTRAPPED);
-        firstNode.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
+        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeStatus.BOOTSTRAPPED);
+        firstNode.setNodeStatus(NodeStatus.BOOTSTRAPPED);
         int affectedByUpdate = nodesDataAccessManager.updateNode(firstNode);
         logger.info("affectedByUpdate [{}]", affectedByUpdate);
 
@@ -257,8 +256,8 @@ public class TestPoolManager {
 
         Assert.notNull(node, "failed to read a single node");
 
-        Assert.isTrue(node.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
-                String.format("node status should be updated to [%s], but is [%s]", NodeModel.NodeStatus.BOOTSTRAPPED.name(), node.nodeStatus));
+        Assert.isTrue(node.nodeStatus == NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be updated to [%s], but is [%s]", NodeStatus.BOOTSTRAPPED.name(), node.nodeStatus));
 
         // delete
 

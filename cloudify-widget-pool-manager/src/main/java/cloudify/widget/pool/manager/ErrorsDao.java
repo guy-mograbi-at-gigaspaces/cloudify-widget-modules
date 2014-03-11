@@ -1,6 +1,6 @@
 package cloudify.widget.pool.manager;
 
-import cloudify.widget.pool.manager.dto.TaskErrorModel;
+import cloudify.widget.pool.manager.dto.ErrorModel;
 import com.mysql.jdbc.Statement;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -19,9 +19,9 @@ import java.util.List;
  * Date: 3/9/14
  * Time: 2:10 PM
  */
-public class TaskErrorsDao {
+public class ErrorsDao {
 
-    public static final String TABLE_NAME = "task_errors";
+    public static final String TABLE_NAME = "errors";
     public static final String COL_ERROR_ID = "id";
     public static final String COL_TASK_NAME = "task_name";
     public static final String COL_POOL_ID = "pool_id";
@@ -34,7 +34,7 @@ public class TaskErrorsDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public boolean create(final TaskErrorModel taskErrorModel) {
+    public boolean create(final ErrorModel errorModel) {
 
         // used to hold the auto generated key in the 'id' column
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -47,10 +47,10 @@ public class TaskErrorsDao {
                                 "insert into " + TABLE_NAME + " (" + COL_TASK_NAME + "," + COL_POOL_ID + "," + COL_MESSAGE + "," + COL_INFO + ") values (?, ?, ?, ?)",
                                 Statement.RETURN_GENERATED_KEYS // specify to populate the generated key holder
                         );
-                        ps.setString(1, taskErrorModel.taskName.name());
-                        ps.setString(2, taskErrorModel.poolId);
-                        ps.setString(3, taskErrorModel.message);
-                        ps.setString(4, taskErrorModel.info);
+                        ps.setString(1, errorModel.taskName.name());
+                        ps.setString(2, errorModel.poolId);
+                        ps.setString(3, errorModel.message);
+                        ps.setString(4, errorModel.info);
                         return ps;
                     }
                 },
@@ -58,28 +58,28 @@ public class TaskErrorsDao {
         );
 
         // keep data integrity - fetch the last insert id and update the model
-        taskErrorModel.id = keyHolder.getKey().longValue();
+        errorModel.id = keyHolder.getKey().longValue();
 
         return affected > 0;
     }
 
-    public List<TaskErrorModel> readAllOfPool(String poolId) {
+    public List<ErrorModel> readAllOfPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
-                new BeanPropertyRowMapper<TaskErrorModel>(TaskErrorModel.class));
+                new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
     }
 
-    public TaskErrorModel read(long errorId) {
+    public ErrorModel read(long errorId) {
         try {
             return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_ERROR_ID + " = ?",
                     new Object[]{errorId},
-                    new BeanPropertyRowMapper<TaskErrorModel>(TaskErrorModel.class));
+                    new BeanPropertyRowMapper<ErrorModel>(ErrorModel.class));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
-    public int update(TaskErrorModel errorModel) {
+    public int update(ErrorModel errorModel) {
         return jdbcTemplate.update(
                 "update " + TABLE_NAME + " set " + COL_TASK_NAME + " = ?," + COL_POOL_ID + " = ?," + COL_MESSAGE + " = ?," + COL_INFO + " = ? where " + COL_ERROR_ID + " = ?",
                 errorModel.taskName.name(), errorModel.poolId, errorModel.message, errorModel.info, errorModel.id);

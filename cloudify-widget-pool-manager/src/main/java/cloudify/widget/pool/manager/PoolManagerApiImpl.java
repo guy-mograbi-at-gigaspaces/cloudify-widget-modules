@@ -23,7 +23,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     private NodesDataAccessManager nodesDataAccessManager;
 
     @Autowired
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     @Autowired
     private SettingsDataAccessManager settingsDataAccessManager;
@@ -39,31 +39,19 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public PoolStatus getStatus(PoolSettings poolSettings) {
-//        if (poolSettings == null) return null;
-//        return statusManager.getStatus(poolSettings);
-
-        // mocking
-        return new PoolStatus().minNodes(poolSettings.getMinNodes()).maxNodes(poolSettings.getMaxNodes()).currentSize(poolSettings.getMaxNodes() - 1);
+        if (poolSettings == null) return null;
+        return statusManager.getStatus(poolSettings);
     }
 
     @Override
     public Collection<PoolStatus> listStatuses() {
-//        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
-//        PoolsSettingsList poolSettingsList = _getPools();
-//        if (poolSettingsList == null) return null;
-//        for (PoolSettings poolSettings : poolSettingsList) {
-//            poolStatuses.add(statusManager.getStatus(poolSettings));
-//        }
-//        return poolStatuses;
-
-//        mocking
-        ArrayList<PoolStatus> statuses = new ArrayList<PoolStatus>();
+        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
         PoolsSettingsList poolSettingsList = _getPools();
         if (poolSettingsList == null) return null;
         for (PoolSettings poolSettings : poolSettingsList) {
-            statuses.add(getStatus(poolSettings));
+            poolStatuses.add(statusManager.getStatus(poolSettings));
         }
-        return statuses;
+        return poolStatuses;
     }
 
     @Override
@@ -83,30 +71,57 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public void createNode(PoolSettings poolSettings, TaskCallback taskCallback) {
-        if (poolSettings == null) return;
-        taskExecutor.execute(CreateMachineTask.class, null, poolSettings, taskCallback);
+    public NodeModel getNode(NodeModel nodeModel) {
+        throw new UnsupportedOperationException("not supported yet!");
+        // TODO implement - get node and mark as occupied?
     }
 
     @Override
-    public void deleteNode(long nodeId) {
+    public NodeModel getAnyNode(PoolSettings poolSettings) {
+        throw new UnsupportedOperationException("not supported yet!");
+
+/*
+        List<NodeModel> nodeModels = nodesDataAccessManager.listNodes(poolSettings);
+        // TODO TBD run validation at this point
+        for (NodeModel nodeModel : nodeModels) {
+            if (nodeModel.nodeStatus != NodeStatus.OCCUPIED) {  // TODO discuss with guy: what would the tasks check (non occupied?)
+                return nodeModel;
+            }
+        }
+        return null;
+*/
+    }
+
+    @Override
+    public void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback) {
+        if (poolSettings == null) return;
+        taskExecutor.execute(CreateMachine.class, null, poolSettings, taskCallback);
+    }
+
+    @Override
+    public void deleteNode(long nodeId, TaskCallback<Void> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
         if (node == null) return;
         PoolSettings poolSettings = _getPoolSettings(node.poolId);
         if (poolSettings == null) return;
-        taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
+        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return node;
             }
-        }, poolSettings, null);
+        }, poolSettings, taskCallback);
     }
 
     @Override
-    public void bootstrapNode(long nodeId) {
+    public void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback) {
+        throw new UnsupportedOperationException("not supported yet!");
+    }
+
+    @Override
+    public void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
         PoolSettings poolSettings = _getPoolSettings(node.poolId);
-        taskExecutor.execute(BootstrapMachineTask.class, new BootstrapMachineTaskConfig() {
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -115,24 +130,42 @@ public class PoolManagerApiImpl implements PoolManagerApi {
             public NodeModel getNodeModel() {
                 return node;
             }
-        }, poolSettings, null);
-
+        }, poolSettings, taskCallback);
     }
 
     @Override
-    public List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings) {
+    public void bootstrapNode(PoolSettings poolSettings, TaskCallback<NodeModel> taskCallback) {
+        throw new UnsupportedOperationException("not supported yet!");
+
+        // TODO task should find a CREATED node for itself, and should return that node in the callback success
+/*
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
+            @Override
+            public String getBootstrapScriptResourcePath() {
+                return bootstrapScriptResourcePath;
+            }
+//            @Override
+//            public NodeModel getNodeModel() {
+//                return node;
+//            }
+        }, poolSettings, taskCallback);
+*/
+    }
+
+    @Override
+    public List<ErrorModel> listTaskErrors(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return taskErrorsDataAccessManager.listTaskErrors(poolSettings);
+        return errorsDataAccessManager.listErrors(poolSettings);
     }
 
     @Override
-    public TaskErrorModel getTaskError(long errorId) {
-        return taskErrorsDataAccessManager.getTaskError(errorId);
+    public ErrorModel getTaskError(long errorId) {
+        return errorsDataAccessManager.getError(errorId);
     }
 
     @Override
     public void removeTaskError(long errorId) {
-        taskErrorsDataAccessManager.removeTaskError(errorId);
+        errorsDataAccessManager.removeError(errorId);
     }
 
 
@@ -165,8 +198,8 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         this.settingsDataAccessManager = settingsDataAccessManager;
     }
 
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {

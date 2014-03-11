@@ -21,17 +21,38 @@ public interface PoolManagerApi {
 
     List<NodeModel> listNodes(PoolSettings poolSettings);
 
-    NodeModel getNode(long nodeId);
+    @Deprecated
+    /**
+     * @deprecated use {@link #getNode(cloudify.widget.pool.manager.dto.NodeModel)} instead.
+     */
+    NodeModel getNode(long nodeId); // TODO rename
 
-    void createNode(PoolSettings poolSettings, TaskCallback taskCallback);
+    NodeModel getNode(NodeModel nodeModel); // TODO rename
 
-    void deleteNode(long nodeId);
+    NodeModel getAnyNode(PoolSettings poolSettings); // TODO rename
 
-    void bootstrapNode(long nodeId);
+    void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback);
 
-    List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings);
+    @Deprecated
+    /**
+     * @deprecated use {@link #deleteNode(cloudify.widget.pool.manager.dto.NodeModel, cloudify.widget.pool.manager.tasks.TaskCallback)} instead.
+     */
+    void deleteNode(long nodeId, TaskCallback<Void> taskCallback);
 
-    TaskErrorModel getTaskError(long errorId);
+    void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback);
+
+    @Deprecated
+    /**
+     * @deprecated use {@link #bootstrapNode(cloudify.widget.pool.manager.dto.PoolSettings, cloudify.widget.pool.manager.tasks.TaskCallback)} instead.
+     */
+    void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback);
+
+    void bootstrapNode(PoolSettings poolSettings, TaskCallback<NodeModel> taskCallback);
+
+
+    List<ErrorModel> listTaskErrors(PoolSettings poolSettings);
+
+    ErrorModel getTaskError(long errorId);
 
     void removeTaskError(long errorId);
 }
