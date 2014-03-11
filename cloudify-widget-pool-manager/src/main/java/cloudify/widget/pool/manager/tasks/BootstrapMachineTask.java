@@ -26,7 +26,7 @@ import java.util.HashMap;
  * Date: 3/5/14
  * Time: 6:00 PM
  */
-public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
+public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
 
@@ -41,11 +41,11 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
     private BootstrapMachineTaskConfig taskConfig;
 
     @Override
-    public void run() {
+    public Void call() throws Exception {
 
         if (taskConfig.getNodeModel().nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED) {
             logger.info("node is already bootstrapped, aborting bootstrap task");
-            return;
+            return null;
         }
 
         File scriptFile;
@@ -60,7 +60,7 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
-            return;
+            return null;
         }
 
         String script = null;
@@ -99,7 +99,7 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message));
-            return;
+            return null;
         }
 
         CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);// TODO ponder why public ip ?
@@ -122,6 +122,8 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
                     .setInfo(infoMap)
             );
         }
+
+        return null;
     }
 
 
