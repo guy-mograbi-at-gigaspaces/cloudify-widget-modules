@@ -180,17 +180,17 @@ public class IndexController {
 
     @RequestMapping(value="/admin/pools/status", method=RequestMethod.GET)
     @ResponseBody
-    public String getAccountPoolsStatus( @ModelAttribute("account") AccountModel accountModel ){
+    public List<PoolStatus> getAccountPoolsStatus(){
         try{
-            return "TBD pools statuses";
+            return null;//"TBD pools statuses";
         }catch(Exception e){
             return null;
         }
     }
 
-    @RequestMapping(value="/admin/pools/{poolId}/addMachine", method=RequestMethod.POST)
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}/addMachine", method=RequestMethod.POST)
     @ResponseBody
-    public String addMachine( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
+    public String addMachine( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId ){
         try{
 
             NodeModel nodeModel = new NodeModel();
@@ -202,9 +202,9 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value="/admin/pools/{poolId}/nodes/{nodeId}/bootstrap", method=RequestMethod.POST)
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/bootstrap", method=RequestMethod.POST)
     @ResponseBody
-    public String nodeBootstrap( @ModelAttribute("account") AccountModel accountModel,
+    public String nodeBootstrap( @PathVariable("accountId") Long accountId,
                                             @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId ){
         try{
             return "TBD node bootstrap";
@@ -213,9 +213,9 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value="/admin/pools/{poolId}/nodes/{nodeId}/delete", method=RequestMethod.POST)
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/delete", method=RequestMethod.POST)
     @ResponseBody
-    public String nodeDelete( @ModelAttribute("account") AccountModel accountModel,
+    public String nodeDelete( @PathVariable("accountId") Long accountId,
                                             @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId ){
         try{
             poolManagerApi.deleteNode( nodeId );
