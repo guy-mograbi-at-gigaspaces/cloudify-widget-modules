@@ -71,9 +71,25 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public NodeModel getNode(PoolSettings poolSettings) {
-        // TODO implement !
+    public NodeModel getNode(NodeModel nodeModel) {
+        throw new UnsupportedOperationException("not supported yet!");
+        // TODO implement - get node and mark as occupied?
+    }
+
+    @Override
+    public NodeModel getAnyNode(PoolSettings poolSettings) {
+        throw new UnsupportedOperationException("not supported yet!");
+
+/*
+        List<NodeModel> nodeModels = nodesDataAccessManager.listNodes(poolSettings);
+        // TODO TBD run validation at this point
+        for (NodeModel nodeModel : nodeModels) {
+            if (nodeModel.nodeStatus != NodeStatus.OCCUPIED) {  // TODO discuss with guy: what would the tasks check (non occupied?)
+                return nodeModel;
+            }
+        }
         return null;
+*/
     }
 
     @Override
@@ -97,6 +113,11 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
+    public void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback) {
+        throw new UnsupportedOperationException("not supported yet!");
+    }
+
+    @Override
     public void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
         PoolSettings poolSettings = _getPoolSettings(node.poolId);
@@ -110,7 +131,25 @@ public class PoolManagerApiImpl implements PoolManagerApi {
                 return node;
             }
         }, poolSettings, taskCallback);
+    }
 
+    @Override
+    public void bootstrapNode(PoolSettings poolSettings, TaskCallback<NodeModel> taskCallback) {
+        throw new UnsupportedOperationException("not supported yet!");
+
+        // TODO task should find a CREATED node for itself, and should return that node in the callback success
+/*
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
+            @Override
+            public String getBootstrapScriptResourcePath() {
+                return bootstrapScriptResourcePath;
+            }
+//            @Override
+//            public NodeModel getNodeModel() {
+//                return node;
+//            }
+        }, poolSettings, taskCallback);
+*/
     }
 
     @Override

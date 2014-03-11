@@ -127,8 +127,8 @@ public class TestPoolManager {
         Assert.isTrue(nodeModel != null, "node cannot be null after machine is created");
 
         logger.info("after create machine, node status is [{}]", nodeModel.nodeStatus);
-        Assert.isTrue(nodeModel.nodeStatus == NodeModel.NodeStatus.CREATED,
-                String.format("node status should be [%s]", NodeModel.NodeStatus.CREATED));
+        Assert.isTrue(nodeModel.nodeStatus == NodeStatus.CREATED,
+                String.format("node status should be [%s]", NodeStatus.CREATED));
 
         final NodeModel finalNodeModel = nodeModel;
 
@@ -147,8 +147,8 @@ public class TestPoolManager {
         }, softlayerPoolSettings, null);
 
         logger.info("after bootstrap machine, node status is [{}]", finalNodeModel.nodeStatus);
-        Assert.isTrue(finalNodeModel.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
-                String.format("node status should be [%s]", NodeModel.NodeStatus.BOOTSTRAPPED));
+        Assert.isTrue(finalNodeModel.nodeStatus == NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be [%s]", NodeStatus.BOOTSTRAPPED));
 
         // delete
 
@@ -199,7 +199,7 @@ public class TestPoolManager {
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
                     .setPoolId(softlayerPoolSettings.getId())
-                    .setNodeStatus(NodeModel.NodeStatus.CREATED)
+                    .setNodeStatus(NodeStatus.CREATED)
                     .setMachineId("test_machine_id"));
         }
 
@@ -240,8 +240,8 @@ public class TestPoolManager {
 
         // update
 
-        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeModel.NodeStatus.BOOTSTRAPPED);
-        firstNode.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
+        logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeStatus.BOOTSTRAPPED);
+        firstNode.setNodeStatus(NodeStatus.BOOTSTRAPPED);
         int affectedByUpdate = nodesDataAccessManager.updateNode(firstNode);
         logger.info("affectedByUpdate [{}]", affectedByUpdate);
 
@@ -254,8 +254,8 @@ public class TestPoolManager {
 
         Assert.notNull(node, "failed to read a single node");
 
-        Assert.isTrue(node.nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED,
-                String.format("node status should be updated to [%s], but is [%s]", NodeModel.NodeStatus.BOOTSTRAPPED.name(), node.nodeStatus));
+        Assert.isTrue(node.nodeStatus == NodeStatus.BOOTSTRAPPED,
+                String.format("node status should be updated to [%s], but is [%s]", NodeStatus.BOOTSTRAPPED.name(), node.nodeStatus));
 
         // delete
 

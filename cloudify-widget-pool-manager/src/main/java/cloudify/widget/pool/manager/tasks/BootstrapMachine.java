@@ -7,10 +7,7 @@ import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
 import cloudify.widget.pool.manager.ErrorsDataAccessManager;
-import cloudify.widget.pool.manager.dto.BootstrapProperties;
-import cloudify.widget.pool.manager.dto.ErrorModel;
-import cloudify.widget.pool.manager.dto.NodeModel;
-import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +40,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
     @Override
     public Void call() throws Exception {
 
-        if (taskConfig.getNodeModel().nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED) {
+        if (taskConfig.getNodeModel().nodeStatus == NodeStatus.BOOTSTRAPPED) {
             String message = String.format("node with id [%s] is already bootstrapped, aborting bootstrap task", taskConfig.getNodeModel().id);
             logger.info(message);
             throw new RuntimeException(message);
@@ -135,7 +132,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
         if (exitStatus == 0) {
             NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
             logger.debug("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
-            updatedNodeModel.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
+            updatedNodeModel.setNodeStatus(NodeStatus.BOOTSTRAPPED);
             nodesDataAccessManager.updateNode(updatedNodeModel);
         } else {
             String message = "bootstrap execution failed";
