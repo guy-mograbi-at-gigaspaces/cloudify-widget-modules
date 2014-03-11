@@ -1,5 +1,6 @@
 package cloudify.widget.pool.manager.tasks;
 
+import cloudify.widget.api.clouds.CloudExecResponse;
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
@@ -18,6 +19,7 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * User: eliranm
@@ -46,37 +48,46 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
             return;
         }
 
-        File scriptFile = null;
+        File scriptFile;
         try {
             scriptFile = ResourceUtils.getFile(taskConfig.getBootstrapScriptResourcePath());
+            logger.debug("bootstrap script file is [{}]", scriptFile);
         } catch (FileNotFoundException e) {
-            logger.error("failed to get resource for bootstrap script", e);
+            String message = "failed to get resource for bootstrap script";
+            logger.error(message, e);
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+                    .setPoolId(poolSettings.getId())
+                    .setTaskName(TASK_NAME)
+                    .setMessage(message)
+            );
+            return;
         }
-
-        logger.info("bootstrap script file is [{}]", scriptFile);
 
         String script = null;
         try {
             script = FileUtils.readFileToString(scriptFile);
+            logger.debug("script file read to string\n\n[{}]...", script.substring(0, 20));
         } catch (IOException e) {
-            logger.error("failed to read bootstrap script file to string");
+            String message = "failed to read bootstrap script file to string";
+            logger.error(message, e);
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+                    .setPoolId(poolSettings.getId())
+                    .setTaskName(TASK_NAME)
+                    .setMessage(message)
+            );
         }
 
-        logger.info("script file read to string\n\n{}", script);
-
         BootstrapProperties bootstrapProperties = poolSettings.getBootstrapProperties();
-        script.replaceAll("##publicip##", bootstrapProperties.getPublicIp());
-        script.replaceAll("##privateip##", bootstrapProperties.getPrivateIp());
-        script.replaceAll("##cloudifyUrl##", bootstrapProperties.getCloudifyUrl());
-        script.replaceAll("##prebootstrapScript##", bootstrapProperties.getPreBootstrapScript());
-        script.replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath());
-        script.replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
-
-        logger.info("script file updated with bootstrap properties\n\n{}", script);
+        script = script.replaceAll("##publicip##", bootstrapProperties.getPublicIp())
+                .replaceAll("##privateip##", bootstrapProperties.getPrivateIp())
+                .replaceAll("##cloudifyUrl##", bootstrapProperties.getCloudifyUrl())
+                .replaceAll("##prebootstrapScript##", bootstrapProperties.getPreBootstrapScript())
+                .replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath())
+                .replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
 
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
-        cloudServerApi.connect();
+        cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
 
         String machineId = taskConfig.getNodeModel().machineId;
 
@@ -91,12 +102,26 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig> {
             return;
         }
 
-        cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp); // TODO ponder why public ip ?
-
-        NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
-        logger.info("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
-        updatedNodeModel.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
-        nodesDataAccessManager.updateNode(updatedNodeModel);
+        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);// TODO ponder why public ip ?
+        int exitStatus = cloudExecResponse.getExitStatus();
+        if (exitStatus == 0) {
+            NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
+            logger.info("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
+            updatedNodeModel.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
+            nodesDataAccessManager.updateNode(updatedNodeModel);
+        } else {
+            String message = "bootstrap execution failed";
+            logger.error(message);
+            HashMap<String, Object> infoMap = new HashMap<String, Object>();
+            infoMap.put("exitStatus", exitStatus);
+            infoMap.put("output", cloudExecResponse.getOutput());
+            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+                    .setPoolId(poolSettings.getId())
+                    .setTaskName(TASK_NAME)
+                    .setMessage(message)
+                    .setInfo(infoMap)
+            );
+        }
     }
 
 

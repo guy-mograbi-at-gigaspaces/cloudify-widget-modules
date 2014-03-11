@@ -1,6 +1,10 @@
 package cloudify.widget.pool.manager.dto;
 
 import cloudify.widget.pool.manager.tasks.TaskName;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * User: eliranm
@@ -39,6 +43,16 @@ public class TaskErrorModel {
 
     public TaskErrorModel setInfo(String info) {
         this.info = info;
+        return this;
+    }
+
+    // TODO move this elsewhere
+    public TaskErrorModel setInfo(Map<String, Object> info) {
+        try {
+            this.info = new ObjectMapper().writeValueAsString(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return this;
     }
 

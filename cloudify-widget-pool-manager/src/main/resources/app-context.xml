@@ -33,14 +33,15 @@
 
     <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
 
-    <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApi">
+    <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApiImpl">
         <property name="settingsDataAccessManager" ref="settingsDataAccessManager" />
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
         <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
         <property name="statusManager" ref="statusManager" />
+        <property name="taskExecutor" ref="taskExecutor" />
+        <!-- TODO update bootstrap resource path -->
+        <property name="bootstrapScriptResourcePath" value="classpath:bootstrap_machine.sh" />
     </bean>
-
-
 
 
     <bean id="bootstrapMonitor" class="cloudify.widget.pool.manager.BootstrapMonitor">
