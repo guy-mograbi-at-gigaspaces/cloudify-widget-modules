@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
+public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(DeleteMachineTask.class);
 
@@ -30,9 +30,8 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
 
     private static final TaskName TASK_NAME = TaskName.DELETE_MACHINE;
 
-
     @Override
-    public void run() {
+    public Void call() throws Exception {
         logger.info("deleting machine with pool settings [{}]", poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
@@ -40,7 +39,7 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(providerSettings.getName());
         if (cloudServerApi == null) {
             logger.error("failed to obtain an API object using provider [{}]", providerSettings.getName());
-            return;
+            return null;
         }
 
         PoolStatus status = statusManager.getStatus(poolSettings);
@@ -52,7 +51,7 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
                     .setPoolId(poolSettings.getId())
                     .setMessage(message)
             );
-            return;
+            return null;
         }
 
         cloudServerApi.connect(providerSettings.getConnectDetails());
@@ -61,6 +60,7 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
         logger.info("machine deleted, removing node model in the database [{}]");
         nodesDataAccessManager.removeNode(taskConfig.getNodeModel().id);
 
+        return null;
     }
 
 

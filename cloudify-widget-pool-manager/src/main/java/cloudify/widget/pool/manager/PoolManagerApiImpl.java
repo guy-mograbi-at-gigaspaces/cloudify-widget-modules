@@ -39,7 +39,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public PoolStatus getStatus(PoolSettings poolSettings) {
-        if (poolSettings == null) return null;
+//        if (poolSettings == null) return null;
 //        return statusManager.getStatus(poolSettings);
 
         // mocking
@@ -48,17 +48,15 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public Collection<PoolStatus> listStatuses() {
-/*
-        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
-        PoolsSettingsList poolSettingsList = _getPools();
-        if (poolSettingsList == null) return null;
-        for (PoolSettings poolSettings : poolSettingsList) {
-            poolStatuses.add(statusManager.getStatus(poolSettings));
-        }
-        return poolStatuses;
-*/
+//        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
+//        PoolsSettingsList poolSettingsList = _getPools();
+//        if (poolSettingsList == null) return null;
+//        for (PoolSettings poolSettings : poolSettingsList) {
+//            poolStatuses.add(statusManager.getStatus(poolSettings));
+//        }
+//        return poolStatuses;
 
-        // mocking
+//        mocking
         ArrayList<PoolStatus> statuses = new ArrayList<PoolStatus>();
         PoolsSettingsList poolSettingsList = _getPools();
         if (poolSettingsList == null) return null;
