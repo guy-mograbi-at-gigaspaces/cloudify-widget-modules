@@ -1,7 +1,9 @@
 package cloudify.widget.website.controller;
 
 import cloudify.widget.pool.manager.PoolManagerApi;
-import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.pool.manager.dto.NodeModel;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.PoolStatus;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;

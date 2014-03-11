@@ -1,6 +1,5 @@
 package cloudify.widget.website.dao;
 
-import cloudify.widget.common.StringUtils;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;

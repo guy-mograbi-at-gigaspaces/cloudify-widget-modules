@@ -1,7 +1,10 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.tasks.*;
+import cloudify.widget.pool.manager.tasks.ITask;
+import cloudify.widget.pool.manager.tasks.NoopTaskCallback;
+import cloudify.widget.pool.manager.tasks.TaskCallback;
+import cloudify.widget.pool.manager.tasks.TaskConfig;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;

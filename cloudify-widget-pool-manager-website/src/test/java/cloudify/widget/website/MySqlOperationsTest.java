@@ -1,7 +1,6 @@
 package cloudify.widget.website;
 
 import cloudify.widget.common.CollectionUtils;
-import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.SettingsDataAccessManager;
 import cloudify.widget.pool.manager.dto.ManagerSettings;
 import cloudify.widget.pool.manager.dto.PoolSettings;

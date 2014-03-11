@@ -5,7 +5,10 @@ import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
 import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
-import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.PoolStatus;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
+import cloudify.widget.pool.manager.dto.TaskErrorModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

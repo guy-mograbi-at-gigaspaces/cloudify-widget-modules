@@ -1,7 +1,6 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.models.AccountModel;
-import cloudify.widget.website.models.PoolConfigurationModel;
 
 import java.util.List;
 

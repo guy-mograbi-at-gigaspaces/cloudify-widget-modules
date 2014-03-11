@@ -1,9 +1,7 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.dao.mappers.AccountRowMapper;
-import cloudify.widget.website.dao.mappers.PoolRowMapper;
 import cloudify.widget.website.models.AccountModel;
-import cloudify.widget.website.models.PoolConfigurationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
