@@ -5,7 +5,7 @@ import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +18,15 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachineTask implements Task<TaskConfig, Collection<NodeModel>> {
+public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
 
-    private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
+    private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
 
     private PoolSettings poolSettings;
 
     private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     private StatusManager statusManager;
 
@@ -43,8 +43,8 @@ public class CreateMachineTask implements Task<TaskConfig, Collection<NodeModel>
     }
 
     @Override
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class CreateMachineTask implements Task<TaskConfig, Collection<NodeModel>
         if (status.currentSize >= status.maxNodes) {
             String message = "pool has reached its maximum capacity as defined in the pool settings";
             logger.error(message);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)

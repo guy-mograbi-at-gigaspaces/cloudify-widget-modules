@@ -11,7 +11,7 @@ import java.util.Map;
  * Date: 3/9/14
  * Time: 2:15 PM
  */
-public class TaskErrorModel {
+public class ErrorModel {
 
     public static final int INITIAL_ID = -1;
 
@@ -21,33 +21,33 @@ public class TaskErrorModel {
     public String message;
     public String info;
 
-    public TaskErrorModel setId(long id) {
+    public ErrorModel setId(long id) {
         this.id = id;
         return this;
     }
 
-    public TaskErrorModel setTaskName(TaskName taskName) {
+    public ErrorModel setTaskName(TaskName taskName) {
         this.taskName = taskName;
         return this;
     }
 
-    public TaskErrorModel setPoolId(String poolId) {
+    public ErrorModel setPoolId(String poolId) {
         this.poolId = poolId;
         return this;
     }
 
-    public TaskErrorModel setMessage(String message) {
+    public ErrorModel setMessage(String message) {
         this.message = message;
         return this;
     }
 
-    public TaskErrorModel setInfo(String info) {
+    public ErrorModel setInfo(String info) {
         this.info = info;
         return this;
     }
 
     // TODO move this elsewhere
-    public TaskErrorModel setInfo(Map<String, Object> info) {
+    public ErrorModel setInfo(Map<String, Object> info) {
         try {
             this.info = new ObjectMapper().writeValueAsString(info);
         } catch (IOException e) {

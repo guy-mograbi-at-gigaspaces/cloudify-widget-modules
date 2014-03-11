@@ -23,7 +23,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     private NodesDataAccessManager nodesDataAccessManager;
 
     @Autowired
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     @Autowired
     private SettingsDataAccessManager settingsDataAccessManager;
@@ -71,9 +71,15 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
+    public NodeModel getNode(PoolSettings poolSettings) {
+        // TODO implement !
+        return null;
+    }
+
+    @Override
     public void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback) {
         if (poolSettings == null) return;
-        taskExecutor.execute(CreateMachineTask.class, null, poolSettings, taskCallback);
+        taskExecutor.execute(CreateMachine.class, null, poolSettings, taskCallback);
     }
 
     @Override
@@ -82,7 +88,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         if (node == null) return;
         PoolSettings poolSettings = _getPoolSettings(node.poolId);
         if (poolSettings == null) return;
-        taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
+        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return node;
@@ -94,7 +100,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     public void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
         PoolSettings poolSettings = _getPoolSettings(node.poolId);
-        taskExecutor.execute(BootstrapMachineTask.class, new BootstrapMachineTaskConfig() {
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -108,19 +114,19 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings) {
+    public List<ErrorModel> listTaskErrors(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return taskErrorsDataAccessManager.listTaskErrors(poolSettings);
+        return errorsDataAccessManager.listErrors(poolSettings);
     }
 
     @Override
-    public TaskErrorModel getTaskError(long errorId) {
-        return taskErrorsDataAccessManager.getTaskError(errorId);
+    public ErrorModel getTaskError(long errorId) {
+        return errorsDataAccessManager.getError(errorId);
     }
 
     @Override
     public void removeTaskError(long errorId) {
-        taskErrorsDataAccessManager.removeTaskError(errorId);
+        errorsDataAccessManager.removeError(errorId);
     }
 
 
@@ -153,8 +159,8 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         this.settingsDataAccessManager = settingsDataAccessManager;
     }
 
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {

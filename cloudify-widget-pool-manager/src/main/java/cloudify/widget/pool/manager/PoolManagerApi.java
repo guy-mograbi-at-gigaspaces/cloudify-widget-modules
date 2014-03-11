@@ -21,17 +21,20 @@ public interface PoolManagerApi {
 
     List<NodeModel> listNodes(PoolSettings poolSettings);
 
+    @Deprecated
+    /**
+     * @deprecated use {@link #getNode(cloudify.widget.pool.manager.dto.PoolSettings)} instead.
+     */
     NodeModel getNode(long nodeId);
 
-    // TODO
-//    NodeModel getNode(PoolSettings poolSettings);
-
-    // TODO
-//    NodeModel occupyNode(PoolSettings poolSettings);
+    NodeModel getNode(PoolSettings poolSettings);
 
     void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback);
 
     void deleteNode(long nodeId, TaskCallback<Void> taskCallback);
+
+    // TODO
+//    void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback);
 
     void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback);
 
@@ -39,9 +42,9 @@ public interface PoolManagerApi {
 //    void bootstrapNode(NodeModel nodeModel, TaskCallback<Object> taskCallback);
 
 
-    List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings);
+    List<ErrorModel> listTaskErrors(PoolSettings poolSettings);
 
-    TaskErrorModel getTaskError(long errorId);
+    ErrorModel getTaskError(long errorId);
 
     void removeTaskError(long errorId);
 }

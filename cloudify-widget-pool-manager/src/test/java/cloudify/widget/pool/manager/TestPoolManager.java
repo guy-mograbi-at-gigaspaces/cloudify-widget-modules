@@ -87,23 +87,23 @@ public class TestPoolManager {
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        taskExecutor.execute(DeleteMachineTask.class, null, softlayerPoolSettings, null);
+        taskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
 
-        List<TaskErrorModel> taskErrorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
-        TaskErrorModel taskErrorModel = null;
-        for (TaskErrorModel model : taskErrorModels) {
-            taskErrorModel = model;
+        List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
+        ErrorModel errorModel = null;
+        for (ErrorModel model : errorModels) {
+            errorModel = model;
             break;
         }
-        Assert.notNull(taskErrorModel, "task error should not be null");
-        logger.info("task message is [{}]", taskErrorModel.message);
-        Assert.isTrue(taskErrorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
+        Assert.notNull(errorModel, "task error should not be null");
+        logger.info("task message is [{}]", errorModel.message);
+        Assert.isTrue(errorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
 
         // create
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            taskExecutor.execute(CreateMachineTask.class, null, softlayerPoolSettings, new TaskCallback() {
+            taskExecutor.execute(CreateMachine.class, null, softlayerPoolSettings, new TaskCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     // TODO
@@ -134,7 +134,7 @@ public class TestPoolManager {
 
         // bootstrap
 
-        taskExecutor.execute(BootstrapMachineTask.class, new BootstrapMachineTaskConfig() {
+        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -152,7 +152,7 @@ public class TestPoolManager {
 
         // delete
 
-        taskExecutor.execute(DeleteMachineTask.class, new DeleteMachineTaskConfig() {
+        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;
@@ -200,8 +200,7 @@ public class TestPoolManager {
             nodes.add(new NodeModel()
                     .setPoolId(softlayerPoolSettings.getId())
                     .setNodeStatus(NodeModel.NodeStatus.CREATED)
-                    .setMachineId("test_machine_id")
-                    .setCloudifyVersion("1.1.0"));
+                    .setMachineId("test_machine_id"));
         }
 
         NodeModel firstNode = nodes.get(0);

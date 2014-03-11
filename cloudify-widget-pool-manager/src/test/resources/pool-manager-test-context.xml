@@ -21,9 +21,9 @@
 
     <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
-        <property name="taskErrorsDataAccessManager" ref="taskErrorsDataAccessManager" />
+        <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
         <property name="statusManager" ref="statusManager" />
-        <property name="executorService" ref="synchronousExecutorService" />
+        <property name="executorService" ref="synchronousExecutorService" /> <!-- change to synchronous executor to avoid using waits in the test body -->
     </bean>
 
     <bean id="nExecutions" class="java.lang.Integer">

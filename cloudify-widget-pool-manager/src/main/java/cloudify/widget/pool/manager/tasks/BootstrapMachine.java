@@ -6,11 +6,11 @@ import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.BootstrapProperties;
+import cloudify.widget.pool.manager.dto.ErrorModel;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.dto.TaskErrorModel;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,19 +26,19 @@ import java.util.HashMap;
  * Date: 3/5/14
  * Time: 6:00 PM
  */
-public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Void> {
+public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
-    private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
+    private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
 
     private static final TaskName TASK_NAME = TaskName.BOOTSTRAP_MACHINE;
 
     private NodesDataAccessManager nodesDataAccessManager;
 
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     private PoolSettings poolSettings;
 
-    private BootstrapMachineTaskConfig taskConfig;
+    private BootstrapMachineConfig taskConfig;
 
     @Override
     public Void call() throws Exception {
@@ -75,7 +75,7 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
         } catch (FileNotFoundException e) {
             String message = "failed to get resource for bootstrap script";
             logger.error(message, e);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
@@ -93,7 +93,7 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
         } catch (IOException e) {
             String message = "failed to read bootstrap script file to string";
             logger.error(message, e);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
@@ -120,7 +120,7 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
         if (cloudServer == null) {
             String message = String.format("machine with id [%s] was not found", machineId);
             logger.error(message);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message));
@@ -143,7 +143,7 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
             HashMap<String, Object> infoMap = new HashMap<String, Object>();
             infoMap.put("exitStatus", exitStatus);
             infoMap.put("output", cloudExecResponse.getOutput());
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
@@ -165,8 +165,8 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
     }
 
     @Override
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     @Override
@@ -179,7 +179,7 @@ public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Vo
     }
 
     @Override
-    public void setTaskConfig(BootstrapMachineTaskConfig taskConfig) {
+    public void setTaskConfig(BootstrapMachineConfig taskConfig) {
         this.taskConfig = taskConfig;
     }
 }

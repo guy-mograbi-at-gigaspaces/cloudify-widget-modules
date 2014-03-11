@@ -4,7 +4,7 @@ import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,19 +14,19 @@ import org.slf4j.LoggerFactory;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class DeleteMachineTask implements Task<DeleteMachineTaskConfig, Void> {
+public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
 
-    private static Logger logger = LoggerFactory.getLogger(DeleteMachineTask.class);
+    private static Logger logger = LoggerFactory.getLogger(DeleteMachine.class);
 
     private NodesDataAccessManager nodesDataAccessManager;
 
     private StatusManager statusManager;
 
-    private TaskErrorsDataAccessManager taskErrorsDataAccessManager;
+    private ErrorsDataAccessManager errorsDataAccessManager;
 
     private PoolSettings poolSettings;
 
-    private DeleteMachineTaskConfig taskConfig;
+    private DeleteMachineConfig taskConfig;
 
     private static final TaskName TASK_NAME = TaskName.DELETE_MACHINE;
 
@@ -47,7 +47,7 @@ public class DeleteMachineTask implements Task<DeleteMachineTaskConfig, Void> {
         if (status.currentSize <= status.minNodes) {
             String message = "pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
-            taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
+            errorsDataAccessManager.addError(new ErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message)
@@ -76,8 +76,8 @@ public class DeleteMachineTask implements Task<DeleteMachineTaskConfig, Void> {
     }
 
     @Override
-    public void setTaskErrorsDataAccessManager(TaskErrorsDataAccessManager taskErrorsDataAccessManager) {
-        this.taskErrorsDataAccessManager = taskErrorsDataAccessManager;
+    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
+        this.errorsDataAccessManager = errorsDataAccessManager;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class DeleteMachineTask implements Task<DeleteMachineTaskConfig, Void> {
     }
 
     @Override
-    public void setTaskConfig(DeleteMachineTaskConfig taskConfig) {
+    public void setTaskConfig(DeleteMachineConfig taskConfig) {
         this.taskConfig = taskConfig;
     }
 }
