@@ -156,16 +156,17 @@ public class IndexController {
         }
     }
 
-    @RequestMapping(value="/admin/pools/{poolId}/status", method=RequestMethod.GET)
+    @RequestMapping(value="/admin/accounts/{accountId}/pools/{poolId}/status", method=RequestMethod.GET)
     @ResponseBody
-    public PoolStatus getAccountPoolStatus( @ModelAttribute("account") AccountModel accountModel, @PathVariable("poolId") Long poolId ){
+    public PoolStatus getAccountPoolStatus( @PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId ){
         try{
             PoolStatus retValue = null;
-            PoolConfigurationModel poolConfiguration = getAccountPool(accountModel.getId(), poolId);
+            PoolConfigurationModel poolConfiguration = getAccountPool( accountId, poolId );
             if( poolConfiguration != null ){
                 PoolSettings poolSettings = poolConfiguration.getPoolSettings();
                 if( poolSettings != null ){
-                    retValue = poolManagerApi.getStatus( poolSettings );
+                    String poolSettingsId = poolSettings.getId();
+                    retValue = poolManagerApi.getStatus( poolSettingsId );
                 }
             }
 
