@@ -39,31 +39,31 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public PoolStatus getStatus(PoolSettings poolSettings) {
-//        if (poolSettings == null) return null;
-//        return statusManager.getStatus(poolSettings);
+        if (poolSettings == null) return null;
+        return statusManager.getStatus(poolSettings);
 
         // mocking
-        return new PoolStatus().minNodes(poolSettings.getMinNodes()).maxNodes(poolSettings.getMaxNodes()).currentSize(poolSettings.getMaxNodes() - 1);
+//        return new PoolStatus().minNodes(poolSettings.getMinNodes()).maxNodes(poolSettings.getMaxNodes()).currentSize(poolSettings.getMaxNodes() - 1);
     }
 
     @Override
     public Collection<PoolStatus> listStatuses() {
-//        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
-//        PoolsSettingsList poolSettingsList = _getPools();
-//        if (poolSettingsList == null) return null;
-//        for (PoolSettings poolSettings : poolSettingsList) {
-//            poolStatuses.add(statusManager.getStatus(poolSettings));
-//        }
-//        return poolStatuses;
-
-//        mocking
-        ArrayList<PoolStatus> statuses = new ArrayList<PoolStatus>();
+        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
         PoolsSettingsList poolSettingsList = _getPools();
         if (poolSettingsList == null) return null;
         for (PoolSettings poolSettings : poolSettingsList) {
-            statuses.add(getStatus(poolSettings));
+            poolStatuses.add(statusManager.getStatus(poolSettings));
         }
-        return statuses;
+        return poolStatuses;
+
+//        mocking
+//        ArrayList<PoolStatus> statuses = new ArrayList<PoolStatus>();
+//        PoolsSettingsList poolSettingsList = _getPools();
+//        if (poolSettingsList == null) return null;
+//        for (PoolSettings poolSettings : poolSettingsList) {
+//            statuses.add(getStatus(poolSettings));
+//        }
+//        return statuses;
     }
 
     @Override
