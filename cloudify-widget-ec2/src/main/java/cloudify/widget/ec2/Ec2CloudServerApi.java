@@ -99,8 +99,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
-        String name = ec2MachineOptions.name();
-        int machinesCount = ec2MachineOptions.machinesCount();
+        String name = ec2MachineOptions.getName();
+        int machinesCount = ec2MachineOptions.getMachinesCount();
         Template template = createTemplate(ec2MachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
@@ -171,9 +171,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
     private Template createTemplate( Ec2MachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
-        String hardwareId = machineOptions.hardwareId();
-        String locationId = machineOptions.locationId();
-        String imageId = machineOptions.imageId();
+        String hardwareId = machineOptions.getHardwareId();
+        String locationId = machineOptions.getLocationId();
+        String imageId = machineOptions.getImageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
@@ -209,9 +209,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
 
         Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = ec2SshDetails.user();
-        String privateKey = ec2SshDetails.privateKey();
-        int port = ec2SshDetails.port();
+        String user = ec2SshDetails.getUser();
+        String privateKey = ec2SshDetails.getPrivateKey();
+        int port = ec2SshDetails.getPort();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());

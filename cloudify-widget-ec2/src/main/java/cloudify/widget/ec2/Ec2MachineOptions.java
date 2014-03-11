@@ -28,7 +28,7 @@ public class Ec2MachineOptions implements MachineOptions {
         this.machinesCount = machinesCount;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
@@ -52,7 +52,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
-    public int machinesCount() {
+    public int getMachinesCount() {
         return machinesCount;
     }
 
@@ -61,7 +61,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
-    public String locationId(){
+    public String getLocationId(){
         return locationId;
     }
 
@@ -70,7 +70,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
-    public String hardwareId(){
+    public String getHardwareId(){
         return hardwareId;
     }
 
@@ -79,7 +79,7 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
-    public String imageId(){
+    public String getImageId(){
         return imageId;
     }
 

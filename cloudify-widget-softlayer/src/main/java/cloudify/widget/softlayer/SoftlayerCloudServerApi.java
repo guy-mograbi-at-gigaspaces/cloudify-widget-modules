@@ -197,9 +197,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     private Template createTemplate( SoftlayerMachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
-        String hardwareId = machineOptions.hardwareId();
-        String locationId = machineOptions.locationId();
-        OsFamily osFamily = machineOptions.osFamily();
+        String hardwareId = machineOptions.getHardwareId();
+        String locationId = machineOptions.getLocationId();
+        OsFamily osFamily = machineOptions.getOsFamily();
         if( osFamily != null ){
             templateBuilder.osFamily(osFamily);
         }

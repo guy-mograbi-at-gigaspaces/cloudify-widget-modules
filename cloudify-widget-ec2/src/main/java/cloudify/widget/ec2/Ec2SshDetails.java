@@ -19,15 +19,15 @@ public class Ec2SshDetails implements ISshDetails {
         this.privateKey = privateKey;
     }
 
-    public int port(){
+    public int getPort(){
         return port;
     }
 
-    public String user(){
+    public String getUser(){
         return user;
     }
 
-    public String privateKey(){
+    public String getPrivateKey(){
         return privateKey;
     }
 }

@@ -165,8 +165,7 @@ public class IndexController {
             if( poolConfiguration != null ){
                 PoolSettings poolSettings = poolConfiguration.getPoolSettings();
                 if( poolSettings != null ){
-                    String poolSettingsId = poolSettings.getId();
-                    retValue = poolManagerApi.getStatus( poolSettingsId );
+                    retValue = poolManagerApi.getStatus( poolSettings );
                 }
             }
 

@@ -128,8 +128,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         HpCloudComputeMachineOptions hpCloudMachineOptions = ( HpCloudComputeMachineOptions )machineOpts;
-        String name = hpCloudMachineOptions.name();
-        int machinesCount = hpCloudMachineOptions.machinesCount();
+        String name = hpCloudMachineOptions.getName();
+        int machinesCount = hpCloudMachineOptions.getMachinesCount();
         Template template = createTemplate(hpCloudMachineOptions);
         Set<? extends NodeMetadata> newNodes = null;
         try {
@@ -277,8 +277,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         logger.info( "listNodes [{}]", Arrays.toString( listNodes.toArray() ) );
         logger.info( "locations [{}]", Arrays.toString( locations.toArray() ) );
 */
-        String hardwareId = machineOptions.hardwareId();
-        String imageId = machineOptions.imageId();
+        String hardwareId = machineOptions.getHardwareId();
+        String imageId = machineOptions.getImageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
