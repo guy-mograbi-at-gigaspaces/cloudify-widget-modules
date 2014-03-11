@@ -38,14 +38,17 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
 
     @Override
-    public PoolStatus getStatus(String poolSettingsId) {
-        PoolSettings poolSettings = _getPoolSettings(poolSettingsId);
+    public PoolStatus getStatus(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return statusManager.getStatus(poolSettings);
+//        return statusManager.getStatus(poolSettings);
+
+        // mocking
+        return new PoolStatus().minNodes(poolSettings.getMinNodes()).maxNodes(poolSettings.getMaxNodes()).currentSize(poolSettings.getMaxNodes() - 1);
     }
 
     @Override
     public Collection<PoolStatus> listStatuses() {
+/*
         Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
         PoolsSettingsList poolSettingsList = _getPools();
         if (poolSettingsList == null) return null;
@@ -53,6 +56,16 @@ public class PoolManagerApiImpl implements PoolManagerApi {
             poolStatuses.add(statusManager.getStatus(poolSettings));
         }
         return poolStatuses;
+*/
+
+        // mocking
+        ArrayList<PoolStatus> statuses = new ArrayList<PoolStatus>();
+        PoolsSettingsList poolSettingsList = _getPools();
+        if (poolSettingsList == null) return null;
+        for (PoolSettings poolSettings : poolSettingsList) {
+            statuses.add(getStatus(poolSettings));
+        }
+        return statuses;
     }
 
     @Override
@@ -61,8 +74,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public List<NodeModel> listNodes(String poolSettingsId) {
-        PoolSettings poolSettings = _getPoolSettings(poolSettingsId);
+    public List<NodeModel> listNodes(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
         return nodesDataAccessManager.listNodes(poolSettings);
     }
@@ -73,11 +85,9 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public void createNode(String poolSettingsId) {
-        PoolSettings poolSettings = _getPoolSettings(poolSettingsId);
+    public void createNode(PoolSettings poolSettings, TaskCallback taskCallback) {
         if (poolSettings == null) return;
-        // TODO return node models
-        taskExecutor.execute(CreateMachineTask.class, null, poolSettings);
+        taskExecutor.execute(CreateMachineTask.class, null, poolSettings, taskCallback);
     }
 
     @Override
@@ -91,7 +101,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
             public NodeModel getNodeModel() {
                 return node;
             }
-        }, poolSettings);
+        }, poolSettings, null);
     }
 
     @Override
@@ -107,13 +117,12 @@ public class PoolManagerApiImpl implements PoolManagerApi {
             public NodeModel getNodeModel() {
                 return node;
             }
-        }, poolSettings);
+        }, poolSettings, null);
 
     }
 
     @Override
-    public List<TaskErrorModel> listTaskErrors(String poolSettingsId) {
-        PoolSettings poolSettings = _getPoolSettings(poolSettingsId);
+    public List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
         return taskErrorsDataAccessManager.listTaskErrors(poolSettings);
     }

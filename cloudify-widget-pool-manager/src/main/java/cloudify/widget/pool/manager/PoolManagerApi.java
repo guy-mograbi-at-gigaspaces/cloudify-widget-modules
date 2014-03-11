@@ -1,6 +1,7 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.pool.manager.tasks.TaskCallback;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,23 +13,23 @@ import java.util.List;
  */
 public interface PoolManagerApi {
 
-    PoolStatus getStatus(String poolSettingsId);
+    PoolStatus getStatus(PoolSettings poolSettings);
 
     Collection<PoolStatus> listStatuses();
 
     ManagerSettings getSettings();
 
-    List<NodeModel> listNodes(String poolSettingsId);
+    List<NodeModel> listNodes(PoolSettings poolSettings);
 
     NodeModel getNode(long nodeId);
 
-    void createNode(String poolSettingsId);
+    void createNode(PoolSettings poolSettings, TaskCallback taskCallback);
 
     void deleteNode(long nodeId);
 
     void bootstrapNode(long nodeId);
 
-    List<TaskErrorModel> listTaskErrors(String poolSettingsId);
+    List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings);
 
     TaskErrorModel getTaskError(long errorId);
 

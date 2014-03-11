@@ -1,8 +1,11 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.tasks.ITask;
-import cloudify.widget.pool.manager.tasks.TaskConfig;
+import cloudify.widget.pool.manager.tasks.*;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ public class TaskExecutor {
 
     private static Logger logger = LoggerFactory.getLogger(TaskExecutor.class);
 
-    private ExecutorService executorService;
+    private ListeningExecutorService executorService;
 
     private int terminationTimeoutInSeconds = 30;
 
@@ -41,26 +44,30 @@ public class TaskExecutor {
         }
     }
 
-    public <T extends ITask> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings) {
+    public <T extends ITask, R> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
-        T command = null;
+        T worker = null;
         try {
-            command = task.newInstance();
-            command.setPoolSettings(poolSettings);
-            command.setNodesDataAccessManager(nodesDataAccessManager);
-            command.setTaskErrorsDataAccessManager(taskErrorsDataAccessManager);
-            command.setStatusManager(statusManager);
-            command.setTaskConfig(taskConfig);
+            worker = task.newInstance();
+            worker.setPoolSettings(poolSettings);
+            worker.setNodesDataAccessManager(nodesDataAccessManager);
+            worker.setTaskErrorsDataAccessManager(taskErrorsDataAccessManager);
+            worker.setStatusManager(statusManager);
+            worker.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
             logger.error("task instantiation failed", e);
         } catch (IllegalAccessException e) {
             logger.error("task instantiation failed", e);
         }
 
-        if (command != null) {
-            executorService.execute(command);
+        if (worker != null) {
+            ListenableFuture listenableFuture = executorService.submit(worker);
+            if (taskCallback == null) {
+                taskCallback = new NoopTaskCallback();
+            }
+            Futures.addCallback(listenableFuture, taskCallback);
         }
     }
 
@@ -78,7 +85,7 @@ public class TaskExecutor {
     }
 
     public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
+        this.executorService = MoreExecutors.listeningDecorator(executorService);
     }
 
     public void setStatusManager(StatusManager statusManager) {
