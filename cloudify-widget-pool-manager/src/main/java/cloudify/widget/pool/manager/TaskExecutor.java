@@ -44,7 +44,7 @@ public class TaskExecutor {
         }
     }
 
-    public <T extends ITask, R> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
+    public <T extends Task, R> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 

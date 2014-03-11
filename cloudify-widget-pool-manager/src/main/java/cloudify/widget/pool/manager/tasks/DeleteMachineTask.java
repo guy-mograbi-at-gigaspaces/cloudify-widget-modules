@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig, Void> {
+public class DeleteMachineTask implements Task<DeleteMachineTaskConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(DeleteMachineTask.class);
 
@@ -38,20 +38,21 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig, Void> {
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(providerSettings.getName());
         if (cloudServerApi == null) {
-            logger.error("failed to obtain an API object using provider [{}]", providerSettings.getName());
-            return null;
+            String message = String.format("failed to obtain an API object using provider [%s]", providerSettings.getName());
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
         PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize <= status.minNodes) {
-            String message = "failed to remove machine: pool has reached its minimum capacity as defined in the pool settings";
+            String message = "pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
             taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message)
             );
-            return null;
+            throw new RuntimeException(message);
         }
 
         cloudServerApi.connect(providerSettings.getConnectDetails());

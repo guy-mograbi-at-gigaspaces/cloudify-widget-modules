@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
  * @param <T> The task config implementation.
  * @param <R> The expected task result data.
  */
-public interface ITask<T extends TaskConfig, R> extends Callable<R> {
+public interface Task<T extends TaskConfig, R> extends Callable<R> {
 
     TaskName getTaskName();
 

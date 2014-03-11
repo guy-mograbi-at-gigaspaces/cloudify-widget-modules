@@ -23,11 +23,21 @@ public interface PoolManagerApi {
 
     NodeModel getNode(long nodeId);
 
-    void createNode(PoolSettings poolSettings, TaskCallback taskCallback);
+    // TODO
+//    NodeModel getNode(PoolSettings poolSettings);
 
-    void deleteNode(long nodeId);
+    // TODO
+//    NodeModel occupyNode(PoolSettings poolSettings);
 
-    void bootstrapNode(long nodeId);
+    void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback);
+
+    void deleteNode(long nodeId, TaskCallback<Void> taskCallback);
+
+    void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback);
+
+    // TODO
+//    void bootstrapNode(NodeModel nodeModel, TaskCallback<Object> taskCallback);
+
 
     List<TaskErrorModel> listTaskErrors(PoolSettings poolSettings);
 

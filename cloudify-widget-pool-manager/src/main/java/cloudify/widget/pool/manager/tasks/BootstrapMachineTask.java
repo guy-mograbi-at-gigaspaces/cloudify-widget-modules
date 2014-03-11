@@ -26,7 +26,7 @@ import java.util.HashMap;
  * Date: 3/5/14
  * Time: 6:00 PM
  */
-public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, Void> {
+public class BootstrapMachineTask implements Task<BootstrapMachineTaskConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
 
@@ -44,10 +44,30 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, V
     public Void call() throws Exception {
 
         if (taskConfig.getNodeModel().nodeStatus == NodeModel.NodeStatus.BOOTSTRAPPED) {
-            logger.info("node is already bootstrapped, aborting bootstrap task");
-            return null;
+            String message = String.format("node with id [%s] is already bootstrapped, aborting bootstrap task", taskConfig.getNodeModel().id);
+            logger.info(message);
+            throw new RuntimeException(message);
         }
 
+        String script = getBootstrapScript();
+
+        script = injectBootstrapProperties(script);
+
+        CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
+        cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
+
+        CloudServer cloudServer = getCloudServer(cloudServerApi);
+
+        runBootstrapScriptOnMachine(script, cloudServerApi, cloudServer);
+
+        return null;
+    }
+
+    private String getBootstrapScript() {
+        return readScriptFromFile(getScriptFile());
+    }
+
+    private File getScriptFile() {
         File scriptFile;
         try {
             scriptFile = ResourceUtils.getFile(taskConfig.getBootstrapScriptResourcePath());
@@ -60,10 +80,13 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, V
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
-            return null;
+            throw new RuntimeException(message);
         }
+        return scriptFile;
+    }
 
-        String script = null;
+    private String readScriptFromFile(File scriptFile) {
+        String script;
         try {
             script = FileUtils.readFileToString(scriptFile);
             logger.debug("script file read to string\n\n[{}]...", script.substring(0, 20));
@@ -75,38 +98,43 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, V
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
+            throw new RuntimeException(message);
         }
+        return script;
+    }
 
+    private String injectBootstrapProperties(String script) {
         BootstrapProperties bootstrapProperties = poolSettings.getBootstrapProperties();
-        script = script.replaceAll("##publicip##", bootstrapProperties.getPublicIp())
+        return script
+                .replaceAll("##publicip##", bootstrapProperties.getPublicIp())
                 .replaceAll("##privateip##", bootstrapProperties.getPrivateIp())
                 .replaceAll("##cloudifyUrl##", bootstrapProperties.getCloudifyUrl())
                 .replaceAll("##prebootstrapScript##", bootstrapProperties.getPreBootstrapScript())
                 .replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath())
                 .replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
+    }
 
-
-        CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
-        cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
-
+    private CloudServer getCloudServer(CloudServerApi cloudServerApi) {
         String machineId = taskConfig.getNodeModel().machineId;
-
         CloudServer cloudServer = cloudServerApi.get(machineId);
         if (cloudServer == null) {
-            String message = String.format("node with id [%s] was not found", machineId);
+            String message = String.format("machine with id [%s] was not found", machineId);
             logger.error(message);
             taskErrorsDataAccessManager.addTaskError(new TaskErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getId())
                     .setMessage(message));
-            return null;
+            throw new RuntimeException(message);
         }
+        return cloudServer;
+    }
 
-        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);// TODO ponder why public ip ?
+    private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, CloudServer cloudServer) {
+        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);
         int exitStatus = cloudExecResponse.getExitStatus();
         if (exitStatus == 0) {
             NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
-            logger.info("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
+            logger.debug("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
             updatedNodeModel.setNodeStatus(NodeModel.NodeStatus.BOOTSTRAPPED);
             nodesDataAccessManager.updateNode(updatedNodeModel);
         } else {
@@ -121,9 +149,8 @@ public class BootstrapMachineTask implements ITask<BootstrapMachineTaskConfig, V
                     .setMessage(message)
                     .setInfo(infoMap)
             );
+            throw new RuntimeException(message);
         }
-
-        return null;
     }
 
 
