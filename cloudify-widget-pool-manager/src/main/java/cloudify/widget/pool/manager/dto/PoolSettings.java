@@ -92,4 +92,15 @@ public class PoolSettings {
         result = 31 * result + provider.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "PoolSettings{" +
+                "id='" + id + '\'' +
+                ", maxNodes=" + maxNodes +
+                ", minNodes=" + minNodes +
+                ", bootstrapProperties=" + bootstrapProperties +
+                ", provider=" + provider +
+                '}';
+    }
 }
