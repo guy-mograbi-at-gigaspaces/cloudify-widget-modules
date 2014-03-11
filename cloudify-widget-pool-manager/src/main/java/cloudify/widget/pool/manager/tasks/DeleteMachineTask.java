@@ -43,7 +43,6 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
             return;
         }
 
-        // TODO ponder: is this really a job for the task?
         PoolStatus status = statusManager.getStatus(poolSettings);
         if (status.currentSize <= status.minNodes) {
             String message = "failed to remove machine: pool has reached its minimum capacity as defined in the pool settings";
@@ -56,9 +55,7 @@ public class DeleteMachineTask implements ITask<DeleteMachineTaskConfig> {
             return;
         }
 
-        logger.info("connecting to cloud server api with details [{}]", providerSettings.getConnectDetails());
         cloudServerApi.connect(providerSettings.getConnectDetails());
-        logger.info("deleting machine with id [{}]", taskConfig.getNodeModel().machineId);
         cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
         logger.info("machine deleted, removing node model in the database [{}]");
