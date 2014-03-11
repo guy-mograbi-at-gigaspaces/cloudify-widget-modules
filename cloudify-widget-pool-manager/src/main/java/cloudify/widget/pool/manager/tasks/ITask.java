@@ -8,8 +8,8 @@ import cloudify.widget.pool.manager.dto.PoolSettings;
 import java.util.concurrent.Callable;
 
 /**
- * @param <T>
- * @param <R> The task result, which will be returned by the task.
+ * @param <T> The task config implementation.
+ * @param <R> The expected task result data.
  */
 public interface ITask<T extends TaskConfig, R> extends Callable<R> {
 

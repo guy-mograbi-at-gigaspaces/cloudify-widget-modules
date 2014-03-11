@@ -17,7 +17,7 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachineTask implements ITask {
+public class CreateMachineTask implements ITask<TaskConfig, Collection<? extends CloudServerCreated>> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachineTask.class);
 
@@ -62,7 +62,7 @@ public class CreateMachineTask implements ITask {
     }
 
     @Override
-    public Object call() throws Exception {
+    public Collection<? extends CloudServerCreated> call() throws Exception {
         logger.info("creating machine with pool settings [{}]", poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
