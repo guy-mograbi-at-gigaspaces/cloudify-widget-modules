@@ -62,7 +62,7 @@ public class CreateMachineTask implements ITask {
     }
 
     @Override
-    public void run() {
+    public Object call() throws Exception {
         logger.info("creating machine with pool settings [{}]", poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
@@ -70,7 +70,7 @@ public class CreateMachineTask implements ITask {
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(providerSettings.getName());
         if (cloudServerApi == null) {
             logger.error("failed to obtain an API object using provider [{}]", providerSettings.getName());
-            return;
+            return null;
         }
 
         PoolStatus status = statusManager.getStatus(poolSettings);
@@ -82,7 +82,7 @@ public class CreateMachineTask implements ITask {
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
-            return;
+            return null;
         }
 
         cloudServerApi.connect(providerSettings.getConnectDetails());
@@ -96,6 +96,8 @@ public class CreateMachineTask implements ITask {
             logger.debug("machine created, adding node to database [{}]", nodeModel);
             nodesDataAccessManager.addNode(nodeModel);
         }
+
+        return cloudServerCreateds;
     }
 
 }

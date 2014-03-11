@@ -5,12 +5,13 @@ import cloudify.widget.pool.manager.StatusManager;
 import cloudify.widget.pool.manager.TaskErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 
+import java.util.concurrent.Callable;
+
 /**
- * User: eliranm
- * Date: 3/6/14
- * Time: 12:39 PM
+ * @param <T>
+ * @param <R> The task result, which will be returned by the task.
  */
-public interface ITask<T extends TaskConfig> extends Runnable {
+public interface ITask<T extends TaskConfig, R> extends Callable<R> {
 
     TaskName getTaskName();
 
