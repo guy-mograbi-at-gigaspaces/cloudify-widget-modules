@@ -23,18 +23,11 @@
         <property name="executorService" ref="fixedSizePool" />
     </bean>
 
-    <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
-        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
-    </bean>
 
-    <bean id="settingsDataAccessManager" class="cloudify.widget.pool.manager.SettingsJsonDataAccessManager">
-        <property name="settingsFileLoader" ref="settingsLoader" />
-    </bean>
 
     <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
 
     <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApiImpl">
-        <property name="settingsDataAccessManager" ref="settingsDataAccessManager" />
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
         <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
         <property name="statusManager" ref="statusManager" />

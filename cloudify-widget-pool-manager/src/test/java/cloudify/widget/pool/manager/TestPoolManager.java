@@ -44,6 +44,9 @@ public class TestPoolManager {
     private NodesDataAccessManager nodesDataAccessManager;
 
     @Autowired
+    private SettingsDataAccessManager settingsDataAccessManager;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -83,7 +86,7 @@ public class TestPoolManager {
         logger.info("testing manager task executor");
 
 
-        PoolSettings softlayerPoolSettings = poolManagerApi.getSettings().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
+        PoolSettings softlayerPoolSettings = settingsDataAccessManager.read().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
         logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
 
         // delete - (should fail)
@@ -167,7 +170,7 @@ public class TestPoolManager {
     @Test
     public void testPoolStatus() {
 
-        ManagerSettings managerSettings = poolManagerApi.getSettings();
+        ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
@@ -179,9 +182,9 @@ public class TestPoolManager {
 
         Assert.notNull(poolStatus, "pool status should not be null");
 
-        Assert.isTrue(poolStatus.currentSize >= poolStatus.minNodes && poolStatus.currentSize <= poolStatus.maxNodes,
+        Assert.isTrue(poolStatus.getCurrentSize()>= softlayerPoolSettings.getMinNodes()&& poolStatus.getCurrentSize() <= softlayerPoolSettings.getMaxNodes(),
                 String.format("current size [%s] must be greater than or equal to min size [%s] and less than or equal to max size [%s]",
-                        poolStatus.currentSize, poolStatus.minNodes, poolStatus.maxNodes));
+                        poolStatus.getCurrentSize(), softlayerPoolSettings.getMinNodes(), softlayerPoolSettings.getMaxNodes()));
 
     }
 
@@ -189,7 +192,7 @@ public class TestPoolManager {
     @Test
     public void testPoolCrud() {
 
-        ManagerSettings managerSettings = poolManagerApi.getSettings();
+        ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
         PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);

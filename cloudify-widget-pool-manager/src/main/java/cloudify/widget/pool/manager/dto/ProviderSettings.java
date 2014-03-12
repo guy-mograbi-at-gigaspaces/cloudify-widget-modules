@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = HpProviderSettings.class, name = "hp"),
         @JsonSubTypes.Type(value = Ec2ProviderSettings.class, name = "ec2"),
         @JsonSubTypes.Type(value = SoftlayerProviderSettings.class, name = "softlayer")})
-public class ProviderSettings {
+public abstract class ProviderSettings {
 
     public static enum ProviderName {
         hp, softlayer, ec2;

@@ -10,12 +10,7 @@
 
     <import resource="classpath:/conf/dev/dev-context.xml"/>
 
-    <beans profile="manager-app">
-        <import resource="classpath:pool-manager-app-context.xml"/>
-    </beans>
-    <beans profile="manager-dev">
-        <import resource="classpath:pool-manager-dev-context.xml"/>
-    </beans>
+
 
 
 
@@ -65,4 +60,11 @@
     <bean id="poolDao" class="cloudify.widget.website.dao.PoolDaoImpl">
         <property name="jdbcTemplate" ref="jdbcTemplate"></property>
     </bean>
+
+    <beans profile="manager-app,default,dev">
+        <import resource="classpath:pool-manager-app-context.xml"/>
+    </beans>
+    <beans profile="manager-dev">
+        <import resource="classpath:pool-manager-dev-context.xml"/>
+    </beans>
 </beans>
