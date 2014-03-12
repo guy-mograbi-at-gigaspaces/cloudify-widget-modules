@@ -22,7 +22,7 @@ import java.io.IOException;
  * Time: 4:51 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
+@ContextConfiguration(locations = {"classpath:pool-manager-dev-context.xml"})
 @ActiveProfiles({"softlayer"})
 public class TestDeserializer {
 

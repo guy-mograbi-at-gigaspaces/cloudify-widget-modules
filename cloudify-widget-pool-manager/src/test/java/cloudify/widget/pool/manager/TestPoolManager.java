@@ -29,7 +29,7 @@ import java.util.List;
  * Time: 4:42 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
+@ContextConfiguration(locations = {"classpath:pool-manager-dev-context.xml"})
 @ActiveProfiles({"softlayer"})
 public class TestPoolManager {
 

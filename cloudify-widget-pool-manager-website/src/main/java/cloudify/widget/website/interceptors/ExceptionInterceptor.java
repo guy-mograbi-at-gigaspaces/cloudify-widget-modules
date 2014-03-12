@@ -33,7 +33,7 @@ public class ExceptionInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        logger.info("got an exception : " + ex);
+        logger.info("got an exception : " + ex + " and response status is : " + response.getStatus());
 
         if( ex != null ){
             if (ex instanceof BaseException) {

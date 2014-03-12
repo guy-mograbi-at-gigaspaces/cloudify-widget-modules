@@ -1,6 +1,7 @@
 package cloudify.widget.website.interceptors;
 
 import cloudify.widget.common.StringUtils;
+import cloudify.widget.website.config.AppConfig;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.models.AccountModel;
 import org.slf4j.Logger;
@@ -25,6 +26,9 @@ public class AccountAuthenticationInterceptor extends HandlerInterceptorAdapter 
     @Autowired
     private IAccountDao accountDao;
 
+    @Autowired
+    private AppConfig conf;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         logger.info("in Account interceptor");
@@ -36,6 +40,9 @@ public class AccountAuthenticationInterceptor extends HandlerInterceptorAdapter 
             return false;
         }
 
+        if ( StringUtils.equals( conf.getAdminUuid(), accountUuid )){
+            return super.preHandle(request, response, handler);
+        }
         AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
         if (accountModel == null) {
             response.sendError(401, "{'message' : 'Account with uuid [" + accountUuid + "] not found'}");

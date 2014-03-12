@@ -19,14 +19,15 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
 @SuppressWarnings("UnusedDeclaration")
 @Controller
-public class IndexController {
+public class AdminController {
 
-    private static final Logger logger = LoggerFactory.getLogger(IndexController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private IAccountDao accountDao;
@@ -41,13 +42,14 @@ public class IndexController {
         this.poolManagerApi = poolManagerApi;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkAdmin/{guymograbi}", method = RequestMethod.GET)
     @ResponseBody
-    public String showIndex(@ModelAttribute("account") AccountModel accountModel) {
-        logger.info("account model id is : " + ((accountModel == null) ? "n/a" : accountModel.id));
-        //throw new RuntimeException("this is me!!!!");
+    public String showIndex() {
+        logger.info("showing index");
         return "hello world!";
     }
+
+
 
     @RequestMapping(value = "/admin/account", method = RequestMethod.GET)
     @ResponseBody
@@ -66,6 +68,7 @@ public class IndexController {
     @RequestMapping(value = "/admin/accounts", method = RequestMethod.GET)
     @ResponseBody
     public List<AccountModel> getAccounts() {
+        logger.info("getting accounts...");
         return accountDao.readAccounts();
     }
 
@@ -137,7 +140,7 @@ public class IndexController {
     @RequestMapping(value = "/admin/pools/status", method = RequestMethod.GET)
     @ResponseBody
     public List<PoolStatus> getAccountPoolsStatus() {
-        return null;//"TBD pools statuses";
+        return null;
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/addMachine", method = RequestMethod.POST)
@@ -168,13 +171,21 @@ public class IndexController {
 
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request) {
+
         return (AccountModel) request.getAttribute("account");
     }
 
     @ModelAttribute("poolSettings")
-    public PoolSettings getPoolSettings( @PathVariable("accountId") Long accountId,
-                                         @PathVariable("poolId") Long poolId ){
-        return getAccountPool( accountId, poolId ).getPoolSettings();
-
+    public PoolSettings getPoolSettings( /*@PathVariable("accountId") Long accountId,
+                                         @PathVariable("poolId") Long poolId */ HttpServletRequest request ){
+//        return getAccountPool( accountId, poolId ).getPoolSettings();
+        Map pathVariables = (Map) request.getAttribute("org.springframework.web.servlet.HandlerMapping.uriTemplateVariables");
+        if ( pathVariables.containsKey("accountId") && pathVariables.containsKey("poolId")){
+            long accountId = Long.parseLong((String) pathVariables.get("accountId"));
+            long poolId = Long.parseLong((String) pathVariables.get("poolId"));
+            return getAccountPool( accountId, poolId ).getPoolSettings();
+        }else{
+            return null;
+        }
     }
 }

@@ -42,19 +42,23 @@
     </bean>
 
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <bean id="poolManagerDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc.driverClassName}"/>
         <property name="url" value="${jdbc.url}"/>
         <property name="username" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
     </bean>
 
+    <bean id="poolManagerJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="poolManagerDataSource" />
+    </bean>
+
     <bean id="nodesDao" class="cloudify.widget.pool.manager.NodesDao">
-        <property name="dataSource" ref="dataSource"/>
+        <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
 
     <bean id="errorsDao" class="cloudify.widget.pool.manager.ErrorsDao">
-        <property name="dataSource" ref="dataSource"/>
+        <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
 
     <beans profile="softlayer">

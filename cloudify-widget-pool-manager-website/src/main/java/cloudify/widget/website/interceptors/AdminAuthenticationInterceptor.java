@@ -32,31 +32,21 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         logger.info("in Admin interceptor");
-        String adminUuid = request.getHeader("AdminUuid");
+        String accountUuid = request.getHeader("AccountUuid");
 
-        if( StringUtils.isEmpty( adminUuid ) ){
+        if( StringUtils.isEmpty( accountUuid ) ){
             response.sendError(401, "{'message' : 'admin uuid missing on request header'}");
             return false;
         }
         else{
-             boolean adminUidsIdentical = StringUtils.equals( conf.getAdminUuid(), adminUuid );
-            if( !adminUidsIdentical ){
+             boolean accountUidsIdentical = StringUtils.equals( conf.getAdminUuid(), accountUuid );
+            if( !accountUidsIdentical ){
                 response.sendError(401, "{'message' : 'admin uuid authentication failed'}");
                 return false;
             }
         }
 
-        String accountUuid = request.getHeader("AccountUuid");
-        if( !StringUtils.isEmpty( accountUuid ) ) {
-            AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
-            if( accountModel == null ) {
-                response.sendError(401, "{'message' : 'Account with uuid [" + accountUuid + "] not found'}");
-                return false;
-            }
-
-            request.setAttribute("account", accountModel);
-        }
-
+        logger.info("intercepting...");
         return super.preHandle(request, response, handler);
     }
 

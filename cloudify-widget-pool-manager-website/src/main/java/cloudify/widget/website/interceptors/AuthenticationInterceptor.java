@@ -30,6 +30,8 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         logger.info("in interceptor");
         String accountUuid = request.getHeader("AccountUuid");
 
+
+
         if ( StringUtils.isEmpty(accountUuid) ){
             response.sendError(401, "{'message' : 'account uuid missing on request header'}");
             return false;

@@ -5,17 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-    <import resource="pool-manager-app-context.xml" />
-
     <context:component-scan base-package="cloudify.widget.pool.manager" />
 
-    <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
-        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
-    </bean>
-
-    <bean id="settingsDataAccessManager" class="cloudify.widget.pool.manager.SettingsJsonDataAccessManager">
-        <property name="settingsFileLoader" ref="settingsLoader" />
-    </bean>
+    <import resource="pool-manager-app-context.xml" />
 
 
 
@@ -27,8 +19,8 @@
         <property name="settingsFileLoader" ref="settingsLoader" />
     </bean>
 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <constructor-arg name="dataSource" ref="dataSource"/>
+    <bean id="poolManagerJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="poolManagerDataSource"/>
     </bean>
 
     <!-- mocking task executor so tests don't have to use thread-waits -->

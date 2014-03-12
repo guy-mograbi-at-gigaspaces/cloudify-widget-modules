@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ public class AccountDaoImpl implements IAccountDao {
     private static final Logger logger = LoggerFactory.getLogger(AccountDaoImpl.class);
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-
         this.jdbcTemplate = jdbcTemplate;
         jdbcInsert = new SimpleJdbcInsert( jdbcTemplate ).withTableName(TABLE_NAME).usingGeneratedKeyColumns("id");
     }
