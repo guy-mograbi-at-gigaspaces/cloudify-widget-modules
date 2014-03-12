@@ -2,10 +2,17 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatus;
+import cloudify.widget.pool.manager.dto.PoolStatusCount;
 import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: eliranm
@@ -25,17 +32,29 @@ public class StatusManager {
     public void setStatus(PoolStatus poolStatus) {
     }
 
-    public PoolStatus getStatus(PoolSettings poolSettings) {
+    public Collection<PoolStatus> getPoolsStatus() {
 
-        ProviderSettings provider = poolSettings.getProvider();
-        if (provider == null) {
-            logger.error("provider not found in pool settings");
+        Map< String /* poolId */, PoolStatus> resultMap = new HashMap<String, PoolStatus>();
+
+        List<PoolStatusCount> poolStatusCounts = nodesDataAccessManager.getPoolStatusCounts();
+
+        for (PoolStatusCount poolStatusCount : poolStatusCounts) {
+            String poolId = poolStatusCount.getPoolId();
+            if ( !resultMap.containsKey(poolId) ){
+                PoolStatus value = new PoolStatus();
+                value.setPoolId( poolId );
+                resultMap.put( poolId, value);
+            }
+
+            resultMap.get(poolId).getCountPerStatus().put( poolStatusCount.getStatus(), poolStatusCount.getCount() );
         }
 
-        return new PoolStatus()
-                .minNodes(poolSettings.getMinNodes())
-                .maxNodes(poolSettings.getMaxNodes())
-                .currentSize(nodesDataAccessManager.listNodes(poolSettings).size());
+        return resultMap.values();
+    }
+
+    public PoolStatus getPoolStatus( PoolSettings poolSettings ){
+         //TODO
+        return null;
     }
 
 }

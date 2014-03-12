@@ -25,8 +25,6 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Autowired
     private ErrorsDataAccessManager errorsDataAccessManager;
 
-    @Autowired
-    private SettingsDataAccessManager settingsDataAccessManager;
 
     @Autowired
     private StatusManager statusManager;
@@ -40,23 +38,12 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public PoolStatus getStatus(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return statusManager.getStatus(poolSettings);
+        return statusManager.getPoolStatus(poolSettings);
     }
 
     @Override
     public Collection<PoolStatus> listStatuses() {
-        Collection<PoolStatus> poolStatuses = new ArrayList<PoolStatus>();
-        PoolsSettingsList poolSettingsList = _getPools();
-        if (poolSettingsList == null) return null;
-        for (PoolSettings poolSettings : poolSettingsList) {
-            poolStatuses.add(statusManager.getStatus(poolSettings));
-        }
-        return poolStatuses;
-    }
-
-    @Override
-    public ManagerSettings getSettings() {
-        return settingsDataAccessManager.read();
+        return statusManager.getPoolsStatus();
     }
 
     @Override
@@ -99,10 +86,9 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public void deleteNode(long nodeId, TaskCallback<Void> taskCallback) {
+    public void deleteNode(PoolSettings poolSettings, long nodeId,  TaskCallback<Void> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
         if (node == null) return;
-        PoolSettings poolSettings = _getPoolSettings(node.poolId);
         if (poolSettings == null) return;
         taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
@@ -113,14 +99,8 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     }
 
     @Override
-    public void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback) {
-        throw new UnsupportedOperationException("not supported yet!");
-    }
-
-    @Override
-    public void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback) {
+    public void bootstrapNode(PoolSettings poolSettings, long nodeId, TaskCallback<NodeModel> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
-        PoolSettings poolSettings = _getPoolSettings(node.poolId);
         taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
@@ -131,11 +111,6 @@ public class PoolManagerApiImpl implements PoolManagerApi {
                 return node;
             }
         }, poolSettings, taskCallback);
-    }
-
-    @Override
-    public void bootstrapNode(PoolSettings poolSettings, TaskCallback<NodeModel> taskCallback) {
-        throw new UnsupportedOperationException("not supported yet!");
 
         // TODO task should find a CREATED node for itself, and should return that node in the callback success
 /*
@@ -177,26 +152,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         return node;
     }
 
-    private PoolsSettingsList _getPools() {
-        PoolsSettingsList poolsSettingsList = settingsDataAccessManager.read().getPools();
-        if (poolsSettingsList == null || poolsSettingsList.isEmpty()) {
-            logger.error("pool settings list not found, or is empty");
-        }
-        return poolsSettingsList;
-    }
 
-    private PoolSettings _getPoolSettings(String poolSettingsId) {
-        PoolSettings poolSettings = _getPools().getById(poolSettingsId);
-        if (poolSettings == null) {
-            logger.error("pool settings with id [{}] not found.", poolSettingsId);
-        }
-        return poolSettings;
-    }
-
-
-    public void setSettingsDataAccessManager(SettingsDataAccessManager settingsDataAccessManager) {
-        this.settingsDataAccessManager = settingsDataAccessManager;
-    }
 
     public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
         this.errorsDataAccessManager = errorsDataAccessManager;

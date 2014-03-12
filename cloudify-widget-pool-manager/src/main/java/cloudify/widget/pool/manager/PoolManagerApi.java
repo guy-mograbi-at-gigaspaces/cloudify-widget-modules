@@ -17,8 +17,6 @@ public interface PoolManagerApi {
 
     Collection<PoolStatus> listStatuses();
 
-    ManagerSettings getSettings();
-
     List<NodeModel> listNodes(PoolSettings poolSettings);
 
     @Deprecated
@@ -33,21 +31,9 @@ public interface PoolManagerApi {
 
     void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback);
 
-    @Deprecated
-    /**
-     * @deprecated use {@link #deleteNode(cloudify.widget.pool.manager.dto.NodeModel, cloudify.widget.pool.manager.tasks.TaskCallback)} instead.
-     */
-    void deleteNode(long nodeId, TaskCallback<Void> taskCallback);
+    void deleteNode(PoolSettings poolSettings, long nodeId, TaskCallback<Void> taskCallback);
 
-    void deleteNode(NodeModel nodeModel, TaskCallback<Void> taskCallback);
-
-    @Deprecated
-    /**
-     * @deprecated use {@link #bootstrapNode(cloudify.widget.pool.manager.dto.PoolSettings, cloudify.widget.pool.manager.tasks.TaskCallback)} instead.
-     */
-    void bootstrapNode(long nodeId, TaskCallback<Void> taskCallback);
-
-    void bootstrapNode(PoolSettings poolSettings, TaskCallback<NodeModel> taskCallback);
+    void bootstrapNode(PoolSettings poolSettings, long nodeId, TaskCallback<NodeModel> taskCallback);
 
 
     List<ErrorModel> listTaskErrors(PoolSettings poolSettings);

@@ -1,6 +1,8 @@
 package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.NodeModel;
+import cloudify.widget.pool.manager.dto.NodeStatus;
+import cloudify.widget.pool.manager.dto.PoolStatusCount;
 import com.mysql.jdbc.Statement;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -61,6 +63,11 @@ public class NodesDao {
         return affected > 0;
     }
 
+    public List<PoolStatusCount> getPoolStatusCounts(){
+        return jdbcTemplate.query("select count(*) as count, " + COL_POOL_ID + "," + COL_NODE_STATUS + " from " + TABLE_NAME + " group by " + COL_POOL_ID + " , " + COL_NODE_STATUS ,
+                new BeanPropertyRowMapper<PoolStatusCount>() );
+    }
+
     public List<NodeModel> readAllOfPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
@@ -86,5 +93,9 @@ public class NodesDao {
     public int delete(long nodeId) {
         return jdbcTemplate.update("delete from " + TABLE_NAME + " where id = ?", nodeId);
     }
+
+
+
+
 
 }

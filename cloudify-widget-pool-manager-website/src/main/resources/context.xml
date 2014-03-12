@@ -10,11 +10,20 @@
 
     <import resource="classpath:/conf/dev/dev-context.xml"/>
 
+    <beans profile="manager-app">
+        <import resource="classpath:pool-manager-app-context.xml"/>
+    </beans>
+    <beans profile="manager-dev">
+        <import resource="classpath:pool-manager-dev-context.xml"/>
+    </beans>
+
+
+
     <mvc:annotation-driven/>
     <context:component-scan base-package="cloudify.widget.website.controller" />
 
     <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
-    <bean id="taskErrorsDataAccessManager" class="cloudify.widget.pool.manager.TaskErrorsDataAccessManager" />
+    <bean id="taskErrorsDataAccessManager" class="cloudify.widget.pool.manager.ErrorsDataAccessManager" />
 
     <mvc:interceptors>
         <mvc:interceptor>

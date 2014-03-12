@@ -2,6 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.PoolStatusCount;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -19,6 +20,10 @@ public class NodesDataAccessManager {
 
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
         return nodesDao.readAllOfPool(poolSettings.getId());
+    }
+
+    public List<PoolStatusCount> getPoolStatusCounts( ){
+        return nodesDao.getPoolStatusCounts();
     }
 
     public NodeModel getNode(long nodeId) {

@@ -75,17 +75,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
             throw new RuntimeException(message);
         }
 
-        PoolStatus status = statusManager.getStatus(poolSettings);
-        if (status.currentSize >= status.maxNodes) {
-            String message = "pool has reached its maximum capacity as defined in the pool settings";
-            logger.error(message);
-            errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getId())
-                    .setTaskName(TASK_NAME)
-                    .setMessage(message)
-            );
-            throw new RuntimeException(message);
-        }
+
 
         logger.debug("connecting to provider [{}]", providerSettings.getName());
         cloudServerApi.connect(providerSettings.getConnectDetails());
