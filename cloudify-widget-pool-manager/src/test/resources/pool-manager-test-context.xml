@@ -9,6 +9,14 @@
 
     <context:component-scan base-package="cloudify.widget.pool.manager" />
 
+    <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">
+        <property name="settingsFilePath" value="conf/dev/manager-settings.json" />
+    </bean>
+
+    <bean id="settingsDataAccessManager" class="cloudify.widget.pool.manager.SettingsJsonDataAccessManager">
+        <property name="settingsFileLoader" ref="settingsLoader" />
+    </bean>
+
 
 
     <bean id="settingsLoader" class="cloudify.widget.pool.manager.SettingsFileLoader">

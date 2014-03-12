@@ -182,7 +182,7 @@ public class TestPoolManager {
 
         Assert.notNull(poolStatus, "pool status should not be null");
 
-        Assert.isTrue(poolStatus.getCurrentSize() >= softlayerPoolSettings.getMinNodes() && poolStatus.getCurrentSize() <= softlayerPoolSettings.getMaxNodes(),
+        Assert.isTrue(poolStatus.getCurrentSize()>= softlayerPoolSettings.getMinNodes()&& poolStatus.getCurrentSize() <= softlayerPoolSettings.getMaxNodes(),
                 String.format("current size [%s] must be greater than or equal to min size [%s] and less than or equal to max size [%s]",
                         poolStatus.getCurrentSize(), softlayerPoolSettings.getMinNodes(), softlayerPoolSettings.getMaxNodes()));
 

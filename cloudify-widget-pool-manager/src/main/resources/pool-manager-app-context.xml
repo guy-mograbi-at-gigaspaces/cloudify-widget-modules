@@ -23,6 +23,8 @@
         <property name="executorService" ref="fixedSizePool" />
     </bean>
 
+
+
     <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
 
     <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApiImpl">
