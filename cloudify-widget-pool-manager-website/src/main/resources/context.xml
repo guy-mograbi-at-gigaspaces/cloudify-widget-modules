@@ -8,14 +8,7 @@
        http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd
        ">
 
-    <import resource="classpath:/conf/dev/dev-context.xml"/>
-
-    <beans profile="manager-app">
-        <import resource="classpath:pool-manager-app-context.xml"/>
-    </beans>
-    <beans profile="manager-dev">
-        <import resource="classpath:pool-manager-dev-context.xml"/>
-    </beans>
+    <!--<import resource="classpath:/conf/dev/dev-context.xml"/>-->
 
 
 
@@ -65,4 +58,13 @@
     <bean id="poolDao" class="cloudify.widget.website.dao.PoolDaoImpl">
         <property name="jdbcTemplate" ref="jdbcTemplate"></property>
     </bean>
+
+
+    <beans profile="manager-app,default,dev">
+        <import resource="classpath:pool-manager-app-context.xml"/>
+    </beans>
+    <beans profile="manager-dev">
+        <import resource="classpath:pool-manager-dev-context.xml"/>
+    </beans>
+
 </beans>

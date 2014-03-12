@@ -1,10 +1,8 @@
 package cloudify.widget.website;
 
 import cloudify.widget.common.CollectionUtils;
-import cloudify.widget.pool.manager.SettingsDataAccessManager;
-import cloudify.widget.pool.manager.dto.ManagerSettings;
-import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.dto.ProviderSettings;
+import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.softlayer.SoftlayerConnectDetails;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -36,8 +34,6 @@ public class MySqlOperationsTest {
     @Autowired
     private IPoolDao poolDao;
 
-    @Autowired
-    private SettingsDataAccessManager settingsDataAccessManager;
 
     @Test
     public void testPool() {
@@ -98,7 +94,7 @@ public class MySqlOperationsTest {
         Assert.assertEquals("Retrieved account pools list size must be 1", 1, CollectionUtils.size(accountPools) );
 
 
-        ProviderSettings updatedProviderSettings = new ProviderSettings();
+        ProviderSettings updatedProviderSettings = new HpProviderSettings();
         updatedProviderSettings.setName( ProviderSettings.ProviderName.hp );
 
         //was previously HP, change it to softlayer
@@ -131,28 +127,39 @@ public class MySqlOperationsTest {
         PoolConfigurationModel poolModel = new PoolConfigurationModel();
         poolModel.setAccountId( accountId );
 
-        ManagerSettings managerSettings = settingsDataAccessManager.read();
+        ManagerSettings managerSettings = new ManagerSettings();
+        PoolsSettingsList poolsSettingsList = new PoolsSettingsList();
 
-        PoolSettings poolSettings = managerSettings.getPools().getByProviderName( providerName );
+        PoolSettings poolSettings = new PoolSettings();
+        poolSettings.setId("softlayer_pool");
+        poolSettings.setMinNodes(4);
+        poolSettings.setMaxNodes(6);
+        poolSettings.setAuthKey("authKey");
+
+        SoftlayerProviderSettings providerSettings = new SoftlayerProviderSettings();
+        providerSettings.setName(ProviderSettings.ProviderName.softlayer);
+
+        SoftlayerConnectDetails connectDetails = new SoftlayerConnectDetails();
+        connectDetails.setKey("key");
+        connectDetails.setUsername("username");
+        connectDetails.setNetworkId("000");
+        providerSettings.setConnectDetails(connectDetails);
+
+        poolSettings.setProvider(providerSettings);
+        poolsSettingsList.add(poolSettings);
+        managerSettings.setPools(poolsSettingsList);
+
         poolModel.setPoolSettings( poolSettings );
 
         return poolModel;
     }
 
     private static AccountModel createAccountModel(){
-        String accountUuid = createUuid();
+        String accountUuid = UUID.randomUUID().toString();
         AccountModel accountModel = new AccountModel();
         accountModel.setUuid(accountUuid);
 
         return accountModel;
     }
 
-    private static String createUuid(){
-        UUID accountUuid = UUID.randomUUID();
-        return accountUuid.toString();
-    }
-
-    public void setSettingsDataAccessManager(SettingsDataAccessManager settingsDataAccessManager) {
-        this.settingsDataAccessManager = settingsDataAccessManager;
-    }
 }
