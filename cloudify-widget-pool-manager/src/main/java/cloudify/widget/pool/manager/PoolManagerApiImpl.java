@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public Collection<PoolStatus> listStatuses() {
-        return statusManager.getPoolsStatus();
+        return statusManager.listPoolStatuses();
     }
 
     @Override

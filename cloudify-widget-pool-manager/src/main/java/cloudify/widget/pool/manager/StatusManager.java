@@ -32,7 +32,7 @@ public class StatusManager {
     public void setStatus(PoolStatus poolStatus) {
     }
 
-    public Collection<PoolStatus> getPoolsStatus() {
+    public Collection<PoolStatus> listPoolStatuses() {
 
         Map< String /* poolId */, PoolStatus> resultMap = new HashMap<String, PoolStatus>();
 
@@ -40,12 +40,13 @@ public class StatusManager {
 
         for (PoolStatusCount poolStatusCount : poolStatusCounts) {
             String poolId = poolStatusCount.getPoolId();
+            // init if not exist
             if ( !resultMap.containsKey(poolId) ){
-                PoolStatus value = new PoolStatus();
-                value.setPoolId( poolId );
-                resultMap.put( poolId, value);
+                PoolStatus poolStatus = new PoolStatus();
+                poolStatus.setPoolId(poolId);
+                resultMap.put( poolId, poolStatus);
             }
-
+            // setting count per status
             resultMap.get(poolId).getCountPerStatus().put( poolStatusCount.getStatus(), poolStatusCount.getCount() );
         }
 
@@ -53,7 +54,7 @@ public class StatusManager {
     }
 
     public PoolStatus getPoolStatus( PoolSettings poolSettings ){
-         //TODO
+//         nodesDataAccessManager.getPoolStatus(poolSettings);
         return null;
     }
 

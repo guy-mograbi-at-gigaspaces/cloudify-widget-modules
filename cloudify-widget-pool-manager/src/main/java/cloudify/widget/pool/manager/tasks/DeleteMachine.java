@@ -43,8 +43,8 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
             throw new RuntimeException(message);
         }
 
-        PoolStatus status = statusManager.getStatus(poolSettings);
-        if (status.currentSize <= status.minNodes) {
+        PoolStatus status = statusManager.getPoolStatus(poolSettings);
+        if (status.getCurrentSize() <= poolSettings.getMinNodes()) {
             String message = "pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
             errorsDataAccessManager.addError(new ErrorModel()

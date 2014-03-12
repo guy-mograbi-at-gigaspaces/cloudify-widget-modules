@@ -10,24 +10,20 @@ import java.util.Map;
  */
 public class PoolStatus {
 
-    public int currentSize;
     public String poolId;
     public Map<NodeStatus,Integer> countPerStatus = new HashMap<NodeStatus, Integer>();
 
     public int getCurrentSize() {
-        return currentSize;
-    }
-
-    public void setCurrentSize(int currentSize) {
-        this.currentSize = currentSize;
+        int size = 0;
+        Map<NodeStatus, Integer> countPerStatus = getCountPerStatus();
+        for (Integer integer : countPerStatus.values()) {
+            size += integer;
+        }
+        return size;
     }
 
     public Map<NodeStatus, Integer> getCountPerStatus() {
         return countPerStatus;
-    }
-
-    public void setCountPerStatus(Map<NodeStatus, Integer> countPerStatus) {
-        this.countPerStatus = countPerStatus;
     }
 
     public String getPoolId() {
