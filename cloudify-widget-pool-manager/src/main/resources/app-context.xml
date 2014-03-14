@@ -17,6 +17,7 @@
     <bean id="cleanPool" class="cloudify.widget.pool.manager.tasks.CleanPool">
         <property name="cloudServerApi"  ref="cloudServer"/>
         <property name="tag"  value="${tag}"/>
+        <property name="poolDao" ref="poolDao"/>
     </bean>
     
     <bean id="monitorPool" class="cloudify.widget.pool.manager.tasks.MonitorPool">

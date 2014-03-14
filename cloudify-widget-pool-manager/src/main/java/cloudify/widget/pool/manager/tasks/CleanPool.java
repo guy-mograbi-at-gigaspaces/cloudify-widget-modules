@@ -2,10 +2,14 @@ package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.pool.manager.MachineId;
+import cloudify.widget.pool.manager.MachineModel;
+import cloudify.widget.pool.manager.PoolDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,11 +23,24 @@ public class CleanPool implements Runnable{
     public String tag;
     public CloudServerApi cloudServerApi;
 
+    public PoolDao poolDao;
+
     private static Logger logger = LoggerFactory.getLogger(CleanPool.class);
 
     @Override
     public void run() {
         final CloudServerApi finalCloudServerApi = cloudServerApi;
+
+
+        final HashSet<MachineId> busyMachines = new HashSet<MachineId>();
+        List<MachineModel> machines = poolDao.getMachines();
+        for (MachineModel machine : machines) {
+            if(machine.busySince > 0 ){
+                busyMachines.add(machine.getMachineId());
+            }
+        }
+
+
         List<Thread> threads = new LinkedList<Thread>();
         cloudServerApi.connect( );
         Collection<CloudServer> ibmp = cloudServerApi.getAllMachinesWithTag(tag);
@@ -33,8 +50,13 @@ public class CleanPool implements Runnable{
             Thread t = new Thread( new Runnable() {
                 @Override
                 public void run() {
-//                    logger.info(finalCloudServer.getName());
-                    cloudServerApi.delete(finalCloudServer.getId());
+                    logger.info(finalCloudServer.getName() + " :: " + finalCloudServer.getId());
+                    if ( !busyMachines.contains(new MachineId(finalCloudServer.getServerIp().publicIp))){
+//                        cloudServerApi.delete(finalCloudServer.getId());
+                    }else{
+                        logger.info("not deleting.. machine is busy");
+                    }
+
                 }
             });
             t.start();
@@ -55,6 +77,9 @@ public class CleanPool implements Runnable{
                 logger.error("error while joining thread",e);
             }
         }
+
+
+
     }
 
 
@@ -68,6 +93,14 @@ public class CleanPool implements Runnable{
 
     public CloudServerApi getCloudServerApi() {
         return cloudServerApi;
+    }
+
+    public PoolDao getPoolDao() {
+        return poolDao;
+    }
+
+    public void setPoolDao(PoolDao poolDao) {
+        this.poolDao = poolDao;
     }
 
     public void setCloudServerApi(CloudServerApi cloudServerApi) {
