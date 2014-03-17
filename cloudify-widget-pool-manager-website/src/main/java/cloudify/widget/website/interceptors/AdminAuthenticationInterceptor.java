@@ -35,13 +35,13 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
         String accountUuid = request.getHeader("AccountUuid");
 
         if( StringUtils.isEmpty( accountUuid ) ){
-            response.sendError(401, "{'message' : 'admin uuid missing on request header'}");
+            response.sendError(401, "{'message' : 'account uuid missing on request header'}");
             return false;
         }
         else{
              boolean accountUidsIdentical = StringUtils.equals( conf.getAdminUuid(), accountUuid );
             if( !accountUidsIdentical ){
-                response.sendError(401, "{'message' : 'admin uuid authentication failed'}");
+                response.sendError(401, "{'message' : 'account uuid authentication failed'}");
                 return false;
             }
         }

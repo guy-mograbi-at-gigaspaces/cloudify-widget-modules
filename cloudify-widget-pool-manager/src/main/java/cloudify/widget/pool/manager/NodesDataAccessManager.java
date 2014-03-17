@@ -22,8 +22,12 @@ public class NodesDataAccessManager {
         return nodesDao.readAllOfPool(poolSettings.getId());
     }
 
-    public List<PoolStatusCount> getPoolStatusCounts( ){
+    public List<PoolStatusCount> getPoolStatusCounts() {
         return nodesDao.getPoolStatusCounts();
+    }
+
+    public List<PoolStatusCount> getPoolStatusCountsOfPool(String poolId) {
+        return nodesDao.getPoolStatusCountsOfPool(poolId);
     }
 
     public NodeModel getNode(long nodeId) {

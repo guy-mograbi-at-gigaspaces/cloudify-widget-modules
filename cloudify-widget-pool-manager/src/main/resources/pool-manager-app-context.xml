@@ -50,7 +50,7 @@
     </bean>
 
     <bean id="poolManagerJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="poolManagerDataSource" />
+        <constructor-arg ref="poolManagerDataSource" />
     </bean>
 
     <bean id="nodesDao" class="cloudify.widget.pool.manager.NodesDao">
@@ -85,9 +85,5 @@
 
     <beans profile="ibmprod">
     </beans>
-
-
-
-
 
 </beans>

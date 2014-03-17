@@ -19,6 +19,7 @@ import org.springframework.util.Assert;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * Time: 4:42 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:pool-manager-dev-context.xml"})
+@ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
 @ActiveProfiles({"softlayer"})
 public class TestPoolManager {
 
@@ -50,7 +51,7 @@ public class TestPoolManager {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private TaskExecutor taskExecutor;
+    private TaskExecutor testTaskExecutor;
 
     @Autowired
     private Integer nExecutions;
@@ -92,7 +93,7 @@ public class TestPoolManager {
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        taskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
+        testTaskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
 
         List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
         ErrorModel errorModel = null;
@@ -108,7 +109,7 @@ public class TestPoolManager {
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            taskExecutor.execute(CreateMachine.class, null, softlayerPoolSettings, new TaskCallback() {
+            testTaskExecutor.execute(CreateMachine.class, null, softlayerPoolSettings, new TaskCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     // TODO
@@ -139,7 +140,7 @@ public class TestPoolManager {
 
         // bootstrap
 
-        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
+        testTaskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -157,7 +158,7 @@ public class TestPoolManager {
 
         // delete
 
-        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
+        testTaskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;
@@ -170,6 +171,17 @@ public class TestPoolManager {
     @Test
     public void testPoolStatus() {
 
+/*
+        // populating database with some mock nodes, for status collection
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'CREATED', 'a')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'CREATED', 'b')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'BOOTSTRAPPED', 'c')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'CREATED', '1')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'BOOTSTRAPPED', '2')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'OCCUPIED', '2')");
+*/
+
+
         ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
@@ -177,9 +189,13 @@ public class TestPoolManager {
 
         Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
 
+        logger.info("getting pool status list...");
+        Collection<PoolStatus> poolStatusList = poolManagerApi.listStatuses();
+        logger.info("got pool status list [{}]", poolStatusList);
+        Assert.notNull(poolStatusList, "pool status list should not be null");
+
         logger.info("getting pool status...");
         PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings);
-
         Assert.notNull(poolStatus, "pool status should not be null");
 
         Assert.isTrue(poolStatus.getCurrentSize()>= softlayerPoolSettings.getMinNodes()&& poolStatus.getCurrentSize() <= softlayerPoolSettings.getMaxNodes(),

@@ -18,9 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @SuppressWarnings("UnusedDeclaration")
@@ -106,46 +104,68 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}", method = RequestMethod.POST)
     @ResponseBody
-    public boolean updateAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId, @RequestBody String newPoolSettingJson) {
-        return poolDao.updatePool(poolId, accountId, newPoolSettingJson);
+    public boolean updateAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId, @RequestBody String newPoolSettingJson) {
+        return poolDao.updatePool(poolConfigurationId, accountId, newPoolSettingJson);
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/delete", method = RequestMethod.POST)
     @ResponseBody
-    public boolean deleteAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId) {
-        return poolDao.deletePool(poolId, accountId);
+    public boolean deleteAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
+        return poolDao.deletePool(poolConfigurationId, accountId);
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}", method = RequestMethod.GET)
     @ResponseBody
-    public PoolConfigurationModel getAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId) {
-        return poolDao.readPoolByIdAndAccountId(poolId, accountId);
+    public PoolConfigurationModel getAccountPool(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
+        return poolDao.readPoolByIdAndAccountId(poolConfigurationId, accountId);
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/status", method = RequestMethod.GET)
     @ResponseBody
-    public PoolStatus getAccountPoolStatus(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId) {
-        PoolStatus retValue = null;
-        PoolConfigurationModel poolConfiguration = getAccountPool(accountId, poolId);
-        if (poolConfiguration != null) {
-            PoolSettings poolSettings = poolConfiguration.getPoolSettings();
-            if (poolSettings != null) {
-                retValue = poolManagerApi.getStatus(poolSettings);
+    public PoolStatus getAccountPoolStatus(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
+        PoolConfigurationModel poolConfiguration = poolDao.readPoolByIdAndAccountId(poolConfigurationId, accountId);
+        return _getPoolStatus(poolConfiguration);
+    }
+
+    /**
+     * @return poolConfigurationId => poolStatus map with a single entry.
+     */
+    @RequestMapping(value = "/admin/pools/{poolId}/status", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<Long, PoolStatus> getAccountPoolStatus(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolConfigurationModel poolConfiguration = poolDao.readPoolById(poolConfigurationId);
+        HashMap<Long, PoolStatus> resultMap = new HashMap<Long, PoolStatus>();
+        resultMap.put(poolConfigurationId, _getPoolStatus(poolConfiguration));
+        return resultMap;
+    }
+
+    /**
+     * @return poolConfigurationId => poolStatus map.
+     */
+    @RequestMapping(value = "/admin/pools/status", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<Long, PoolStatus> getPoolsStatus() {
+        Map<Long /* poolConfigurationId */, PoolStatus> resultMap = new HashMap<Long, PoolStatus>();
+        // get pool status for all pools
+        Collection<PoolStatus> poolStatuses = poolManagerApi.listStatuses();
+        // map every status found to its pool configuration
+        List<PoolConfigurationModel> poolConfigurationModels = poolDao.readPools();
+        for (PoolConfigurationModel poolConfiguration : poolConfigurationModels) {
+            Long poolConfigurationId = poolConfiguration.getId();
+
+            for (PoolStatus poolStatus : poolStatuses) {
+                if (poolStatus.getPoolId().equals(poolConfiguration.getPoolSettings().getId())) {
+                    resultMap.put(poolConfigurationId, poolStatus);
+                }
             }
         }
 
-        return retValue;
-    }
-
-    @RequestMapping(value = "/admin/pools/status", method = RequestMethod.GET)
-    @ResponseBody
-    public List<PoolStatus> getAccountPoolsStatus() {
-        return null;
+        return resultMap;
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/addMachine", method = RequestMethod.POST)
     @ResponseBody
-    public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolId) {
+    public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
         NodeModel nodeModel = new NodeModel();
 //            nodeModel.setPoolUuid(  );
 //            poolManagerApi.createNode(  );
@@ -155,8 +175,8 @@ public class AdminController {
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/bootstrap", method = RequestMethod.POST)
     @ResponseBody
     public String nodeBootstrap(@PathVariable("accountId") Long accountId,
-                                @PathVariable("poolId") Long poolId, @PathVariable("nodeId") Long nodeId) {
-        PoolSettings poolSettings = getAccountPool(accountId, poolId).getPoolSettings();
+                                @PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
+        PoolSettings poolSettings = poolDao.readPoolByIdAndAccountId(poolConfigurationId, accountId).getPoolSettings();
         poolManagerApi.bootstrapNode( poolSettings, nodeId, new NoopTaskCallback() );
         return "TBD node bootstrap";
     }
@@ -183,9 +203,21 @@ public class AdminController {
         if ( pathVariables.containsKey("accountId") && pathVariables.containsKey("poolId")){
             long accountId = Long.parseLong((String) pathVariables.get("accountId"));
             long poolId = Long.parseLong((String) pathVariables.get("poolId"));
-            return getAccountPool( accountId, poolId ).getPoolSettings();
+            return poolDao.readPoolByIdAndAccountId(poolId, accountId).getPoolSettings();
         }else{
             return null;
         }
+    }
+
+
+    private PoolStatus _getPoolStatus(PoolConfigurationModel poolConfiguration) {
+        PoolStatus retValue = null;
+        if (poolConfiguration != null) {
+            PoolSettings poolSettings = poolConfiguration.getPoolSettings();
+            if (poolSettings != null) {
+                retValue = poolManagerApi.getStatus(poolSettings);
+            }
+        }
+        return retValue;
     }
 }

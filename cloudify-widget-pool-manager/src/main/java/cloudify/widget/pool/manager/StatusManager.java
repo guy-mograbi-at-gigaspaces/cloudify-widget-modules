@@ -3,14 +3,12 @@ package cloudify.widget.pool.manager;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatus;
 import cloudify.widget.pool.manager.dto.PoolStatusCount;
-import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,29 +31,33 @@ public class StatusManager {
     }
 
     public Collection<PoolStatus> listPoolStatuses() {
-
-        Map< String /* poolId */, PoolStatus> resultMap = new HashMap<String, PoolStatus>();
-
         List<PoolStatusCount> poolStatusCounts = nodesDataAccessManager.getPoolStatusCounts();
+        return _getPoolStatuses(poolStatusCounts);
+    }
 
+    public PoolStatus getPoolStatus( PoolSettings poolSettings ) {
+        List<PoolStatusCount> poolStatusCountsOfPool = nodesDataAccessManager.getPoolStatusCountsOfPool(poolSettings.getId());
+        Collection<PoolStatus> poolStatuses = _getPoolStatuses(poolStatusCountsOfPool);
+        if (!poolStatuses.isEmpty() && poolStatuses.size() == 1) {
+            return poolStatuses.iterator().next();
+        }
+        return null;
+    }
+
+    private Collection<PoolStatus> _getPoolStatuses(List<PoolStatusCount> poolStatusCounts) {
+        Map<String /* poolId */, PoolStatus> poolIdToPoolStatusMap = new HashMap<String, PoolStatus>();
         for (PoolStatusCount poolStatusCount : poolStatusCounts) {
             String poolId = poolStatusCount.getPoolId();
             // init if not exist
-            if ( !resultMap.containsKey(poolId) ){
+            if ( !poolIdToPoolStatusMap.containsKey(poolId) ){
                 PoolStatus poolStatus = new PoolStatus();
                 poolStatus.setPoolId(poolId);
-                resultMap.put( poolId, poolStatus);
+                poolIdToPoolStatusMap.put(poolId, poolStatus);
             }
             // setting count per status
-            resultMap.get(poolId).getCountPerStatus().put( poolStatusCount.getStatus(), poolStatusCount.getCount() );
+            poolIdToPoolStatusMap.get(poolId).getCountPerNodeStatus().put( poolStatusCount.getNodeStatus(), poolStatusCount.getCount() );
         }
-
-        return resultMap.values();
-    }
-
-    public PoolStatus getPoolStatus( PoolSettings poolSettings ){
-//         nodesDataAccessManager.getPoolStatus(poolSettings);
-        return null;
+        return poolIdToPoolStatusMap.values();
     }
 
 }

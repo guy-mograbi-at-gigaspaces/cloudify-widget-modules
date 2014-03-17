@@ -10,6 +10,7 @@ package cloudify.widget.pool.manager.dto;
  */
 public class PoolSettings {
 
+    // TODO make this poolId, create a new field for uid
     private String id;
     private String authKey;
     private int maxNodes;
