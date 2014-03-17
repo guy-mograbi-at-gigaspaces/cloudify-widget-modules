@@ -164,16 +164,23 @@ public class AdminController {
         return resultMap;
     }
 
-    @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/addMachine", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
     @ResponseBody
     public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
+        throw new UnsupportedOperationException("not supported yet!");
 //        NodeModel nodeModel = new NodeModel();
 //            nodeModel.setPoolUuid(  );
 //            poolManagerApi.createNode(  );
-        return "TBD add machine";
     }
 
-    @RequestMapping(value = "/admin/pools/{poolId}/addMachine", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/pools/{poolId}/nodes", method = RequestMethod.GET)
+    @ResponseBody
+    public List<NodeModel> getMachines(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        return poolManagerApi.listNodes(poolSettings);
+    }
+
+    @RequestMapping(value = "/admin/pools/{poolId}/nodes", method = RequestMethod.POST)
     @ResponseBody
     public void addMachine(@PathVariable("poolId") Long poolConfigurationId) {
         PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
@@ -189,6 +196,21 @@ public class AdminController {
             }
         });
     }
+
+    @RequestMapping(value = "/admin/pools/{poolId}/nodes/{nodeId}/bootstrap", method = RequestMethod.POST)
+    @ResponseBody
+    public void nodeBootstrap(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        poolManagerApi.bootstrapNode( poolSettings, nodeId, new NoopTaskCallback() );
+    }
+
+    @RequestMapping(value = "/admin/pools/{poolId}/nodes/{nodeId}/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public void nodeDelete(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        poolManagerApi.deleteNode( poolSettings, nodeId, new NoopTaskCallback());
+    }
+
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/bootstrap", method = RequestMethod.POST)
     @ResponseBody
