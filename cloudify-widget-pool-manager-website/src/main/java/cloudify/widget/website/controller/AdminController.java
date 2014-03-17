@@ -5,6 +5,7 @@ import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatus;
 import cloudify.widget.pool.manager.tasks.NoopTaskCallback;
+import cloudify.widget.pool.manager.tasks.TaskCallback;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.models.AccountModel;
@@ -166,10 +167,27 @@ public class AdminController {
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/addMachine", method = RequestMethod.POST)
     @ResponseBody
     public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
-        NodeModel nodeModel = new NodeModel();
+//        NodeModel nodeModel = new NodeModel();
 //            nodeModel.setPoolUuid(  );
 //            poolManagerApi.createNode(  );
         return "TBD add machine";
+    }
+
+    @RequestMapping(value = "/admin/pools/{poolId}/addMachine", method = RequestMethod.POST)
+    @ResponseBody
+    public void addMachine(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        poolManagerApi.createNode(poolSettings, new TaskCallback<Collection<NodeModel>>() {
+            @Override
+            public void onSuccess(Collection<NodeModel> result) {
+                logger.info("create machine succeed! result is [{}]", result);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                logger.error("create machine failed...", t);
+            }
+        });
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/bootstrap", method = RequestMethod.POST)

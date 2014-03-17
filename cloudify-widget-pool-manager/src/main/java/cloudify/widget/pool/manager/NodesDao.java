@@ -32,7 +32,7 @@ public class NodesDao {
     public static final String COL_POOL_ID = "pool_id";
     public static final String COL_NODE_STATUS = "node_status";
     public static final String COL_MACHINE_ID = "machine_id";
-    public static final String COL_ALIAS_COUNT = "'count'";
+    public static final String COL_ALIAS_COUNT = "count";
 
     private JdbcTemplate jdbcTemplate;
 
