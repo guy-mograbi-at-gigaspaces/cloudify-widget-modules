@@ -62,6 +62,7 @@
         <property name="jdbcTemplate" ref="websiteJdbcTemplate"></property>
     </bean>
 
+
     <beans profile="manager-app,default,dev">
         <import resource="classpath:pool-manager-app-context.xml"/>
     </beans>

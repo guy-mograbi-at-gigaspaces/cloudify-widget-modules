@@ -68,13 +68,13 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
 
         ProviderSettings providerSettings = poolSettings.getProvider();
 
+
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(providerSettings.getName());
         if (cloudServerApi == null) {
             String message = String.format("failed to obtain cloud server API using provider [%s]", providerSettings.getName());
             logger.error(message);
             throw new RuntimeException(message);
         }
-
 
 
         logger.debug("connecting to provider [{}]", providerSettings.getName());

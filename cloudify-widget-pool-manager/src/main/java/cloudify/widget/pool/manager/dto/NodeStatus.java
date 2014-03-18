@@ -6,9 +6,11 @@ package cloudify.widget.pool.manager.dto;
  */
 public enum NodeStatus {
 
-    CREATED         (100),
-    BOOTSTRAPPED    (200),
-    OCCUPIED        (300);
+    CREATING        (100),
+    CREATED         (200),
+    BOOTSTRAPPING   (300),
+    BOOTSTRAPPED    (400),
+    OCCUPIED        (500);
 
     private final int ordinalValue;
 

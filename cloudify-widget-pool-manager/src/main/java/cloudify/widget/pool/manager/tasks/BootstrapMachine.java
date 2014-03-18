@@ -40,8 +40,9 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
     @Override
     public Void call() throws Exception {
 
-        if (taskConfig.getNodeModel().nodeStatus == NodeStatus.BOOTSTRAPPED) {
-            String message = String.format("node with id [%s] is already bootstrapped, aborting bootstrap task", taskConfig.getNodeModel().id);
+        if (taskConfig.getNodeModel().nodeStatus == NodeStatus.BOOTSTRAPPED ||
+                taskConfig.getNodeModel().nodeStatus == NodeStatus.BOOTSTRAPPING) {
+            String message = String.format("node with id [%s] is bootstrapping or is already bootstrapped, aborting bootstrap task", taskConfig.getNodeModel().id);
             logger.info(message);
             throw new RuntimeException(message);
         }
@@ -127,14 +128,14 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
     }
 
     private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, CloudServer cloudServer) {
+        updateNodeModelStatus(NodeStatus.BOOTSTRAPPING);
         CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);
         int exitStatus = cloudExecResponse.getExitStatus();
+        logger.debug("bootstrap was run on the machine, node id [{}]", taskConfig.getNodeModel().id);
         if (exitStatus == 0) {
-            NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
-            logger.debug("bootstrap was run on the machine, updating node status in the database [{}]", updatedNodeModel);
-            updatedNodeModel.setNodeStatus(NodeStatus.BOOTSTRAPPED);
-            nodesDataAccessManager.updateNode(updatedNodeModel);
+            updateNodeModelStatus(NodeStatus.BOOTSTRAPPED);
         } else {
+            updateNodeModelStatus(NodeStatus.CREATED);
             String message = "bootstrap execution failed";
             logger.error(message);
             HashMap<String, Object> infoMap = new HashMap<String, Object>();
@@ -148,6 +149,13 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             );
             throw new RuntimeException(message);
         }
+    }
+
+    private void updateNodeModelStatus(NodeStatus nodeStatus) {
+        logger.debug("bootstrap was run on the machine, updating node status to [{}]", nodeStatus);
+        NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
+        updatedNodeModel.setNodeStatus(nodeStatus);
+        nodesDataAccessManager.updateNode(updatedNodeModel);
     }
 
 
