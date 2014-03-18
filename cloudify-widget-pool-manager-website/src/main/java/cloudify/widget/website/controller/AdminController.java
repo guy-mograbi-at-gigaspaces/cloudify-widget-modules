@@ -1,6 +1,7 @@
 package cloudify.widget.website.controller;
 
 import cloudify.widget.pool.manager.PoolManagerApi;
+import cloudify.widget.pool.manager.dto.ErrorModel;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatus;
@@ -133,7 +134,7 @@ public class AdminController {
      */
     @RequestMapping(value = "/admin/pools/{poolId}/status", method = RequestMethod.GET)
     @ResponseBody
-    public Map<Long, PoolStatus> getAccountPoolStatus(@PathVariable("poolId") Long poolConfigurationId) {
+    public Map<Long, PoolStatus> getPoolStatus(@PathVariable("poolId") Long poolConfigurationId) {
         PoolConfigurationModel poolConfiguration = poolDao.readPoolById(poolConfigurationId);
         HashMap<Long, PoolStatus> resultMap = new HashMap<Long, PoolStatus>();
         resultMap.put(poolConfigurationId, _getPoolStatus(poolConfiguration));
@@ -164,7 +165,24 @@ public class AdminController {
         return resultMap;
     }
 
-    @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/pools/{poolId}/errors", method = RequestMethod.GET)
+    @ResponseBody
+    public List<ErrorModel> getPoolErrors(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        return poolManagerApi.listTaskErrors(poolSettings);
+    }
+
+    @RequestMapping(value = "/admin/pools/{poolId}/tasks", method = RequestMethod.GET)
+    @ResponseBody
+    public void getPoolTasks(@PathVariable("poolId") Long poolConfigurationId) {
+//        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+//        return poolManagerApi.listTaskErrors(poolSettings);
+        return;
+    }
+
+
+
+        @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
     @ResponseBody
     public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
         throw new UnsupportedOperationException("not supported yet!");
