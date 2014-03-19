@@ -9,26 +9,22 @@ import org.jclouds.compute.domain.OsFamily;
  */
 public class SoftlayerMachineOptions implements MachineOptions {
 
-    private String tag;
+    private String mask;
     private int machinesCount;
     private OsFamily osFamily;
     private String locationId;
     private String hardwareId;
 
-    // we moved the networkId to the ConnectDetails instead. We pass it to the context;
-//    private String networkId;
-
     public SoftlayerMachineOptions() {
-
     }
 
-    public SoftlayerMachineOptions setTag(String tag) {
-        this.tag = tag;
+    public SoftlayerMachineOptions setMask(String mask) {
+        this.mask = mask;
         return this;
     }
 
     public String name() {
-        return tag + "-" + System.currentTimeMillis();
+        return mask + "-" + System.currentTimeMillis();
     }
 
     public SoftlayerMachineOptions setMachinesCount(int machinesCount) {
@@ -55,8 +51,8 @@ public class SoftlayerMachineOptions implements MachineOptions {
         return this;
     }
 
-    public String getTag() {
-        return tag;
+    public String getMask() {
+        return mask;
     }
 
     public int getMachinesCount() {
@@ -69,11 +65,6 @@ public class SoftlayerMachineOptions implements MachineOptions {
 
     public String getHardwareId() {
         return hardwareId;
-    }
-
-    @Override
-    public String getMask() {
-        return tag;
     }
 
     public OsFamily getOsFamily() {
@@ -91,14 +82,14 @@ public class SoftlayerMachineOptions implements MachineOptions {
         if (hardwareId != null ? !hardwareId.equals(that.hardwareId) : that.hardwareId != null) return false;
         if (locationId != null ? !locationId.equals(that.locationId) : that.locationId != null) return false;
         if (osFamily != that.osFamily) return false;
-        if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
+        if (mask != null ? !mask.equals(that.mask) : that.mask != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = tag != null ? tag.hashCode() : 0;
+        int result = mask != null ? mask.hashCode() : 0;
         result = 31 * result + machinesCount;
         result = 31 * result + (osFamily != null ? osFamily.hashCode() : 0);
         result = 31 * result + (locationId != null ? locationId.hashCode() : 0);

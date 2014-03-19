@@ -99,7 +99,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
-        String name = ec2MachineOptions.getName();
+        String name = ec2MachineOptions.getMask();
         int machinesCount = ec2MachineOptions.getMachinesCount();
         Template template = createTemplate(ec2MachineOptions);
         Set<? extends NodeMetadata> newNodes;

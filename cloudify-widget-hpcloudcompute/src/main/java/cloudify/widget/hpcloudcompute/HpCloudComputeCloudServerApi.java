@@ -128,7 +128,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         HpCloudComputeMachineOptions hpCloudMachineOptions = ( HpCloudComputeMachineOptions )machineOpts;
-        String name = hpCloudMachineOptions.getName();
+        String name = hpCloudMachineOptions.getMask();
         int machinesCount = hpCloudMachineOptions.getMachinesCount();
         Template template = createTemplate(hpCloudMachineOptions);
         Set<? extends NodeMetadata> newNodes = null;

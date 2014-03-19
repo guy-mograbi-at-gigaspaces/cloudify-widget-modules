@@ -80,7 +80,7 @@
         </bean>
 
         <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
-            <property name="tag" value="networkfix"/>
+            <property name="mask" value="networkfix"/>
             <property name="hardwareId" value="1643,21275,13887"/>
             <property name="locationId" value="37473"/>
             <property name="osFamily" value="CENTOS"/>
