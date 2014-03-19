@@ -8,6 +8,7 @@ import cloudify.widget.pool.manager.NodesDataAccessManager;
 import cloudify.widget.pool.manager.StatusManager;
 import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: eliranm
@@ -145,7 +147,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
                     .setPoolId(poolSettings.getId())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
-                    .setInfo(infoMap)
+                    .setInfoFromMap(infoMap)
             );
             throw new RuntimeException(message);
         }
