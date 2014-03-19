@@ -46,8 +46,12 @@ public class ErrorModel {
         return this;
     }
 
-    // TODO move this elsewhere
-    public ErrorModel setInfo(Map<String, Object> info) {
+    /**
+     * This method can't be named setInfo, or JSON mapping will fail.
+     * @param info
+     * @return
+     */
+    public ErrorModel setInfoFromMap(Map<String, Object> info) {
         try {
             this.info = new ObjectMapper().writeValueAsString(info);
         } catch (IOException e) {

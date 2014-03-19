@@ -9,8 +9,11 @@ import cloudify.widget.api.clouds.IConnectDetails;
  * Time: 10:31 AM
  */
 public class Ec2ConnectDetails implements IConnectDetails {
+
     private String accessId;
     private String secretAccessKey;
+
+    public Ec2ConnectDetails() {}
 
     public Ec2ConnectDetails(String accessId, String secretAccessKey) {
         this.accessId = accessId;
