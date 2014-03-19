@@ -2,12 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:component-scan base-package="cloudify.widget.softlayer" />
 
-    <context:property-placeholder location="classpath:/conf/dev/me.properties"/>
-
+    <context:property-placeholder  properties-ref="managerProperties"/>
 
     <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
     <bean id="errorsDataAccessManager" class="cloudify.widget.pool.manager.ErrorsDataAccessManager" />
@@ -66,6 +66,10 @@
     <bean id="tasksDao" class="cloudify.widget.pool.manager.TasksDao">
         <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
+
+    <beans profile="dev,default">
+        <util:properties location="classpath:/conf/dev/me.properties" id="managerProperties"/>
+    </beans>
 
     <beans profile="softlayer">
         <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
