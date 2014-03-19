@@ -24,6 +24,9 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Autowired
     private ErrorsDataAccessManager errorsDataAccessManager;
 
+    @Autowired
+    private TasksDataAccessManager tasksDataAccessManager;
+
 
     @Autowired
     private StatusManager statusManager;
@@ -142,6 +145,10 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         errorsDataAccessManager.removeError(errorId);
     }
 
+    @Override
+    public List<TaskModel> listRunningTasks(PoolSettings poolSettings) {
+        return tasksDataAccessManager.listTasks(poolSettings);
+    }
 
     private NodeModel _getNodeModel(long nodeId) {
         final NodeModel node = nodesDataAccessManager.getNode(nodeId);
@@ -155,6 +162,10 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
         this.errorsDataAccessManager = errorsDataAccessManager;
+    }
+
+    public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
+        this.tasksDataAccessManager = tasksDataAccessManager;
     }
 
     public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {

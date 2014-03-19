@@ -44,13 +44,17 @@ public class TaskExecutor {
         }
     }
 
-    public <T extends Task, R> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
+    public <T extends Task> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings) {
+        execute(task, taskConfig, poolSettings, new NoopTaskCallback());
+    }
+
+    public <T extends Task, C extends TaskConfig, R> void execute(Class<T> task, C taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
-        T worker = null;
+        TaskRegistrar.Decorator worker = null;
         try {
-            worker = task.newInstance();
+            worker = new TaskRegistrar.DbDecorator(task.newInstance(), poolSettings);
             worker.setPoolSettings(poolSettings);
             worker.setNodesDataAccessManager(nodesDataAccessManager);
             worker.setErrorsDataAccessManager(errorsDataAccessManager);

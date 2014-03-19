@@ -8,10 +8,10 @@ import cloudify.widget.pool.manager.dto.PoolSettings;
 import java.util.concurrent.Callable;
 
 /**
- * @param <T> The task config implementation.
+ * @param <C> The task config implementation.
  * @param <R> The expected task result data.
  */
-public interface Task<T extends TaskConfig, R> extends Callable<R> {
+public interface Task<C extends TaskConfig, R> extends Callable<R> {
 
     TaskName getTaskName();
 
@@ -23,5 +23,5 @@ public interface Task<T extends TaskConfig, R> extends Callable<R> {
 
     void setPoolSettings(PoolSettings poolSettings);
 
-    void setTaskConfig(T taskConfig);
+    void setTaskConfig(C taskConfig);
 }

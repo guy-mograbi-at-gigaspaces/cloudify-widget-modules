@@ -1,10 +1,7 @@
 package cloudify.widget.website.controller;
 
 import cloudify.widget.pool.manager.PoolManagerApi;
-import cloudify.widget.pool.manager.dto.ErrorModel;
-import cloudify.widget.pool.manager.dto.NodeModel;
-import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.dto.PoolStatus;
+import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.tasks.NoopTaskCallback;
 import cloudify.widget.pool.manager.tasks.TaskCallback;
 import cloudify.widget.website.dao.IAccountDao;
@@ -174,10 +171,9 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/pools/{poolId}/tasks", method = RequestMethod.GET)
     @ResponseBody
-    public void getPoolTasks(@PathVariable("poolId") Long poolConfigurationId) {
-//        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
-//        return poolManagerApi.listTaskErrors(poolSettings);
-        return;
+    public List<TaskModel> getPoolTasks(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        return poolManagerApi.listRunningTasks(poolSettings);
     }
 
 

@@ -106,11 +106,11 @@ public class NodesDao {
     }
 
     public int delete(long nodeId) {
-        return jdbcTemplate.update("delete from " + TABLE_NAME + " where id = ?", nodeId);
+        return jdbcTemplate.update("delete from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?", nodeId);
     }
 
     /**
-     * explicit mapping is required for the {@link NodeStatus}, as constructed enum can't be mapped
+     * explicit mapping is required for the {@link NodeStatus}, as enum can't be mapped
      * with the {@link BeanPropertyRowMapper}.
      */
     public static class PoolStatusCountRowMapper implements RowMapper<PoolStatusCount> {

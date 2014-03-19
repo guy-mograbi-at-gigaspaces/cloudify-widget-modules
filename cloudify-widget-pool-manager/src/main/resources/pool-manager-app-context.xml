@@ -11,6 +11,7 @@
 
     <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
     <bean id="errorsDataAccessManager" class="cloudify.widget.pool.manager.ErrorsDataAccessManager" />
+    <bean id="tasksDataAccessManager" class="cloudify.widget.pool.manager.TasksDataAccessManager" />
 
     <bean id="fixedSizePool" class="cloudify.widget.pool.manager.FixedSizeExecutorServiceFactory">
         <property name="poolSize" value="200" />
@@ -30,6 +31,7 @@
     <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApiImpl">
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
         <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
+        <property name="tasksDataAccessManager" ref="tasksDataAccessManager" />
         <property name="statusManager" ref="statusManager" />
         <property name="taskExecutor" ref="taskExecutor" />
         <!-- TODO update bootstrap resource path -->
@@ -58,6 +60,10 @@
     </bean>
 
     <bean id="errorsDao" class="cloudify.widget.pool.manager.ErrorsDao">
+        <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
+    </bean>
+
+    <bean id="tasksDao" class="cloudify.widget.pool.manager.TasksDao">
         <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
 

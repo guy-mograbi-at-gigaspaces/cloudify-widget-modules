@@ -14,3 +14,11 @@ create table errors (
   info varchar(4000),
   primary key (id)
 );
+
+create table tasks (
+  id int not null auto_increment,
+  task_name varchar(200),
+  node_id int,
+  pool_id varchar(200),
+  primary key (id)
+);
