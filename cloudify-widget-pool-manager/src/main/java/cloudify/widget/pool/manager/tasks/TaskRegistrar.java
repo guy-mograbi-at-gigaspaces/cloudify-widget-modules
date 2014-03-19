@@ -40,15 +40,14 @@ public class TaskRegistrar {
 
         private C _taskConfig;
 
-        private final PoolSettings _poolSettings;
+        private PoolSettings _poolSettings;
 
         @Autowired
         public TasksDataAccessManager tasksDataAccessManager;
         private TaskModel _taskModel;
 
-        public DbDecorator(Task<C, R> decorated, PoolSettings poolSettings) {
+        public DbDecorator(Task<C, R> decorated) {
             this._decorated = decorated;
-            this._poolSettings = poolSettings;
         }
 
         @Override
@@ -56,7 +55,7 @@ public class TaskRegistrar {
             _taskModel = new TaskModel()
                     .setTaskName(_decorated.getTaskName())
                     .setPoolId(_poolSettings.getId());
-            if (NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
+            if (_taskConfig != null && NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
                 _taskModel.setNodeId(((NodeModelProvider) _taskConfig).getNodeModel().id);
             }
             tasksDataAccessManager.addTask(_taskModel);
@@ -97,6 +96,7 @@ public class TaskRegistrar {
 
         @Override
         public void setPoolSettings(PoolSettings poolSettings) {
+            _poolSettings = poolSettings;
             _decorated.setPoolSettings(poolSettings);
         }
 

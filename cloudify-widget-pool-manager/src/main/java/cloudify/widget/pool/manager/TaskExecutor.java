@@ -54,7 +54,7 @@ public class TaskExecutor {
 
         TaskRegistrar.Decorator worker = null;
         try {
-            worker = new TaskRegistrar.DbDecorator(task.newInstance(), poolSettings);
+            worker = new TaskRegistrar.DbDecorator(task.newInstance());
             worker.setPoolSettings(poolSettings);
             worker.setNodesDataAccessManager(nodesDataAccessManager);
             worker.setErrorsDataAccessManager(errorsDataAccessManager);
