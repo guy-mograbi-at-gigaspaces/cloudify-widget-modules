@@ -37,6 +37,10 @@ public class Ec2MachineOptions implements MachineOptions {
         return this;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
     public Ec2MachineOptions setTags( String tags ){
         this.tags = tags;
         return this;
