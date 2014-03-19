@@ -3,7 +3,6 @@ package cloudify.widget.pool.manager.tasks;
 import cloudify.widget.pool.manager.*;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.TaskModel;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles registration of tasks to the running-tasks data layer.
@@ -25,6 +24,8 @@ public class TaskRegistrar {
         protected abstract void register();
 
         protected abstract void unregister();
+
+        public abstract void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager);
     }
 
     /**
@@ -42,9 +43,13 @@ public class TaskRegistrar {
 
         private PoolSettings _poolSettings;
 
-        @Autowired
-        public TasksDataAccessManager tasksDataAccessManager;
         private TaskModel _taskModel;
+
+        private TasksDataAccessManager _tasksDataAccessManager;
+
+        public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
+            this._tasksDataAccessManager = tasksDataAccessManager;
+        }
 
         public DbDecorator(Task<C, R> decorated) {
             this._decorated = decorated;
@@ -58,12 +63,12 @@ public class TaskRegistrar {
             if (_taskConfig != null && NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
                 _taskModel.setNodeId(((NodeModelProvider) _taskConfig).getNodeModel().id);
             }
-            tasksDataAccessManager.addTask(_taskModel);
+            _tasksDataAccessManager.addTask(_taskModel);
         }
 
         @Override
         protected void unregister() {
-            tasksDataAccessManager.removeTask(_taskModel.id);
+            _tasksDataAccessManager.removeTask(_taskModel.id);
         }
 
         @Override

@@ -20,6 +20,7 @@
     <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
         <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
         <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
+        <property name="tasksDataAccessManager" ref="tasksDataAccessManager" />
         <property name="statusManager" ref="statusManager" />
         <property name="executorService" ref="fixedSizePool" />
     </bean>

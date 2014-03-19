@@ -29,6 +29,8 @@ public class TaskExecutor {
 
     private ErrorsDataAccessManager errorsDataAccessManager;
 
+    private TasksDataAccessManager tasksDataAccessManager;
+
     private StatusManager statusManager;
 
     public void init() {
@@ -58,6 +60,7 @@ public class TaskExecutor {
             worker.setPoolSettings(poolSettings);
             worker.setNodesDataAccessManager(nodesDataAccessManager);
             worker.setErrorsDataAccessManager(errorsDataAccessManager);
+            worker.setTasksDataAccessManager(tasksDataAccessManager);
             worker.setStatusManager(statusManager);
             worker.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
@@ -86,6 +89,10 @@ public class TaskExecutor {
 
     public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
         this.errorsDataAccessManager = errorsDataAccessManager;
+    }
+
+    public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
+        this.tasksDataAccessManager = tasksDataAccessManager;
     }
 
     public void setExecutorService(ExecutorService executorService) {
