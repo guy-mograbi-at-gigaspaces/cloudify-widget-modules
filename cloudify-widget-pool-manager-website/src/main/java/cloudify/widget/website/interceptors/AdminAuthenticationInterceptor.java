@@ -31,7 +31,7 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
-        logger.info("in Admin interceptor");
+        logger.trace("in Admin interceptor");
         String accountUuid = request.getHeader("AccountUuid");
 
         if( StringUtils.isEmpty( accountUuid ) ){
@@ -46,7 +46,7 @@ public class AdminAuthenticationInterceptor extends HandlerInterceptorAdapter {
             }
         }
 
-        logger.info("intercepting...");
+        logger.trace("intercepting...");
         return super.preHandle(request, response, handler);
     }
 

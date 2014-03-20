@@ -123,7 +123,7 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public PoolConfigurationModel readPoolByIdAndAccountId( Long poolId, Long accountId) {
-        logger.info( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
+        logger.debug( "select query is [{}] accountId [{}] poolId [{}]", selectSqlByAccountId, accountId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByAccountId, new Object[]{accountId, poolId }, poolRowMapper );
         return poolConfigurationModel;
@@ -132,7 +132,7 @@ public class PoolDaoImpl implements IPoolDao {
     @Override
     public PoolConfigurationModel readPoolById( Long poolId ) {
 
-        logger.info( "select query is [{}] poolId [{}]", selectSqlByPoolId, poolId );
+        logger.debug( "select query is [{}] poolId [{}]", selectSqlByPoolId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByPoolId, new Object[]{ poolId }, poolRowMapper );
         return poolConfigurationModel;
@@ -147,7 +147,7 @@ public class PoolDaoImpl implements IPoolDao {
     @Override
     public List<PoolConfigurationModel> readPools(Long accountId) {
 
-        logger.info( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
+        logger.debug( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
         List<PoolConfigurationModel> pools =  jdbcTemplate.query(
                 selectAllByAccountId, new Object[]{accountId}, poolRowMapper );
         return pools;
@@ -155,7 +155,7 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public List<PoolConfigurationModel> readPools() {
-        logger.info( "select query is [{}]", selectAll );
+        logger.debug( "select query is [{}]", selectAll );
         List<PoolConfigurationModel> pools =  jdbcTemplate.query( selectAll, poolRowMapper );
         return pools;
     }

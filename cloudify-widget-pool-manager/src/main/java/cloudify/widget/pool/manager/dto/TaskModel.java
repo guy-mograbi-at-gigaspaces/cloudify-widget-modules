@@ -14,6 +14,7 @@ public class TaskModel {
     public long id = INITIAL_ID;
     public TaskName taskName;
     public long nodeId;
+    public long startTime = System.currentTimeMillis();
     public String poolId;
 
     public long getId() {
@@ -49,6 +50,14 @@ public class TaskModel {
     public TaskModel setPoolId(String poolId) {
         this.poolId = poolId;
         return this;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     @Override

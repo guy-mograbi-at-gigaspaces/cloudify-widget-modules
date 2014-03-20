@@ -18,7 +18,7 @@ import java.util.List;
  * Date: 3/19/14
  * Time: 12:25 PM
  */
-public class TasksDao {
+public class TasksDao implements ITasksDao {
 
     public static final String TABLE_NAME = "tasks";
     public static final String COL_TASK_ID = "id";
@@ -60,7 +60,7 @@ public class TasksDao {
         return affected > 0;
     }
 
-    public List<TaskModel> readAllOfPool(String poolId) {
+    public List<TaskModel> getAllTasksForPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
                 new BeanPropertyRowMapper<TaskModel>(TaskModel.class));

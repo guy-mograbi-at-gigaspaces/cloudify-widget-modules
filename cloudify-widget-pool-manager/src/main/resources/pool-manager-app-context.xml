@@ -64,9 +64,7 @@
         <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
 
-    <bean id="tasksDao" class="cloudify.widget.pool.manager.TasksDao">
-        <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
-    </bean>
+    <bean id="tasksDao" class="cloudify.widget.pool.manager.InMemoryTasksDao"/>
 
     <beans profile="dev,default">
         <util:properties location="classpath:/conf/dev/me.properties" id="managerProperties"/>

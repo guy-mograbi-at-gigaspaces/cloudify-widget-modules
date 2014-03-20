@@ -14,11 +14,11 @@ import java.util.List;
 public class TasksDataAccessManager {
 
     @Autowired
-    private TasksDao tasksDao;
+    private ITasksDao tasksDao;
 
 
     public List<TaskModel> listTasks(PoolSettings poolSettings) {
-        return tasksDao.readAllOfPool(poolSettings.getId());
+        return tasksDao.getAllTasksForPool(poolSettings.getId());
     }
 
     public TaskModel getTask(long taskId) {

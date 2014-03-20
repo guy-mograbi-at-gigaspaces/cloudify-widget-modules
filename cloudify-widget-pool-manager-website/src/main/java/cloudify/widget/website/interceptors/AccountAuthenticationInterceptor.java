@@ -31,7 +31,7 @@ public class AccountAuthenticationInterceptor extends HandlerInterceptorAdapter 
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
-        logger.info("in Account interceptor");
+        logger.trace("in Account interceptor");
 
         String accountUuid = request.getHeader("AccountUuid");
 
