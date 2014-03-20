@@ -16,7 +16,7 @@
     <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi"/>
 
     <bean id="machineOptions" class="cloudify.widget.ec2.Ec2MachineOptions">
-        <property name="name" value="testawsec2"/>
+        <property name="mask" value="testawsec2"/>
         <property name="tags" value="testtag1,testtag2"/>
         <property name="hardwareId" value="m1.small"/>
         <property name="locationId" value="eu-west-1"/>

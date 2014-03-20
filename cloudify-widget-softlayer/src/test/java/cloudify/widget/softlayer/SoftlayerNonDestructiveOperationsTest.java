@@ -70,7 +70,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
 
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -91,7 +91,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         logger.info("starting run-script on machine...");
         final String echoString = "hello world";
-        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
+        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag(machineOptions.getMask());
 
         for (CloudServer machine : machines) {
             String publicIp = machine.getServerIp().publicIp;

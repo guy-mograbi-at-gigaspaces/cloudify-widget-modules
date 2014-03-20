@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class Ec2MachineOptions implements MachineOptions {
 
-    private String name;
+    private String mask;
     private int machinesCount;
     private String locationId;
     private String hardwareId;
@@ -19,22 +19,26 @@ public class Ec2MachineOptions implements MachineOptions {
 
     public Ec2MachineOptions(){}
 
-    public Ec2MachineOptions( String name ){
-        this( name, 1 );
+    public Ec2MachineOptions( String mask){
+        this(mask, 1 );
     }
 
-    public Ec2MachineOptions( String name, int machinesCount ){
-        this.name = name;
+    public Ec2MachineOptions( String mask, int machinesCount ){
+        this.mask = mask;
         this.machinesCount = machinesCount;
     }
 
-    public String getName() {
-        return name;
+    public String getMask() {
+        return mask;
     }
 
-    public Ec2MachineOptions setName( String name ){
-        this.name = name;
+    public Ec2MachineOptions setMask(String mask){
+        this.mask = mask;
         return this;
+    }
+
+    public String getTags() {
+        return tags;
     }
 
     public Ec2MachineOptions setTags( String tags ){
@@ -83,8 +87,4 @@ public class Ec2MachineOptions implements MachineOptions {
         return imageId;
     }
 
-    @Override
-    public String getMask() {
-        return tags;
-    }
 }
