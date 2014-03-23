@@ -18,6 +18,19 @@
         <property name="executorService" ref="fixedSizePool" />
     </bean>
 
+    <!--<bean id="taskDecorator" class="cloudify.widget.pool.manager.tasks.TaskRegistrar$DecoratorImpl" scope="prototype">-->
+    <!--</bean>-->
+
+    <bean id="createMachineTask" class="cloudify.widget.pool.manager.tasks.CreateMachine" scope="prototype">
+    </bean>
+
+    <bean id="deleteMachineTask" class="cloudify.widget.pool.manager.tasks.DeleteMachine" scope="prototype">
+    </bean>
+
+    <bean id="bootstrapMachineTask" class="cloudify.widget.pool.manager.tasks.BootstrapMachine" scope="prototype">
+    </bean>
+
+
 
     <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
 
@@ -27,6 +40,9 @@
         <property name="tasksDao" ref="tasksDao" />
         <property name="statusManager" ref="statusManager" />
         <property name="taskExecutor" ref="taskExecutor" />
+        <property name="createMachineTask" ref="createMachineTask" />
+        <property name="deleteMachineTask" ref="deleteMachineTask" />
+        <property name="bootstrapMachineTask" ref="bootstrapMachineTask" />
         <!-- TODO update bootstrap resource path -->
         <property name="bootstrapScriptResourcePath" value="classpath:bootstrap_machine.sh" />
     </bean>

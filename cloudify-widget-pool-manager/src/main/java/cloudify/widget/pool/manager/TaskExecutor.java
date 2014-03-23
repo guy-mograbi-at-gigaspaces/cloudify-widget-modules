@@ -29,6 +29,7 @@ public class TaskExecutor {
     @Autowired
     private ITasksDao tasksDao;
 
+
     public void init() {
     }
 
@@ -42,25 +43,18 @@ public class TaskExecutor {
         }
     }
 
-    public <T extends Task> void execute(Class<T> task, TaskConfig taskConfig, PoolSettings poolSettings) {
+    public <T extends Task> void execute(T task, TaskConfig taskConfig, PoolSettings poolSettings) {
         execute(task, taskConfig, poolSettings, new NoopTaskCallback());
     }
 
-    public <T extends Task, C extends TaskConfig, R> void execute(Class<T> task, C taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
+    public <T extends Task, C extends TaskConfig, R> void execute(T task, C taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
-        TaskRegistrar.Decorator worker = null;
-        try {
-            worker = new TaskRegistrar.DecoratorImpl(task.newInstance());
-            worker.setTasksDao(tasksDao);
-            worker.setPoolSettings(poolSettings);
-            worker.setTaskConfig(taskConfig);
-        } catch (InstantiationException e) {
-            logger.error("task instantiation failed", e);
-        } catch (IllegalAccessException e) {
-            logger.error("task instantiation failed", e);
-        }
+        TaskRegistrar.Decorator worker = new TaskRegistrar.DecoratorImpl<C, R>(task);
+        worker.setTasksDao(tasksDao);
+        worker.setPoolSettings(poolSettings);
+        worker.setTaskConfig(taskConfig);
 
         if (worker != null) {
             ListenableFuture listenableFuture = executorService.submit(worker);

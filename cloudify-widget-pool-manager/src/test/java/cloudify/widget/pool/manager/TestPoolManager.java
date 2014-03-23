@@ -60,6 +60,16 @@ public class TestPoolManager {
     @Autowired
     private String bootstrapScriptResourcePath;
 
+    @Autowired
+    private Task createMachineTask;
+
+    @Autowired
+    private Task deleteMachineTask;
+
+    @Autowired
+    private Task bootstrapMachineTask;
+
+
 
     @Before
     public void init() {
@@ -94,7 +104,7 @@ public class TestPoolManager {
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        testTaskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
+        testTaskExecutor.execute(deleteMachineTask, null, softlayerPoolSettings, null);
 
         List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
         ErrorModel errorModel = CollectionUtils.first(errorModels);
@@ -106,7 +116,7 @@ public class TestPoolManager {
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            testTaskExecutor.execute(CreateMachine.class, null, softlayerPoolSettings, new TaskCallback() {
+            testTaskExecutor.execute(createMachineTask, null, softlayerPoolSettings, new TaskCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     // TODO
@@ -137,7 +147,7 @@ public class TestPoolManager {
 
         // bootstrap
 
-        testTaskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
+        testTaskExecutor.execute(bootstrapMachineTask, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -155,7 +165,7 @@ public class TestPoolManager {
 
         // delete
 
-        testTaskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
+        testTaskExecutor.execute(deleteMachineTask, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return finalNodeModel;

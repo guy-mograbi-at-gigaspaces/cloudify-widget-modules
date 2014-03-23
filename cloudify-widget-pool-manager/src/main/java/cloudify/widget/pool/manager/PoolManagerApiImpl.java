@@ -30,6 +30,12 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     private String bootstrapScriptResourcePath;
 
+    private Task createMachineTask;
+
+    private Task deleteMachineTask;
+
+    private Task bootstrapMachineTask;
+
 
     @Override
     public PoolStatus getStatus(PoolSettings poolSettings) {
@@ -78,7 +84,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public void createNode(PoolSettings poolSettings, TaskCallback<Collection<NodeModel>> taskCallback) {
         if (poolSettings == null) return;
-        taskExecutor.execute(CreateMachine.class, null, poolSettings, taskCallback);
+        taskExecutor.execute(createMachineTask, null, poolSettings, taskCallback);
     }
 
     @Override
@@ -86,7 +92,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         final NodeModel node = _getNodeModel(nodeId);
         if (node == null) return;
         if (poolSettings == null) return;
-        taskExecutor.execute(DeleteMachine.class, new DeleteMachineConfig() {
+        taskExecutor.execute(deleteMachineTask, new DeleteMachineConfig() {
             @Override
             public NodeModel getNodeModel() {
                 return node;
@@ -97,7 +103,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public void bootstrapNode(PoolSettings poolSettings, long nodeId, TaskCallback<NodeModel> taskCallback) {
         final NodeModel node = _getNodeModel(nodeId);
-        taskExecutor.execute(BootstrapMachine.class, new BootstrapMachineConfig() {
+        taskExecutor.execute(bootstrapMachineTask, new BootstrapMachineConfig() {
             @Override
             public String getBootstrapScriptResourcePath() {
                 return bootstrapScriptResourcePath;
@@ -167,6 +173,18 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     public void setNodesDao(NodesDao nodesDao) {
         this.nodesDao = nodesDao;
+    }
+
+    public void setCreateMachineTask(Task createMachineTask) {
+        this.createMachineTask = createMachineTask;
+    }
+
+    public void setDeleteMachineTask(Task deleteMachineTask) {
+        this.deleteMachineTask = deleteMachineTask;
+    }
+
+    public void setBootstrapMachineTask(Task bootstrapMachineTask) {
+        this.bootstrapMachineTask = bootstrapMachineTask;
     }
 
     public void setStatusManager(StatusManager statusManager) {
