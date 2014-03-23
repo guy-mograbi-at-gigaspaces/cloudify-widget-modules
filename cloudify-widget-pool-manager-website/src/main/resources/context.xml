@@ -39,6 +39,13 @@
 
     </mvc:interceptors>
 
+    <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+
+    <bean id="resourceDao" class="cloudify.widget.website.dao.ResourceDaoImpl">
+        <property name="jdbcTemplate" ref="websiteJdbcTemplate"/>
+        <property name="lobHandler" ref="lobHandler"/>
+    </bean>
+
     <bean id="websiteDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="#{conf.jdbcDriverClassName}"/>
         <property name="url" value="#{conf.jdbcUrl}"/>

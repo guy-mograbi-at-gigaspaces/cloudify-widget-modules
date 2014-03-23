@@ -1,6 +1,7 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.MachineOptions;
+import cloudify.widget.common.StringUtils;
 
 import java.util.Arrays;
 
@@ -47,7 +48,8 @@ public class Ec2MachineOptions implements MachineOptions {
     }
 
     public Iterable<String> tags() {
-        String[] split = tags.split(",");
+        String[] split = StringUtils.isEmptyOrSpaces(tags) ? new String[0] : StringUtils.split(tags, ",");
+
         return Arrays.asList( split );
     }
 

@@ -1,5 +1,7 @@
 package cloudify.widget.pool.manager.dto;
 
+import java.util.UUID;
+
 /**
  *
  * Please don't remove fields, use deprecation instead.
@@ -11,19 +13,20 @@ package cloudify.widget.pool.manager.dto;
 public class PoolSettings {
 
     // TODO make this poolId, create a new field for uid
-    private String id;
+    private String uuid = UUID.randomUUID().toString();
+    private String name;
     private String authKey;
     private int maxNodes;
     private int minNodes;
     private BootstrapProperties bootstrapProperties;
     private ProviderSettings provider;
 
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getAuthKey() {
@@ -58,6 +61,14 @@ public class PoolSettings {
         this.provider = provider;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public BootstrapProperties getBootstrapProperties() {
         return bootstrapProperties;
     }
@@ -73,31 +84,21 @@ public class PoolSettings {
 
         PoolSettings that = (PoolSettings) o;
 
-        if (maxNodes != that.maxNodes) return false;
-        if (minNodes != that.minNodes) return false;
-        if (!authKey.equals(that.authKey)) return false;
-        if (!bootstrapProperties.equals(that.bootstrapProperties)) return false;
-        if (!id.equals(that.id)) return false;
-        if (!provider.equals(that.provider)) return false;
+        if (!uuid.equals(that.uuid)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + authKey.hashCode();
-        result = 31 * result + maxNodes;
-        result = 31 * result + minNodes;
-        result = 31 * result + bootstrapProperties.hashCode();
-        result = 31 * result + provider.hashCode();
-        return result;
+        return uuid.hashCode();
     }
 
     @Override
     public String toString() {
         return "PoolSettings{" +
-                "id='" + id + '\'' +
+                "name='" + name + '\'' +
+                "uuid='" + uuid + '\'' +
                 ", maxNodes=" + maxNodes +
                 ", minNodes=" + minNodes +
                 ", bootstrapProperties=" + bootstrapProperties +

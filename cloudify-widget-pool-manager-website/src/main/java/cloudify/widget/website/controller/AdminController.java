@@ -6,8 +6,11 @@ import cloudify.widget.pool.manager.tasks.NoopTaskCallback;
 import cloudify.widget.pool.manager.tasks.TaskCallback;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
+import cloudify.widget.website.dao.IResourceDao;
+import cloudify.widget.website.exceptions.InternalServerError;
 import cloudify.widget.website.models.AccountModel;
 import cloudify.widget.website.models.PoolConfigurationModel;
+import cloudify.widget.website.models.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +18,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.*;
 
 
@@ -33,6 +40,9 @@ public class AdminController {
     private IPoolDao poolDao;
 
     @Autowired
+    private IResourceDao resourceDao;
+
+    @Autowired
     private PoolManagerApi poolManagerApi;
 
     public void setPoolManagerApi(PoolManagerApi poolManagerApi) {
@@ -45,7 +55,6 @@ public class AdminController {
         logger.info("showing index");
         return "hello world!";
     }
-
 
 
     @RequestMapping(value = "/admin/account", method = RequestMethod.GET)
@@ -97,8 +106,8 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools", method = RequestMethod.POST)
     @ResponseBody
-    public Long createAccountPool(@PathVariable("accountId") Long accountId, @RequestBody String poolSettingJson) {
-        return poolDao.createPool(accountId, poolSettingJson);
+    public PoolConfigurationModel createAccountPool(@PathVariable("accountId") Long accountId, @RequestBody String poolSettingJson) {
+        return poolDao.readPoolById(poolDao.createPool(accountId, poolSettingJson));
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}", method = RequestMethod.POST)
@@ -177,8 +186,7 @@ public class AdminController {
     }
 
 
-
-        @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
     @ResponseBody
     public String addMachine(@PathVariable("accountId") Long accountId, @PathVariable("poolId") Long poolConfigurationId) {
         throw new UnsupportedOperationException("not supported yet!");
@@ -186,6 +194,10 @@ public class AdminController {
 //            nodeModel.setPoolUuid(  );
 //            poolManagerApi.createNode(  );
     }
+
+
+
+
 
     @RequestMapping(value = "/admin/pools/{poolId}/nodes", method = RequestMethod.GET)
     @ResponseBody
@@ -215,14 +227,14 @@ public class AdminController {
     @ResponseBody
     public void nodeBootstrap(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
         PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
-        poolManagerApi.bootstrapNode( poolSettings, nodeId, new NoopTaskCallback() );
+        poolManagerApi.bootstrapNode(poolSettings, nodeId, new NoopTaskCallback());
     }
 
     @RequestMapping(value = "/admin/pools/{poolId}/nodes/{nodeId}/delete", method = RequestMethod.POST)
     @ResponseBody
     public void nodeDelete(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
         PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
-        poolManagerApi.deleteNode( poolSettings, nodeId, new NoopTaskCallback());
+        poolManagerApi.deleteNode(poolSettings, nodeId, new NoopTaskCallback());
     }
 
 
@@ -231,14 +243,14 @@ public class AdminController {
     public String nodeBootstrap(@PathVariable("accountId") Long accountId,
                                 @PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
         PoolSettings poolSettings = poolDao.readPoolByIdAndAccountId(poolConfigurationId, accountId).getPoolSettings();
-        poolManagerApi.bootstrapNode( poolSettings, nodeId, new NoopTaskCallback() );
+        poolManagerApi.bootstrapNode(poolSettings, nodeId, new NoopTaskCallback());
         return "TBD node bootstrap";
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes/{nodeId}/delete", method = RequestMethod.POST)
     @ResponseBody
-    public String nodeDelete( @ModelAttribute("poolSettings") PoolSettings poolSettings , @PathVariable("nodeId") Long nodeId) {
-        poolManagerApi.deleteNode( poolSettings, nodeId, new NoopTaskCallback());
+    public String nodeDelete(@ModelAttribute("poolSettings") PoolSettings poolSettings, @PathVariable("nodeId") Long nodeId) {
+        poolManagerApi.deleteNode(poolSettings, nodeId, new NoopTaskCallback());
         return "ok";
 
     }
@@ -251,14 +263,14 @@ public class AdminController {
 
     @ModelAttribute("poolSettings")
     public PoolSettings getPoolSettings( /*@PathVariable("accountId") Long accountId,
-                                         @PathVariable("poolId") Long poolId */ HttpServletRequest request ){
+                                         @PathVariable("poolId") Long poolId */ HttpServletRequest request) {
 //        return getAccountPool( accountId, poolId ).getPoolSettings();
         Map pathVariables = (Map) request.getAttribute("org.springframework.web.servlet.HandlerMapping.uriTemplateVariables");
-        if ( pathVariables.containsKey("accountId") && pathVariables.containsKey("poolId")){
+        if (pathVariables.containsKey("accountId") && pathVariables.containsKey("poolId")) {
             long accountId = Long.parseLong((String) pathVariables.get("accountId"));
             long poolId = Long.parseLong((String) pathVariables.get("poolId"));
             return poolDao.readPoolByIdAndAccountId(poolId, accountId).getPoolSettings();
-        }else{
+        } else {
             return null;
         }
     }

@@ -86,7 +86,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
         for (CloudServerCreated created : cloudServerCreateds) {
             NodeModel nodeModel = new NodeModel()
                     .setMachineId(created.getId())
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setNodeStatus(NodeStatus.CREATED);
             logger.debug("machine created, adding node to database. node model is [{}]", nodeModel);
             nodesDataAccessManager.addNode(nodeModel);

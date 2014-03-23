@@ -76,7 +76,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             String message = "failed to get resource for bootstrap script";
             logger.error(message, e);
             errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
@@ -94,7 +94,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             String message = "failed to read bootstrap script file to string";
             logger.error(message, e);
             errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
             );
@@ -122,7 +122,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             logger.error(message);
             errorsDataAccessManager.addError(new ErrorModel()
                     .setTaskName(TASK_NAME)
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setMessage(message));
             throw new RuntimeException(message);
         }
@@ -144,7 +144,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             infoMap.put("exitStatus", exitStatus);
             infoMap.put("output", cloudExecResponse.getOutput());
             errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setTaskName(TASK_NAME)
                     .setMessage(message)
                     .setInfoFromMap(infoMap)

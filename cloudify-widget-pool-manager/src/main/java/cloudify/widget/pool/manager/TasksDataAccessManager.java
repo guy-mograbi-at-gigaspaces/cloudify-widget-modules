@@ -18,7 +18,7 @@ public class TasksDataAccessManager {
 
 
     public List<TaskModel> listTasks(PoolSettings poolSettings) {
-        return tasksDao.getAllTasksForPool(poolSettings.getId());
+        return tasksDao.getAllTasksForPool(poolSettings.getUuid());
     }
 
     public TaskModel getTask(long taskId) {

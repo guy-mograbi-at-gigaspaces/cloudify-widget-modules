@@ -1,5 +1,6 @@
 package cloudify.widget.pool.manager;
 
+import cloudify.widget.common.CollectionUtils;
 import cloudify.widget.common.FileUtils;
 import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.tasks.*;
@@ -88,7 +89,7 @@ public class TestPoolManager {
 
 
         PoolSettings softlayerPoolSettings = settingsDataAccessManager.read().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
-        logger.info("got pool settings with id [{}]", softlayerPoolSettings.getId());
+        logger.info("got pool settings with id [{}]", softlayerPoolSettings.getUuid());
 
         // delete - (should fail)
 
@@ -96,11 +97,7 @@ public class TestPoolManager {
         testTaskExecutor.execute(DeleteMachine.class, null, softlayerPoolSettings, null);
 
         List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
-        ErrorModel errorModel = null;
-        for (ErrorModel model : errorModels) {
-            errorModel = model;
-            break;
-        }
+        ErrorModel errorModel = CollectionUtils.first(errorModels);
         Assert.notNull(errorModel, "task error should not be null");
         logger.info("task message is [{}]", errorModel.message);
         Assert.isTrue(errorModel.taskName == TaskName.DELETE_MACHINE, "task name should be " + TaskName.DELETE_MACHINE);
@@ -219,7 +216,7 @@ public class TestPoolManager {
         logger.info("creating [{}] nodes for pool with provider [{}]...", nodesSize, softlayerPoolSettings.getProvider().getName());
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
-                    .setPoolId(softlayerPoolSettings.getId())
+                    .setPoolId(softlayerPoolSettings.getUuid())
                     .setNodeStatus(NodeStatus.CREATED)
                     .setMachineId("test_machine_id"));
         }
@@ -254,7 +251,7 @@ public class TestPoolManager {
         List<NodeModel> softlayerNodeModels = nodesDataAccessManager.listNodes(softlayerPoolSettings);
         logger.info("returned nodes [{}]", softlayerNodeModels);
 
-        Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getId()));
+        Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getUuid()));
         Assert.notEmpty(softlayerNodeModels, "nodes in softlayer pool should not be empty");
         Assert.isTrue(softlayerNodeModels.size() == nodesSize,
                 String.format("amount of nodes in softlayer pool should be [%s], but instead is [%s]", nodesSize, softlayerNodeModels.size()));

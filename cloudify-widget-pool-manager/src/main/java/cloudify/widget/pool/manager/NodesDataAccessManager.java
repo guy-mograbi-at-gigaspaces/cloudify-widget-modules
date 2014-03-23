@@ -19,7 +19,7 @@ public class NodesDataAccessManager {
 
 
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
-        return nodesDao.readAllOfPool(poolSettings.getId());
+        return nodesDao.readAllOfPool(poolSettings.getUuid());
     }
 
     public List<PoolStatusCount> getPoolStatusCounts() {

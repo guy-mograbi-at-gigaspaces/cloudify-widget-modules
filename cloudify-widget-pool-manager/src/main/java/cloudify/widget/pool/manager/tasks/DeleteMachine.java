@@ -49,7 +49,7 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
             logger.error(message);
             errorsDataAccessManager.addError(new ErrorModel()
                     .setTaskName(TASK_NAME)
-                    .setPoolId(poolSettings.getId())
+                    .setPoolId(poolSettings.getUuid())
                     .setMessage(message)
             );
             throw new RuntimeException(message);

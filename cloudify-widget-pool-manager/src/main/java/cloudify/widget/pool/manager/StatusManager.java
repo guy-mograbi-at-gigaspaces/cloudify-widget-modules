@@ -36,7 +36,7 @@ public class StatusManager {
     }
 
     public PoolStatus getPoolStatus( PoolSettings poolSettings ) {
-        List<PoolStatusCount> poolStatusCountsOfPool = nodesDataAccessManager.getPoolStatusCountsOfPool(poolSettings.getId());
+        List<PoolStatusCount> poolStatusCountsOfPool = nodesDataAccessManager.getPoolStatusCountsOfPool(poolSettings.getUuid());
         Collection<PoolStatus> poolStatuses = _getPoolStatuses(poolStatusCountsOfPool);
         if (!poolStatuses.isEmpty() && poolStatuses.size() == 1) {
             return poolStatuses.iterator().next();

@@ -59,7 +59,7 @@ public class TaskRegistrar {
         protected void register() {
             _taskModel = new TaskModel()
                     .setTaskName(_decorated.getTaskName())
-                    .setPoolId(_poolSettings.getId());
+                    .setPoolId(_poolSettings.getUuid());
             if (_taskConfig != null && NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
                 _taskModel.setNodeId(((NodeModelProvider) _taskConfig).getNodeModel().id);
             }

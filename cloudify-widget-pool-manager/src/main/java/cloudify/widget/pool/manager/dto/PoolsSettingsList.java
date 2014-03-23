@@ -17,7 +17,7 @@ public class PoolsSettingsList extends ArrayList<PoolSettings> {
         iterator();
 
         for (PoolSettings poolSettings : this) {
-            if (id.equals(poolSettings.getId())) {
+            if (id.equals(poolSettings.getUuid())) {
                 return poolSettings;
             }
         }

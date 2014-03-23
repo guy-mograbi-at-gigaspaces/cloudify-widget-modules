@@ -33,10 +33,12 @@ public class PoolRowMapper implements RowMapper{
         poolConfigurationModel.setId( rs.getLong("id") );
         poolConfigurationModel.setAccountId( rs.getLong( "account_id" ) );
         String poolSettingsJson = rs.getString( "pool_setting" );
+        String uuid = rs.getString("uuid");
         PoolSettings poolSettings = null;
         if( !StringUtils.isEmpty( poolSettingsJson ) ) {
             try {
                 poolSettings = objectMapper.readValue(poolSettingsJson, PoolSettings.class);
+                poolSettings.setUuid(uuid);
             } catch (IOException e) {
                 if (logger.isErrorEnabled()) {
                     logger.error("Unable to read Pool settings json, poolSettingsJson=" + poolSettingsJson, e);

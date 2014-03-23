@@ -22,7 +22,7 @@ public class ErrorsDataAccessManager {
 
 
     public List<ErrorModel> listErrors(PoolSettings poolSettings) {
-        return errorsDao.readAllOfPool(poolSettings.getId());
+        return errorsDao.readAllOfPool(poolSettings.getUuid());
     }
 
     public ErrorModel getError(long errorId) {
