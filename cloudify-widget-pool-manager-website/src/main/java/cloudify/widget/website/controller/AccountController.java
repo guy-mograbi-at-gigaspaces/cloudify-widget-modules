@@ -1,6 +1,7 @@
 package cloudify.widget.website.controller;
 
 import cloudify.widget.pool.manager.PoolManagerApi;
+import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatus;
 import cloudify.widget.website.dao.IAccountDao;
@@ -114,6 +115,13 @@ public class AccountController {
         catch(Exception e){
             return null;
         }
+    }
+
+    @RequestMapping(value="/account/pools/{poolId}/occupy", method=RequestMethod.GET)
+    @ResponseBody
+    public NodeModel occupyPool( @ModelAttribute("account") AccountModel accountModel , @PathVariable("poolId") Long poolId ){
+        PoolSettings poolSettings = poolDao.readPoolByIdAndAccountId(accountModel.getId(), poolId).getPoolSettings();
+        return poolManagerApi.occupy( poolSettings );
     }
 
     @RequestMapping(value="/account/pools/status", method=RequestMethod.GET)

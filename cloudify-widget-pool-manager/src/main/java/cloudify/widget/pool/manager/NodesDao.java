@@ -2,6 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.NodeStatus;
+import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.PoolStatusCount;
 import com.mysql.jdbc.Statement;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -123,5 +124,16 @@ public class NodesDao {
             poolStatusCount.setNodeStatus(NodeStatus.valueOf(rs.getString(COL_NODE_STATUS)));
             return poolStatusCount;
         }
+    }
+
+    public NodeModel occupyNode(PoolSettings poolSettings) {
+        List<NodeModel> nodeModels = jdbcTemplate.queryForList("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ", NodeModel.class, NodeStatus.BOOTSTRAPPED);
+        for (NodeModel nodeModel : nodeModels) {
+            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED, nodeModel.id, NodeStatus.BOOTSTRAPPED);
+            if (updated == 1) {
+                return nodeModel;
+            }
+        }
+        return null;
     }
 }

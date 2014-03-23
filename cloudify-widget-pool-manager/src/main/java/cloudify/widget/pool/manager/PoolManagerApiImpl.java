@@ -158,7 +158,10 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         return node;
     }
 
-
+    @Override
+    public NodeModel occupy(PoolSettings poolSettings) {
+        return nodesDataAccessManager.occupyNode( poolSettings );
+    }
 
     public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
         this.errorsDataAccessManager = errorsDataAccessManager;

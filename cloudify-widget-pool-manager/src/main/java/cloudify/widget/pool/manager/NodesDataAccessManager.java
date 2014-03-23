@@ -51,4 +51,7 @@ public class NodesDataAccessManager {
         this.nodesDao = nodesDao;
     }
 
+    public NodeModel occupyNode(PoolSettings poolSettings) {
+        return nodesDao.occupyNode(poolSettings);
+    }
 }

@@ -59,4 +59,6 @@ public interface PoolManagerApi {
     void removeTaskError(long errorId);
 
     List<TaskModel> listRunningTasks(PoolSettings poolSettings);
+
+    NodeModel occupy( PoolSettings poolSettings );
 }
