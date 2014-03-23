@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,15 +45,17 @@ public class ResourceController {
     @ResponseBody
     ResourceModel createResource(
             @PathVariable("accountId") Long accountId,
-            @RequestParam("file") MultipartFile file
+            String name,
+            String contentType,
+            @RequestParam("file") byte[] file
     ) {
-        String name = file.getName();
-        if (file.getSize() > 1000000) {
+
+        if ( file.length > 1000000) {
             throw new InternalServerError("file too big");
         }
-        if (!file.isEmpty()) {
+        if ( file.length != 0 ) {
             try {
-                return resourceDao.readResourceDetails( accountId, resourceDao.create(accountId, file));
+                return resourceDao.readResourceDetails( accountId, resourceDao.create(accountId, name, contentType,  file));
             } catch (Exception e) {
                 throw new RuntimeException("unable to load file :: " + e.getMessage(), e);
             }
@@ -82,8 +86,12 @@ public class ResourceController {
     }
 
     @RequestMapping( value = "/account/resources", method = RequestMethod.POST)
-    public @ResponseBody ResourceModel createAccountResourceModel (@ModelAttribute("account") AccountModel accountModel, @RequestParam("file") MultipartFile file){
-        return createResource(accountModel.getId(), file);
+    public @ResponseBody ResourceModel createAccountResourceModel (
+            @ModelAttribute("account") AccountModel accountModel,
+            @RequestHeader("File-Name") String fileName,
+            @RequestHeader("File-Content-Type") String contentType,
+            @RequestBody byte[] file){
+        return createResource(accountModel.getId(), fileName, contentType, file);
     }
 
     @RequestMapping( value = "/account/resources/{resourceId}/delete", method = RequestMethod.POST)

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface IResourceDao {
 
-    public Long create( Long accountId, MultipartFile file ) throws IOException;
+    public Long create( Long accountId, String name, String contentType, byte[] content ) throws IOException;
 
     public boolean delete( Long accountId, Long resourceId);
 

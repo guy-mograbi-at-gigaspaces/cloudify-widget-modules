@@ -131,7 +131,7 @@ public class MySqlOperationsTest {
         PoolsSettingsList poolsSettingsList = new PoolsSettingsList();
 
         PoolSettings poolSettings = new PoolSettings();
-        poolSettings.setId("softlayer_pool");
+        poolSettings.setName("softlayer_pool");
         poolSettings.setMinNodes(4);
         poolSettings.setMaxNodes(6);
         poolSettings.setAuthKey("authKey");

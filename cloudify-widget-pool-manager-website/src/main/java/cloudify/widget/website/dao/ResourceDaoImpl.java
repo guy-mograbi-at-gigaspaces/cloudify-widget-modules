@@ -1,6 +1,7 @@
 package cloudify.widget.website.dao;
 
 import cloudify.widget.website.models.ResourceModel;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -49,28 +51,22 @@ public class ResourceDaoImpl implements IResourceDao{
 
 
     @Override
-    public Long create( final Long accountId, final MultipartFile file) throws IOException {
+    public Long create( final Long accountId, final String name, final String contentType, final byte[] content) throws IOException {
         try {
-            final InputStream blobIs = file.getInputStream();
+            final InputStream blobIs = new ByteArrayInputStream(content);
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(
-                    "INSERT INTO resources (id, account_id, resource_content, resource_name, resource_type, resource_size, resource_orig_name) VALUES (NULL, ?,?, ?,?, ?,?)",
-                    new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-                        protected void setValues(PreparedStatement ps, LobCreator lobCreator)
-                                throws SQLException {
+            jdbcTemplate.update(  new AbstractLobPreparedStatementCreator(lobHandler, "INSERT INTO resource ( account_id, resource_content, resource_name, resource_content_type, resource_size) VALUES ( ?,?, ?,?,?)", "id"){
+                @Override
+                protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException, DataAccessException {
+                    ps.setLong(1,accountId);
+                    lobCreator.setBlobAsBinaryStream(ps, 2, blobIs, (int) content.length);
+                    ps.setString(3, name);
+                    ps.setString(4, contentType);
+                    ps.setLong(5, content.length);
+                }
+            }, keyHolder);
 
 
-
-                            lobCreator.setBlobAsBinaryStream(ps, 3, blobIs, (int) file.getSize());
-                            ps.setLong(2,accountId);
-                            ps.setString(3, file.getName());
-                            ps.setString(4, file.getContentType());
-                            ps.setLong(5, file.getSize());
-                            ps.setString(6, file.getOriginalFilename());
-                        }
-                    },
-                    keyHolder
-            );
             blobIs.close();
             return keyHolder.getKey().longValue();
         } catch (Exception e) {
@@ -128,7 +124,6 @@ public class ResourceDaoImpl implements IResourceDao{
             result.setAccountId( resultSet.getLong("account_id"));
             result.setSize( resultSet.getLong("resource_size"));
             result.setContentType( resultSet.getString("resource_content_type"));
-            result.setOrigName( resultSet.getString("resource_orig_name") );
             return result;
         }
     }

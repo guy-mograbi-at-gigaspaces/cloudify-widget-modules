@@ -1,5 +1,7 @@
 package cloudify.widget.website.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -13,7 +15,6 @@ public class ResourceModel {
     public byte[] content;
 
     public String name;
-    public String origName;
     public String contentType;
     public long size;
 
@@ -25,6 +26,7 @@ public class ResourceModel {
         this.id = id;
     }
 
+    @JsonIgnore
     public byte[] getContent() {
         return content;
     }
@@ -49,13 +51,6 @@ public class ResourceModel {
         this.size = size;
     }
 
-    public String getOrigName() {
-        return origName;
-    }
-
-    public void setOrigName(String origName) {
-        this.origName = origName;
-    }
 
     public String getContentType() {
         return contentType;

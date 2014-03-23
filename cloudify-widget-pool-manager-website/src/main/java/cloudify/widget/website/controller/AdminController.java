@@ -18,12 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.*;
 
 
@@ -162,7 +158,7 @@ public class AdminController {
             Long poolConfigurationId = poolConfiguration.getId();
 
             for (PoolStatus poolStatus : poolStatuses) {
-                if (poolStatus.getPoolId().equals(poolConfiguration.getPoolSettings().getId())) {
+                if (poolStatus.getPoolId().equals(poolConfiguration.getPoolSettings().getUuid())) {
                     resultMap.put(poolConfigurationId, poolStatus);
                 }
             }
