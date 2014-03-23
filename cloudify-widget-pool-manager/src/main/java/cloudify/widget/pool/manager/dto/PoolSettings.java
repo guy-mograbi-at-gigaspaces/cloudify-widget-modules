@@ -97,8 +97,8 @@ public class PoolSettings {
     @Override
     public String toString() {
         return "PoolSettings{" +
-                "name='" + name + '\'' +
                 "uuid='" + uuid + '\'' +
+                ", name='" + name + '\'' +
                 ", maxNodes=" + maxNodes +
                 ", minNodes=" + minNodes +
                 ", bootstrapProperties=" + bootstrapProperties +

@@ -22,7 +22,7 @@ public class StatusManager {
     private static Logger logger = LoggerFactory.getLogger(StatusManager.class);
 
     @Autowired
-    private NodesDataAccessManager nodesDataAccessManager;
+    private NodesDao nodesDao;
 
     public void updateStatus(PoolStatus poolStatus) {
     }
@@ -31,12 +31,12 @@ public class StatusManager {
     }
 
     public Collection<PoolStatus> listPoolStatuses() {
-        List<PoolStatusCount> poolStatusCounts = nodesDataAccessManager.getPoolStatusCounts();
+        List<PoolStatusCount> poolStatusCounts = nodesDao.getPoolStatusCounts();
         return _getPoolStatuses(poolStatusCounts);
     }
 
     public PoolStatus getPoolStatus( PoolSettings poolSettings ) {
-        List<PoolStatusCount> poolStatusCountsOfPool = nodesDataAccessManager.getPoolStatusCountsOfPool(poolSettings.getUuid());
+        List<PoolStatusCount> poolStatusCountsOfPool = nodesDao.getPoolStatusCountsOfPool(poolSettings.getUuid());
         Collection<PoolStatus> poolStatuses = _getPoolStatuses(poolStatusCountsOfPool);
         if (!poolStatuses.isEmpty() && poolStatuses.size() == 1) {
             return poolStatuses.iterator().next();

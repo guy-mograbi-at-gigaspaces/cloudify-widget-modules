@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:pool-manager-test-context.xml"})
-@ActiveProfiles({"softlayer"})
+@ActiveProfiles({"softlayer", "dev"})
 public class TestPoolManager {
 
     private static Logger logger = LoggerFactory.getLogger(TestPoolManager.class);
@@ -43,7 +43,7 @@ public class TestPoolManager {
     private PoolManagerApi poolManagerApi;
 
     @Autowired
-    private NodesDataAccessManager nodesDataAccessManager;
+    private NodesDao nodesDao;
 
     @Autowired
     private SettingsDataAccessManager settingsDataAccessManager;
@@ -227,7 +227,7 @@ public class TestPoolManager {
 
         for (NodeModel node : nodes) {
             logger.info("adding node [{}] to pool...", node);
-            boolean added = nodesDataAccessManager.addNode(node);
+            boolean added = nodesDao.create(node);
             logger.info("added [{}]", added);
             Assert.isTrue(added, "add node should return true if it was successfully added in the pool");
             logger.info("node id [{}], initial id [{}]", node.id, NodeModel.INITIAL_ID);
@@ -237,18 +237,18 @@ public class TestPoolManager {
         // read
 
         logger.info("reading node with id [{}]...", firstNode.id);
-        NodeModel readNode = nodesDataAccessManager.getNode(firstNode.id);
+        NodeModel readNode = nodesDao.read(firstNode.id);
         logger.info("returned node [{}]", readNode);
         Assert.notNull(readNode, String.format("failed to read node with id [%s]", firstNode.id));
 
         logger.info("reading none existing node...");
-        readNode = nodesDataAccessManager.getNode(-2);
+        readNode = nodesDao.read(-2);
         logger.info("returned node [{}]", readNode);
         Assert.isNull(readNode,
                 String.format("non existing node should be null when read from the pool, but instead returned [%s]", readNode));
 
         logger.info("listing nodes for pool with provider [{}]...", softlayerPoolSettings.getProvider().getName());
-        List<NodeModel> softlayerNodeModels = nodesDataAccessManager.listNodes(softlayerPoolSettings);
+        List<NodeModel> softlayerNodeModels = nodesDao.readAllOfPool(softlayerPoolSettings.getUuid());
         logger.info("returned nodes [{}]", softlayerNodeModels);
 
         Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getUuid()));
@@ -260,14 +260,14 @@ public class TestPoolManager {
 
         logger.info("updating first node status from [{}] to [{}]", firstNode.nodeStatus, NodeStatus.BOOTSTRAPPED);
         firstNode.setNodeStatus(NodeStatus.BOOTSTRAPPED);
-        int affectedByUpdate = nodesDataAccessManager.updateNode(firstNode);
+        int affectedByUpdate = nodesDao.update(firstNode);
         logger.info("affectedByUpdate [{}]", affectedByUpdate);
 
         Assert.isTrue(affectedByUpdate == 1,
                 String.format("exactly ONE node should be updated, but instead the amount affected by the update is [%s]", affectedByUpdate));
 
         logger.info("reading first node after update, using id [{}]...", firstNode.id);
-        NodeModel node = nodesDataAccessManager.getNode(firstNode.id);
+        NodeModel node = nodesDao.read(firstNode.id);
         logger.info("returned node [{}]", node);
 
         Assert.notNull(node, "failed to read a single node");
@@ -278,10 +278,10 @@ public class TestPoolManager {
         // delete
 
         logger.info("removing node with id [{}]...", node.id);
-        nodesDataAccessManager.removeNode(node.id);
+        nodesDao.delete(node.id);
 
         logger.info("reading node after remove, using id [{}]...", node.id);
-        node = nodesDataAccessManager.getNode(node.id);
+        node = nodesDao.read(node.id);
         logger.info("returned node [{}]", node);
 
         Assert.isNull(node, String.format("node should be null after it is removed, but instead returned [%s]", node));

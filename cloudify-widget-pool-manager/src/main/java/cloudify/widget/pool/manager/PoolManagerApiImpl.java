@@ -18,20 +18,14 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     private static Logger logger = LoggerFactory.getLogger(PoolManagerApiImpl.class);
 
-    @Autowired
-    private NodesDataAccessManager nodesDataAccessManager;
+    private NodesDao nodesDao;
 
-    @Autowired
-    private ErrorsDataAccessManager errorsDataAccessManager;
+    private ErrorsDao errorsDao;
 
-    @Autowired
-    private TasksDataAccessManager tasksDataAccessManager;
+    private ITasksDao tasksDao;
 
-
-    @Autowired
     private StatusManager statusManager;
 
-    @Autowired
     private TaskExecutor taskExecutor;
 
     private String bootstrapScriptResourcePath;
@@ -51,12 +45,12 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public List<NodeModel> listNodes(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return nodesDataAccessManager.listNodes(poolSettings);
+        return nodesDao.readAllOfPool(poolSettings.getUuid());
     }
 
     @Override
     public NodeModel getNode(long nodeId) {
-        return nodesDataAccessManager.getNode(nodeId);
+        return nodesDao.read(nodeId);
     }
 
     @Override
@@ -132,26 +126,26 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public List<ErrorModel> listTaskErrors(PoolSettings poolSettings) {
         if (poolSettings == null) return null;
-        return errorsDataAccessManager.listErrors(poolSettings);
+        return errorsDao.readAllOfPool(poolSettings.getUuid());
     }
 
     @Override
     public ErrorModel getTaskError(long errorId) {
-        return errorsDataAccessManager.getError(errorId);
+        return errorsDao.read(errorId);
     }
 
     @Override
     public void removeTaskError(long errorId) {
-        errorsDataAccessManager.removeError(errorId);
+        errorsDao.delete(errorId);
     }
 
     @Override
     public List<TaskModel> listRunningTasks(PoolSettings poolSettings) {
-        return tasksDataAccessManager.listTasks(poolSettings);
+        return tasksDao.getAllTasksForPool(poolSettings.getUuid());
     }
 
     private NodeModel _getNodeModel(long nodeId) {
-        final NodeModel node = nodesDataAccessManager.getNode(nodeId);
+        final NodeModel node = nodesDao.read(nodeId);
         if (node == null) {
             logger.error("node with id [{}] not found", nodeId);
         }
@@ -160,19 +154,19 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public NodeModel occupy(PoolSettings poolSettings) {
-        return nodesDataAccessManager.occupyNode( poolSettings );
+        return nodesDao.occupyNode( poolSettings );
     }
 
-    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-        this.errorsDataAccessManager = errorsDataAccessManager;
+    public void setErrorsDao(ErrorsDao errorsDao) {
+        this.errorsDao = errorsDao;
     }
 
-    public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
-        this.tasksDataAccessManager = tasksDataAccessManager;
+    public void setTasksDao(ITasksDao tasksDao) {
+        this.tasksDao = tasksDao;
     }
 
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
+    public void setNodesDao(NodesDao nodesDao) {
+        this.nodesDao = nodesDao;
     }
 
     public void setStatusManager(StatusManager statusManager) {

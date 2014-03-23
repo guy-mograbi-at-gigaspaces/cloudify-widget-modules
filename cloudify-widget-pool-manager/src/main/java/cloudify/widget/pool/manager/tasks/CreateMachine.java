@@ -3,12 +3,15 @@ package cloudify.widget.pool.manager.tasks;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.NodesDataAccessManager;
-import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.ErrorsDataAccessManager;
-import cloudify.widget.pool.manager.dto.*;
+import cloudify.widget.pool.manager.ErrorsDao;
+import cloudify.widget.pool.manager.NodesDao;
+import cloudify.widget.pool.manager.dto.NodeModel;
+import cloudify.widget.pool.manager.dto.NodeStatus;
+import cloudify.widget.pool.manager.dto.PoolSettings;
+import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,32 +27,17 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
 
     private PoolSettings poolSettings;
 
-    private NodesDataAccessManager nodesDataAccessManager;
+    @Autowired
+    private NodesDao nodesDao;
 
-    private ErrorsDataAccessManager errorsDataAccessManager;
-
-    private StatusManager statusManager;
+    @Autowired
+    private ErrorsDao errorsDao;
 
     private static final TaskName TASK_NAME = TaskName.CREATE_MACHINE;
 
     @Override
     public TaskName getTaskName() {
         return TASK_NAME;
-    }
-
-    @Override
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
-    }
-
-    @Override
-    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-        this.errorsDataAccessManager = errorsDataAccessManager;
-    }
-
-    @Override
-    public void setStatusManager(StatusManager statusManager) {
-        this.statusManager = statusManager;
     }
 
     @Override
@@ -89,7 +77,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
                     .setPoolId(poolSettings.getUuid())
                     .setNodeStatus(NodeStatus.CREATED);
             logger.debug("machine created, adding node to database. node model is [{}]", nodeModel);
-            nodesDataAccessManager.addNode(nodeModel);
+            nodesDao.create(nodeModel);
             nodeModelsCreated.add(nodeModel);
         }
 

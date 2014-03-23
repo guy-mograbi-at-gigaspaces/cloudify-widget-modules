@@ -2,12 +2,13 @@ package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.NodesDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDao;
+import cloudify.widget.pool.manager.NodesDao;
 import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.ErrorsDataAccessManager;
 import cloudify.widget.pool.manager.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * User: eliranm
@@ -18,11 +19,14 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(DeleteMachine.class);
 
-    private NodesDataAccessManager nodesDataAccessManager;
+    @Autowired
+    private NodesDao nodesDao;
 
+    @Autowired
     private StatusManager statusManager;
 
-    private ErrorsDataAccessManager errorsDataAccessManager;
+    @Autowired
+    private ErrorsDao errorsDao;
 
     private PoolSettings poolSettings;
 
@@ -47,10 +51,10 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
         if (status.getCurrentSize() <= poolSettings.getMinNodes()) {
             String message = "pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
-            errorsDataAccessManager.addError(new ErrorModel()
-                    .setTaskName(TASK_NAME)
-                    .setPoolId(poolSettings.getUuid())
-                    .setMessage(message)
+            errorsDao.create(new ErrorModel()
+                            .setTaskName(TASK_NAME)
+                            .setPoolId(poolSettings.getUuid())
+                            .setMessage(message)
             );
             throw new RuntimeException(message);
         }
@@ -59,7 +63,7 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
         cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
         logger.info("machine deleted, removing node model in the database [{}]");
-        nodesDataAccessManager.removeNode(taskConfig.getNodeModel().id);
+        nodesDao.delete(taskConfig.getNodeModel().id);
 
         return null;
     }
@@ -68,21 +72,6 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
     @Override
     public TaskName getTaskName() {
         return TASK_NAME;
-    }
-
-    @Override
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
-    }
-
-    @Override
-    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-        this.errorsDataAccessManager = errorsDataAccessManager;
-    }
-
-    @Override
-    public void setStatusManager(StatusManager statusManager) {
-        this.statusManager = statusManager;
     }
 
     @Override

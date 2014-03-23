@@ -25,17 +25,17 @@ public class TaskRegistrar {
 
         protected abstract void unregister();
 
-        public abstract void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager);
+        public abstract void setTasksDao(ITasksDao tasksDao);
     }
 
     /**
-     * A decorator which facilitates a database for data registration.
+     * A decorator which facilitates a DAO for data registration.
      *
      * @param <C> The task config type.
      * @param <R> The expected callable response type.
      * @see Decorator
      */
-    public static class DbDecorator<C extends TaskConfig, R> extends Decorator<C, R> {
+    public static class DecoratorImpl<C extends TaskConfig, R> extends Decorator<C, R> {
 
         Task<C, R> _decorated;
 
@@ -45,13 +45,9 @@ public class TaskRegistrar {
 
         private TaskModel _taskModel;
 
-        private TasksDataAccessManager _tasksDataAccessManager;
+        private ITasksDao _tasksDao;
 
-        public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
-            this._tasksDataAccessManager = tasksDataAccessManager;
-        }
-
-        public DbDecorator(Task<C, R> decorated) {
+        public DecoratorImpl(Task<C, R> decorated) {
             this._decorated = decorated;
         }
 
@@ -63,12 +59,17 @@ public class TaskRegistrar {
             if (_taskConfig != null && NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
                 _taskModel.setNodeId(((NodeModelProvider) _taskConfig).getNodeModel().id);
             }
-            _tasksDataAccessManager.addTask(_taskModel);
+            _tasksDao.create(_taskModel);
         }
 
         @Override
         protected void unregister() {
-            _tasksDataAccessManager.removeTask(_taskModel.id);
+            _tasksDao.delete(_taskModel.id);
+        }
+
+        @Override
+        public void setTasksDao(ITasksDao tasksDao) {
+            this._tasksDao = tasksDao;
         }
 
         @Override
@@ -82,21 +83,6 @@ public class TaskRegistrar {
         @Override
         public TaskName getTaskName() {
             return _decorated.getTaskName();
-        }
-
-        @Override
-        public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-            _decorated.setNodesDataAccessManager(nodesDataAccessManager);
-        }
-
-        @Override
-        public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-            _decorated.setErrorsDataAccessManager(errorsDataAccessManager);
-        }
-
-        @Override
-        public void setStatusManager(StatusManager statusManager) {
-            _decorated.setStatusManager(statusManager);
         }
 
         @Override

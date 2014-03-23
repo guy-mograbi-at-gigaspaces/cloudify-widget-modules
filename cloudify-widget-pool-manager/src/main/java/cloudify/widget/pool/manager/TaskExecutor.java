@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,13 +26,8 @@ public class TaskExecutor {
 
     private int terminationTimeoutInSeconds = 30;
 
-    private NodesDataAccessManager nodesDataAccessManager;
-
-    private ErrorsDataAccessManager errorsDataAccessManager;
-
-    private TasksDataAccessManager tasksDataAccessManager;
-
-    private StatusManager statusManager;
+    @Autowired
+    private ITasksDao tasksDao;
 
     public void init() {
     }
@@ -56,12 +52,9 @@ public class TaskExecutor {
 
         TaskRegistrar.Decorator worker = null;
         try {
-            worker = new TaskRegistrar.DbDecorator(task.newInstance());
+            worker = new TaskRegistrar.DecoratorImpl(task.newInstance());
+            worker.setTasksDao(tasksDao);
             worker.setPoolSettings(poolSettings);
-            worker.setNodesDataAccessManager(nodesDataAccessManager);
-            worker.setErrorsDataAccessManager(errorsDataAccessManager);
-            worker.setTasksDataAccessManager(tasksDataAccessManager);
-            worker.setStatusManager(statusManager);
             worker.setTaskConfig(taskConfig);
         } catch (InstantiationException e) {
             logger.error("task instantiation failed", e);
@@ -83,23 +76,7 @@ public class TaskExecutor {
         this.terminationTimeoutInSeconds = terminationTimeoutInSeconds;
     }
 
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
-    }
-
-    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-        this.errorsDataAccessManager = errorsDataAccessManager;
-    }
-
-    public void setTasksDataAccessManager(TasksDataAccessManager tasksDataAccessManager) {
-        this.tasksDataAccessManager = tasksDataAccessManager;
-    }
-
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = MoreExecutors.listeningDecorator(executorService);
-    }
-
-    public void setStatusManager(StatusManager statusManager) {
-        this.statusManager = statusManager;
     }
 }

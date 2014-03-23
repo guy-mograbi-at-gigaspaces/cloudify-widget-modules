@@ -4,21 +4,19 @@ import cloudify.widget.api.clouds.CloudExecResponse;
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.NodesDataAccessManager;
-import cloudify.widget.pool.manager.StatusManager;
-import cloudify.widget.pool.manager.ErrorsDataAccessManager;
+import cloudify.widget.pool.manager.ErrorsDao;
+import cloudify.widget.pool.manager.NodesDao;
 import cloudify.widget.pool.manager.dto.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: eliranm
@@ -31,9 +29,11 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
     private static final TaskName TASK_NAME = TaskName.BOOTSTRAP_MACHINE;
 
-    private NodesDataAccessManager nodesDataAccessManager;
+    @Autowired
+    private NodesDao nodesDao;
 
-    private ErrorsDataAccessManager errorsDataAccessManager;
+    @Autowired
+    private ErrorsDao errorsDao;
 
     private PoolSettings poolSettings;
 
@@ -75,10 +75,10 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
         } catch (FileNotFoundException e) {
             String message = "failed to get resource for bootstrap script";
             logger.error(message, e);
-            errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getUuid())
-                    .setTaskName(TASK_NAME)
-                    .setMessage(message)
+            errorsDao.create(new ErrorModel()
+                            .setPoolId(poolSettings.getUuid())
+                            .setTaskName(TASK_NAME)
+                            .setMessage(message)
             );
             throw new RuntimeException(message);
         }
@@ -93,10 +93,10 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
         } catch (IOException e) {
             String message = "failed to read bootstrap script file to string";
             logger.error(message, e);
-            errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getUuid())
-                    .setTaskName(TASK_NAME)
-                    .setMessage(message)
+            errorsDao.create(new ErrorModel()
+                            .setPoolId(poolSettings.getUuid())
+                            .setTaskName(TASK_NAME)
+                            .setMessage(message)
             );
             throw new RuntimeException(message);
         }
@@ -120,7 +120,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
         if (cloudServer == null) {
             String message = String.format("machine with id [%s] was not found", machineId);
             logger.error(message);
-            errorsDataAccessManager.addError(new ErrorModel()
+            errorsDao.create(new ErrorModel()
                     .setTaskName(TASK_NAME)
                     .setPoolId(poolSettings.getUuid())
                     .setMessage(message));
@@ -143,11 +143,11 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             HashMap<String, Object> infoMap = new HashMap<String, Object>();
             infoMap.put("exitStatus", exitStatus);
             infoMap.put("output", cloudExecResponse.getOutput());
-            errorsDataAccessManager.addError(new ErrorModel()
-                    .setPoolId(poolSettings.getUuid())
-                    .setTaskName(TASK_NAME)
-                    .setMessage(message)
-                    .setInfoFromMap(infoMap)
+            errorsDao.create(new ErrorModel()
+                            .setPoolId(poolSettings.getUuid())
+                            .setTaskName(TASK_NAME)
+                            .setMessage(message)
+                            .setInfoFromMap(infoMap)
             );
             throw new RuntimeException(message);
         }
@@ -155,29 +155,15 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
     private void updateNodeModelStatus(NodeStatus nodeStatus) {
         logger.debug("bootstrap was run on the machine, updating node status to [{}]", nodeStatus);
-        NodeModel updatedNodeModel = nodesDataAccessManager.getNode(taskConfig.getNodeModel().id);
+        NodeModel updatedNodeModel = nodesDao.read(taskConfig.getNodeModel().id);
         updatedNodeModel.setNodeStatus(nodeStatus);
-        nodesDataAccessManager.updateNode(updatedNodeModel);
+        nodesDao.update(updatedNodeModel);
     }
 
 
     @Override
     public TaskName getTaskName() {
         return TASK_NAME;
-    }
-
-    @Override
-    public void setNodesDataAccessManager(NodesDataAccessManager nodesDataAccessManager) {
-        this.nodesDataAccessManager = nodesDataAccessManager;
-    }
-
-    @Override
-    public void setErrorsDataAccessManager(ErrorsDataAccessManager errorsDataAccessManager) {
-        this.errorsDataAccessManager = errorsDataAccessManager;
-    }
-
-    @Override
-    public void setStatusManager(StatusManager statusManager) {
     }
 
     @Override

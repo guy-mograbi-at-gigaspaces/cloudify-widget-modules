@@ -9,35 +9,28 @@
 
     <context:property-placeholder  properties-ref="managerProperties"/>
 
-    <bean id="nodesDataAccessManager" class="cloudify.widget.pool.manager.NodesDataAccessManager" />
-    <bean id="errorsDataAccessManager" class="cloudify.widget.pool.manager.ErrorsDataAccessManager" />
-    <bean id="tasksDataAccessManager" class="cloudify.widget.pool.manager.TasksDataAccessManager" />
 
     <bean id="fixedSizePool" class="cloudify.widget.pool.manager.FixedSizeExecutorServiceFactory">
         <property name="poolSize" value="200" />
     </bean>
 
     <bean id="taskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
-        <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
-        <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
-        <property name="tasksDataAccessManager" ref="tasksDataAccessManager" />
-        <property name="statusManager" ref="statusManager" />
         <property name="executorService" ref="fixedSizePool" />
     </bean>
-
 
 
     <bean id="statusManager" class="cloudify.widget.pool.manager.StatusManager"></bean>
 
     <bean id="poolManagerApi" class="cloudify.widget.pool.manager.PoolManagerApiImpl">
-        <property name="nodesDataAccessManager" ref="nodesDataAccessManager" />
-        <property name="errorsDataAccessManager" ref="errorsDataAccessManager" />
-        <property name="tasksDataAccessManager" ref="tasksDataAccessManager" />
+        <property name="nodesDao" ref="nodesDao" />
+        <property name="errorsDao" ref="errorsDao" />
+        <property name="tasksDao" ref="tasksDao" />
         <property name="statusManager" ref="statusManager" />
         <property name="taskExecutor" ref="taskExecutor" />
         <!-- TODO update bootstrap resource path -->
         <property name="bootstrapScriptResourcePath" value="classpath:bootstrap_machine.sh" />
     </bean>
+
 
 
     <bean id="bootstrapMonitor" class="cloudify.widget.pool.manager.BootstrapMonitor">
