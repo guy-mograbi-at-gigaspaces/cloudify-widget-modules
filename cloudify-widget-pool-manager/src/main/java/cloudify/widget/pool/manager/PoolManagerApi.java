@@ -19,15 +19,7 @@ public interface PoolManagerApi {
 
     List<NodeModel> listNodes(PoolSettings poolSettings);
 
-    @Deprecated
-    /**
-     * @deprecated use {@link #getNode(cloudify.widget.pool.manager.dto.NodeModel)} instead.
-     */
-    NodeModel getNode(long nodeId); // TODO rename
-
-    NodeModel getNode(NodeModel nodeModel); // TODO rename
-
-    NodeModel getAnyNode(PoolSettings poolSettings); // TODO rename
+    NodeModel getNode(long nodeId);
 
     /**
      *
