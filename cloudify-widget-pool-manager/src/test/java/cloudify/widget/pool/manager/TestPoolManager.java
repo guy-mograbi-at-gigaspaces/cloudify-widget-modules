@@ -309,6 +309,11 @@ public class TestPoolManager {
 
         List<NodeMappings> nodeMappingses = poolManagerApi.listCloudNodes(ec2PoolSettings);
         Assert.notNull(nodeMappingses);
+
+        // TODO
+        // add scenarios:
+        // 1. more node models than cloud servers
+        // 2. more cloud servers than node models
     }
 
 
