@@ -1,37 +1,12 @@
-
-
-install_java(){
-    echo "installing java"
-
-    CURRENT_DIRECTORY=`pwd`
-
-    cd "$(dirname "$0")"
-
-    INSTALL_JAVA_DIR=/usr/lib/jvm
-    mkdir -p $INSTALL_JAVA_DIR
-    cd $INSTALL_JAVA_DIR
-    wget -O jdk.bin --no-check-certificate --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2Ftechnetwork%2Fjava%2Fjavase%2Fdownloads%2Fjdk6-downloads-1637591.html;" http://download.oracle.com/otn-pub/java/jdk/6u33-b03/jdk-6u33-linux-x64.bin
-    chmod 755 jdk.bin
-    echo "yes" | ./jdk.bin &>/dev/null
-    export JAVA_HOME=/usr/lib/jvm/jdk1.6.0_33
-    echo "JAVA_HOME is $JAVA_HOME"
-    rm -f jdk.bin
-    ln -Tfs $JAVA_HOME/bin/java /usr/bin/java
-    ln -Tfs $JAVA_HOME/bin/javac /usr/bin/javac
-
-    cd $CURRENT_DIRECTORY
-}
-
 read_sysconfig(){
-    sysconfig_file = /etc/sysconfig/cwpm
-    if [ ! -f $sysconfig_file ]; then
+    SYSCONFIG_FILE=/etc/sysconfig/cwpm
+    if [ ! -f $SYSCONFIG_FILE ]; then
         echo "sysconfig file does not exists"
-        mkdir -p /etc/sysconfig
         touch /etc/sysconfig/cwpm
     fi
     if [ -z $INSTALL_LOCATION ]; then
         echo "install location is undefined, setting default"
-        echo "INSTALL_LOCATION=/opt/cwpm/cwpm.jar" >> $sysconfig_file
+        echo "INSTALL_LOCATION=/opt/cwpm/cwpm.jar" >> $SYSCONFIG_FILE
     fi
 }
 
@@ -50,13 +25,27 @@ install_service(){
     chmod +x /etc/init.d/widget-pool
 }
 
-install_nginx(){
-}
+
+
+
 
 
 
 main(){
-    echo "installing widget-pool"
+    CURRENT_DIRECTORY=`pwd`
+    cd "$(dirname "$0")"
+
+    if [ ! -f gsui_functions.sh ]; then
+
+        echo "download gsui_functions.sh"
+        wget --no-cache --no-check-certificate -O gsat.tar http://get.gsdev.info/gsat/1.0.0/gsat-1.0.0.tar
+
+        tar -xvf gsat.tar
+
+        source gsui_functions.sh
+    fi
+
+    echo "installing widget-pool from workspace `pwd`"
 
     echo "reading sysconfig"
     read_sysconfig $*
@@ -70,6 +59,12 @@ main(){
     echo "installing service script under widget-pool"
     install_service $*
 
-    service widget-pool
+    cd $CURRENT_DIRECTORY
 
+    service widget-pool
 }
+
+set -e
+main $*
+set +e
+
