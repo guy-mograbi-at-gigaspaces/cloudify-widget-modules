@@ -32,6 +32,7 @@ read_sysconfig(){
     if [ -z $INSTALL_LOCATION ]; then
         echo "install location is undefined, setting default"
         echo "INSTALL_LOCATION=/opt/cwpm/cwpm.jar" >> $sysconfig_file
+    fi
 }
 
 download_jar(){
@@ -47,6 +48,9 @@ download_jar(){
 install_service(){
     wget --no-check-certificate "https://raw.githubusercontent.com/guy-mograbi-at-gigaspaces/cloudify-widget-modules/manager-website/build/service.sh" -O /etc/init.d/widget-pool
     chmod +x /etc/init.d/widget-pool
+}
+
+install_nginx(){
 }
 
 
