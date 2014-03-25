@@ -1,9 +1,6 @@
 package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.MachineOptions;
-import cloudify.widget.common.StringUtils;
-
-import java.util.Arrays;
 
 /**
  * User: evgenyf
@@ -16,7 +13,6 @@ public class Ec2MachineOptions implements MachineOptions {
     private String locationId;
     private String hardwareId;
     private String imageId;
-    private String tags;
 
     public Ec2MachineOptions(){}
 
@@ -36,21 +32,6 @@ public class Ec2MachineOptions implements MachineOptions {
     public Ec2MachineOptions setMask(String mask){
         this.mask = mask;
         return this;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public Ec2MachineOptions setTags( String tags ){
-        this.tags = tags;
-        return this;
-    }
-
-    public Iterable<String> tags() {
-        String[] split = StringUtils.isEmptyOrSpaces(tags) ? new String[0] : StringUtils.split(tags, ",");
-
-        return Arrays.asList( split );
     }
 
     public Ec2MachineOptions setMachinesCount( int machinesCount ){
@@ -89,4 +70,40 @@ public class Ec2MachineOptions implements MachineOptions {
         return imageId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ec2MachineOptions that = (Ec2MachineOptions) o;
+
+        if (machinesCount != that.machinesCount) return false;
+        if (hardwareId != null ? !hardwareId.equals(that.hardwareId) : that.hardwareId != null) return false;
+        if (imageId != null ? !imageId.equals(that.imageId) : that.imageId != null) return false;
+        if (locationId != null ? !locationId.equals(that.locationId) : that.locationId != null) return false;
+        if (mask != null ? !mask.equals(that.mask) : that.mask != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mask != null ? mask.hashCode() : 0;
+        result = 31 * result + machinesCount;
+        result = 31 * result + (locationId != null ? locationId.hashCode() : 0);
+        result = 31 * result + (hardwareId != null ? hardwareId.hashCode() : 0);
+        result = 31 * result + (imageId != null ? imageId.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Ec2MachineOptions{" +
+                "mask='" + mask + '\'' +
+                ", machinesCount=" + machinesCount +
+                ", locationId='" + locationId + '\'' +
+                ", hardwareId='" + hardwareId + '\'' +
+                ", imageId='" + imageId + '\'' +
+                '}';
+    }
 }

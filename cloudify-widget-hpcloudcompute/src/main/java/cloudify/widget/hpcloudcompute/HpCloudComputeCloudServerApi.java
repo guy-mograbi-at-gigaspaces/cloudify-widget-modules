@@ -52,14 +52,14 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
+    public Collection<CloudServer> findByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
                 NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
                 return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
-                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
+                        ( mask == null ? true : computeMetadata.getTags().contains( mask ));
             }
         });
 
@@ -295,8 +295,9 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long totalTime = endTime - startTime;
         logger.info( "After building template, build took [" + ( totalTime ) + "] msec." );
 
-        if( machineOptions.tags() != null ){
-            template.getOptions().tags( machineOptions.tags() );
+        // we use tags to identify the node by mask
+        if( machineOptions.getMask() != null ){
+            template.getOptions().tags( Arrays.asList(machineOptions.getMask()) );
         }
 
         return template;

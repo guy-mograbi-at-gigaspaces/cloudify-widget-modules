@@ -96,4 +96,15 @@ public class SoftlayerMachineOptions implements MachineOptions {
         result = 31 * result + (hardwareId != null ? hardwareId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "SoftlayerMachineOptions{" +
+                "mask='" + mask + '\'' +
+                ", machinesCount=" + machinesCount +
+                ", osFamily=" + osFamily +
+                ", locationId='" + locationId + '\'' +
+                ", hardwareId='" + hardwareId + '\'' +
+                '}';
+    }
 }

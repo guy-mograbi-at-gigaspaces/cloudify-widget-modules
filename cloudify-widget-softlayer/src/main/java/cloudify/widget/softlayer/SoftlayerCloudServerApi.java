@@ -64,12 +64,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-        logger.info("getting all machines with tag [{}]", tag);
+    public Collection<CloudServer> findByMask(final String mask) {
+        logger.info("getting all machines matching mask [{}]", mask);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return tag == null || computeMetadata.getName().startsWith(tag);
+                return mask == null || computeMetadata.getName().startsWith(mask);
             }
         });
 

@@ -14,7 +14,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
     private int machinesCount;
     private String hardwareId;
     private String imageId;
-    private String tags;
 
     public HpCloudComputeMachineOptions(){}
 
@@ -30,16 +29,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
     public HpCloudComputeMachineOptions setMask(String mask){
         this.mask = mask;
         return this;
-    }
-
-    public HpCloudComputeMachineOptions setTags( String tags ){
-        this.tags = tags;
-        return this;
-    }
-
-    public Iterable<String> tags() {
-        String[] split = tags.split(",");
-        return Arrays.asList( split );
     }
 
     public HpCloudComputeMachineOptions setMachinesCount( int machinesCount ){
@@ -73,10 +62,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
         return imageId;
     }
 
-    public String getTags() {
-        return tags;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,7 +73,6 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
         if (hardwareId != null ? !hardwareId.equals(that.hardwareId) : that.hardwareId != null) return false;
         if (imageId != null ? !imageId.equals(that.imageId) : that.imageId != null) return false;
         if (mask != null ? !mask.equals(that.mask) : that.mask != null) return false;
-        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
 
         return true;
     }
@@ -99,7 +83,16 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
         result = 31 * result + machinesCount;
         result = 31 * result + (hardwareId != null ? hardwareId.hashCode() : 0);
         result = 31 * result + (imageId != null ? imageId.hashCode() : 0);
-        result = 31 * result + (tags != null ? tags.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "HpCloudComputeMachineOptions{" +
+                "mask='" + mask + '\'' +
+                ", machinesCount=" + machinesCount +
+                ", hardwareId='" + hardwareId + '\'' +
+                ", imageId='" + imageId + '\'' +
+                '}';
     }
 }

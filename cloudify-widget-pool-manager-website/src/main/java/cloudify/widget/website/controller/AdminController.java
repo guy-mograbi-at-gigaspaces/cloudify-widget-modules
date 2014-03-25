@@ -235,8 +235,9 @@ public class AdminController {
 
     @RequestMapping(value = "/admin/pools/{poolId}/cloud/nodes", method = RequestMethod.GET)
     @ResponseBody
-    public void getCloudNodes(@PathVariable("poolId") Long poolConfigurationId) {
-
+    public List<NodeMappings> getCloudNodes(@PathVariable("poolId") Long poolConfigurationId) {
+        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        return poolManagerApi.listCloudNodes(poolSettings);
     }
 
 
