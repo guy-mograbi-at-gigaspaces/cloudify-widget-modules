@@ -38,6 +38,7 @@
         <property name="nodesDao" ref="nodesDao" />
         <property name="errorsDao" ref="errorsDao" />
         <property name="tasksDao" ref="tasksDao" />
+        <property name="nodeMappingsDao" ref="cloudNodesDao" />
         <property name="statusManager" ref="statusManager" />
         <property name="taskExecutor" ref="taskExecutor" />
         <property name="createMachineTask" ref="createMachineTask" />
@@ -74,6 +75,8 @@
     </bean>
 
     <bean id="tasksDao" class="cloudify.widget.pool.manager.InMemoryTasksDao"/>
+
+    <bean id="cloudNodesDao" class="cloudify.widget.pool.manager.NodeMappingsDao"/>
 
     <beans profile="dev,default">
         <util:properties location="classpath:/conf/dev/me.properties" id="managerProperties"/>

@@ -211,7 +211,7 @@ public class AdminController {
     @RequestMapping(value = "/admin/pools/{poolId}/nodes/{nodeId}/bootstrap", method = RequestMethod.POST)
     public void nodeBootstrap(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("nodeId") Long nodeId) {
         PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
-        poolManagerApi.bootstrapNode(poolSettings, nodeId, new NoopTaskCallback());
+        poolManagerApi.bootstrapNode(poolSettings, nodeId, null);
     }
 
     @RequestMapping(value = "/admin/pools/{poolId}/nodes/{nodeId}/delete", method = RequestMethod.POST)
@@ -233,10 +233,18 @@ public class AdminController {
         poolManagerApi.deleteNode(poolSettings, nodeId, null);
     }
 
+    @RequestMapping(value = "/admin/pools/{poolId}/cloud/nodes", method = RequestMethod.GET)
+    @ResponseBody
+    public void getCloudNodes(@PathVariable("poolId") Long poolConfigurationId) {
+
+    }
+
+
+
+
 
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request) {
-
         return (AccountModel) request.getAttribute("account");
     }
 

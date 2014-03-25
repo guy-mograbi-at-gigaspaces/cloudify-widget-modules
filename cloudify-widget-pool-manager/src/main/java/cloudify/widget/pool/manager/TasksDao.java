@@ -60,7 +60,7 @@ public class TasksDao implements ITasksDao {
         return affected > 0;
     }
 
-    public List<TaskModel> getAllTasksForPool(String poolId) {
+    public List<TaskModel> readAllOfPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
                 new BeanPropertyRowMapper<TaskModel>(TaskModel.class));

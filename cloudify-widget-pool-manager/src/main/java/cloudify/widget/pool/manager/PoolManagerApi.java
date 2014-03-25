@@ -53,4 +53,7 @@ public interface PoolManagerApi {
     List<TaskModel> listRunningTasks(PoolSettings poolSettings);
 
     NodeModel occupy( PoolSettings poolSettings );
+
+    List<NodeMappings> listCloudNodes (PoolSettings poolSettings);
+
 }

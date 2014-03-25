@@ -4,7 +4,6 @@ import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.tasks.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +23,8 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     private ITasksDao tasksDao;
 
+    private NodeMappingsDao nodeMappingsDao;
+
     private StatusManager statusManager;
 
     private TaskExecutor taskExecutor;
@@ -35,6 +36,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     private Task deleteMachineTask;
 
     private Task bootstrapMachineTask;
+
 
 
     @Override
@@ -111,7 +113,7 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     @Override
     public List<TaskModel> listRunningTasks(PoolSettings poolSettings) {
-        return tasksDao.getAllTasksForPool(poolSettings.getUuid());
+        return tasksDao.readAllOfPool(poolSettings.getUuid());
     }
 
     private NodeModel _getNodeModel(long nodeId) {
@@ -127,6 +129,11 @@ public class PoolManagerApiImpl implements PoolManagerApi {
         return nodesDao.occupyNode( poolSettings );
     }
 
+    @Override
+    public List<NodeMappings> listCloudNodes(PoolSettings poolSettings) {
+        return nodeMappingsDao.readAll(poolSettings);
+    }
+
     public void setErrorsDao(ErrorsDao errorsDao) {
         this.errorsDao = errorsDao;
     }
@@ -137,6 +144,10 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     public void setNodesDao(NodesDao nodesDao) {
         this.nodesDao = nodesDao;
+    }
+
+    public void setNodeMappingsDao(NodeMappingsDao nodeMappingsDao) {
+        this.nodeMappingsDao = nodeMappingsDao;
     }
 
     public void setCreateMachineTask(Task createMachineTask) {

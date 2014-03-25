@@ -298,6 +298,22 @@ public class TestPoolManager {
     }
 
 
+    @Test
+    public void testNodeMappings() {
+
+/*
+        ManagerSettings managerSettings = settingsDataAccessManager.read();
+
+        logger.info("looking for ec2 pool settings in manager settings [{}]", managerSettings);
+        PoolSettings ec2PoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.ec2);
+        Assert.notNull(ec2PoolSettings);
+
+        List<NodeMappings> nodeMappingses = poolManagerApi.listCloudNodes(ec2PoolSettings);
+        Assert.notNull(nodeMappingses);
+*/
+    }
+
+
     private void buildDatabase() {
         // going through all files under the 'sql' folder, and executing all of them.
         Iterator<File> sqlFileIterator = org.apache.commons.io.FileUtils.iterateFiles(

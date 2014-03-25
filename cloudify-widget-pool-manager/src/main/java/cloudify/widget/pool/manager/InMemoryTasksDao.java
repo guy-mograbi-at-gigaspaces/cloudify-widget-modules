@@ -27,7 +27,7 @@ public class InMemoryTasksDao implements ITasksDao {
     AtomicLong idCounter = new AtomicLong(0);
 
     @Override
-    public List<TaskModel> getAllTasksForPool(final String poolId) {
+    public List<TaskModel> readAllOfPool(final String poolId) {
         logger.trace("getting all tasks for pool [{}]", poolId);
         Collection<TaskModel> result =  (Collection<TaskModel>) CollectionUtils.select( tasks, new Predicate() {
             @Override

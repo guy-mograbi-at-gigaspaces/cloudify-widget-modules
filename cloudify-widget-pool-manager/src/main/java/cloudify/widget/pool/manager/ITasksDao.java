@@ -11,7 +11,7 @@ import java.util.List;
  * Time: 12:46 PM
  */
 public interface ITasksDao {
-    public List<TaskModel> getAllTasksForPool(String poolId);
+    public List<TaskModel> readAllOfPool(String poolId);
 
     public TaskModel read(long taskId);
 
