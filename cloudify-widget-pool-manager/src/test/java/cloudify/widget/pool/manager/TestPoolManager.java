@@ -98,15 +98,15 @@ public class TestPoolManager {
         logger.info("testing manager task executor");
 
 
-        PoolSettings softlayerPoolSettings = settingsDataAccessManager.read().getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
-        logger.info("got pool settings with id [{}]", softlayerPoolSettings.getUuid());
+        PoolSettings poolSettings = settingsDataAccessManager.read().getPools().getByProviderName(ProviderSettings.ProviderName.ec2);
+        logger.info("got pool settings with id [{}]", poolSettings.getUuid());
 
         // delete - (should fail)
 
         logger.info("executing delete machine task that's bound to fail...");
-        testTaskExecutor.execute(deleteMachineTask, null, softlayerPoolSettings, null);
+        testTaskExecutor.execute(deleteMachineTask, null, poolSettings, null);
 
-        List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(softlayerPoolSettings);
+        List<ErrorModel> errorModels = poolManagerApi.listTaskErrors(poolSettings);
         ErrorModel errorModel = CollectionUtils.first(errorModels);
         Assert.notNull(errorModel, "task error should not be null");
         logger.info("task message is [{}]", errorModel.message);
@@ -116,7 +116,7 @@ public class TestPoolManager {
 
         logger.info("executing create machine task [{}] times...", nExecutions);
         for (int i = 0; i < nExecutions; i++) {
-            testTaskExecutor.execute(createMachineTask, null, softlayerPoolSettings, new TaskCallback() {
+            testTaskExecutor.execute(createMachineTask, null, poolSettings, new TaskCallback() {
                 @Override
                 public void onSuccess(Object result) {
                     // TODO
@@ -130,10 +130,10 @@ public class TestPoolManager {
 
         logger.info("checking table for added node...");
         NodeModel nodeModel = null;
-        List<NodeModel> softlayerNodeModels = poolManagerApi.listNodes(softlayerPoolSettings);
-        for (NodeModel softlayerNodeModel : softlayerNodeModels) {
-            nodeModel = softlayerNodeModel;
-            logger.info("found node [{}]", nodeModel);
+        List<NodeModel> nodeModels = poolManagerApi.listNodes(poolSettings);
+        for (NodeModel nm : nodeModels) {
+            nodeModel = nm;
+            logger.info("found first node [{}]", nodeModel);
             break;
         }
 
@@ -157,7 +157,7 @@ public class TestPoolManager {
             public NodeModel getNodeModel() {
                 return finalNodeModel;
             }
-        }, softlayerPoolSettings, null);
+        }, poolSettings, null);
 
         logger.info("after bootstrap machine, node status is [{}]", finalNodeModel.nodeStatus);
         Assert.isTrue(finalNodeModel.nodeStatus == NodeStatus.BOOTSTRAPPED,
@@ -170,7 +170,7 @@ public class TestPoolManager {
             public NodeModel getNodeModel() {
                 return finalNodeModel;
             }
-        }, softlayerPoolSettings, null);
+        }, poolSettings, null);
 
         Assert.isNull(poolManagerApi.getNode(finalNodeModel.id), "node should not be found after deletion");
     }
@@ -180,9 +180,9 @@ public class TestPoolManager {
 
 /*
         // populating database with some mock nodes, for status collection
-        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'CREATED', 'a')");
-        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'CREATED', 'b')");
-        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('softlayer', 'BOOTSTRAPPED', 'c')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('ec2', 'CREATED', 'a')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('ec2', 'CREATED', 'b')");
+        jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('ec2', 'BOOTSTRAPPED', 'c')");
         jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'CREATED', '1')");
         jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'BOOTSTRAPPED', '2')");
         jdbcTemplate.update("insert into nodes (pool_id,node_status,machine_id) values ('hp', 'OCCUPIED', '2')");
@@ -191,10 +191,10 @@ public class TestPoolManager {
 
         ManagerSettings managerSettings = settingsDataAccessManager.read();
 
-        logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
-        PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
+        logger.info("looking for pool settings in manager settings [{}]", managerSettings);
+        PoolSettings poolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.ec2);
 
-        Assert.notNull(softlayerPoolSettings, "pool settings should not be null");
+        Assert.notNull(poolSettings, "pool settings should not be null");
 
         logger.info("getting pool status list...");
         Collection<PoolStatus> poolStatusList = poolManagerApi.listStatuses();
@@ -202,12 +202,12 @@ public class TestPoolManager {
         Assert.notNull(poolStatusList, "pool status list should not be null");
 
         logger.info("getting pool status...");
-        PoolStatus poolStatus = poolManagerApi.getStatus(softlayerPoolSettings);
+        PoolStatus poolStatus = poolManagerApi.getStatus(poolSettings);
         Assert.notNull(poolStatus, "pool status should not be null");
 
-        Assert.isTrue(poolStatus.getCurrentSize()>= softlayerPoolSettings.getMinNodes()&& poolStatus.getCurrentSize() <= softlayerPoolSettings.getMaxNodes(),
+        Assert.isTrue(poolStatus.getCurrentSize()>= poolSettings.getMinNodes()&& poolStatus.getCurrentSize() <= poolSettings.getMaxNodes(),
                 String.format("current size [%s] must be greater than or equal to min size [%s] and less than or equal to max size [%s]",
-                        poolStatus.getCurrentSize(), softlayerPoolSettings.getMinNodes(), softlayerPoolSettings.getMaxNodes()));
+                        poolStatus.getCurrentSize(), poolSettings.getMinNodes(), poolSettings.getMaxNodes()));
 
     }
 
@@ -217,16 +217,16 @@ public class TestPoolManager {
 
         ManagerSettings managerSettings = settingsDataAccessManager.read();
 
-        logger.info("looking for softlayer pool settings in manager settings [{}]", managerSettings);
-        PoolSettings softlayerPoolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.softlayer);
+        logger.info("looking for pool settings in manager settings [{}]", managerSettings);
+        PoolSettings poolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.ec2);
 
         int nodesSize = 3;
         List<NodeModel> nodes = new ArrayList<NodeModel>(nodesSize);
 
-        logger.info("creating [{}] nodes for pool with provider [{}]...", nodesSize, softlayerPoolSettings.getProvider().getName());
+        logger.info("creating [{}] nodes for pool with provider [{}]...", nodesSize, poolSettings.getProvider().getName());
         for (int i = 0; i < nodesSize; i++) {
             nodes.add(new NodeModel()
-                    .setPoolId(softlayerPoolSettings.getUuid())
+                    .setPoolId(poolSettings.getUuid())
                     .setNodeStatus(NodeStatus.CREATED)
                     .setMachineId("test_machine_id"));
         }
@@ -257,14 +257,14 @@ public class TestPoolManager {
         Assert.isNull(readNode,
                 String.format("non existing node should be null when read from the pool, but instead returned [%s]", readNode));
 
-        logger.info("listing nodes for pool with provider [{}]...", softlayerPoolSettings.getProvider().getName());
-        List<NodeModel> softlayerNodeModels = nodesDao.readAllOfPool(softlayerPoolSettings.getUuid());
-        logger.info("returned nodes [{}]", softlayerNodeModels);
+        logger.info("listing nodes for pool with provider [{}]...", poolSettings.getProvider().getName());
+        List<NodeModel> nodeModels = nodesDao.readAllOfPool(poolSettings.getUuid());
+        logger.info("returned nodes [{}]", nodeModels);
 
-        Assert.notNull(softlayerNodeModels, String.format("failed to read nodes of pool with id [%s]", softlayerPoolSettings.getUuid()));
-        Assert.notEmpty(softlayerNodeModels, "nodes in softlayer pool should not be empty");
-        Assert.isTrue(softlayerNodeModels.size() == nodesSize,
-                String.format("amount of nodes in softlayer pool should be [%s], but instead is [%s]", nodesSize, softlayerNodeModels.size()));
+        Assert.notNull(nodeModels, String.format("failed to read nodes of pool with id [%s]", poolSettings.getUuid()));
+        Assert.notEmpty(nodeModels, "nodes in pool should not be empty");
+        Assert.isTrue(nodeModels.size() == nodesSize,
+                String.format("amount of nodes in pool should be [%s], but instead is [%s]", nodesSize, nodeModels.size()));
 
         // update
 
@@ -301,7 +301,6 @@ public class TestPoolManager {
     @Test
     public void testNodeMappings() {
 
-/*
         ManagerSettings managerSettings = settingsDataAccessManager.read();
 
         logger.info("looking for ec2 pool settings in manager settings [{}]", managerSettings);
@@ -310,7 +309,6 @@ public class TestPoolManager {
 
         List<NodeMappings> nodeMappingses = poolManagerApi.listCloudNodes(ec2PoolSettings);
         Assert.notNull(nodeMappingses);
-*/
     }
 
 
