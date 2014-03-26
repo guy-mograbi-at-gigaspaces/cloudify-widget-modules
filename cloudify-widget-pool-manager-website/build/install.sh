@@ -52,6 +52,8 @@ download_pool_manager(){
 
     chmod +x $INSTALL_LOCATION/**/*.sh
     dos2unix $INSTALL_LOCATION/**/*.sh
+
+
 }
 
 
@@ -69,6 +71,16 @@ upgrade_main(){
 
     echo "installing service script under widget-pool"
     SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
+
+    if [ -z $SYSCONFIG_UPGRADE_URL ]; then
+        echo "no SYSCONFIG_UPGRADE_URL defined. skipping"
+    else
+        echo "upgrading sysconfig file using url $SYSCONFIG_UPGRADE_URL"
+        run_wget -O $SYSCONFIG_FILE  $SYSCONFIG_UPGRADE_URL
+        dos2unix $SYSCONFIG_FILE
+        chmod +x $SYSCONFIG_FILE
+    fi
+
 }
 
 
