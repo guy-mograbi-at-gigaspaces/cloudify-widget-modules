@@ -8,7 +8,9 @@
 # Description:       A pool manager for cloudify widget
 ### END INIT INFO
 
-SCRIPT=/opt/cloudify-widget-pool-manager/build/start.sh
+source /etc/sysconfig/widget-pool-manager
+
+SCRIPT=$INSTALL_LOCATION/build/start.sh
 RUNAS=root
 
 PIDFILE=/var/run/cwpm.pid
