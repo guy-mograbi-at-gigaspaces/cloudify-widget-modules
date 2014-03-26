@@ -24,7 +24,12 @@ install_main(){
 
     install_mysql
 
-    download_pool_manager
+    if [ ! -f INSTALL_LOCATION/buid/upgrade.sh ];then
+        download_pool_manager
+    else
+        echo "manager already installed. skipping. "
+    fi
+
     cd $INSTALL_LOCATION/build
     upgrade_main
 
@@ -34,6 +39,7 @@ install_main(){
 }
 
 download_pool_manager(){
+    echo "downloading pool manager"
     URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/cloudify-widget-pool-manager-website-1.0.0.tar
 
     TAR_FILENAME=cloudify-widget-pool-manager-website-1.0.0.tar
@@ -48,17 +54,18 @@ download_pool_manager(){
 
 
 upgrade_main(){
-
+    echo "installing gsat"
     eval "`wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix`"
     SYSCONFIG_FILE=widget-pool-manager read_sysconfig
 
     echo "installing the JAR file"
     download_pool_manager
 
-    source nginx.conf > /etc/nginx/sites-enabled/widget-pool-manager.conf
+    dos2unix nginx.conf
+    source nginx.conf | dos2unix > /etc/nginx/sites-enabled/widget-pool-manager.conf
 
     echo "installing service script under widget-pool"
-    SERVICE_NAME=pool-manager SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
+    SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
 }
 
 
