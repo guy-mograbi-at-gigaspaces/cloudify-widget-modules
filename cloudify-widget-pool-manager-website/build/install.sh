@@ -22,11 +22,9 @@ install_main(){
 
     install_java
 
-    install_nginx
-    source nginx.conf > /etc/nginx/sites-enabled/widget-pool-manager.conf
-
     install_mysql
 
+    cd $INSTALL_LOCATION/build
     upgrade_main
 
     cd $CURRENT_DIRECTORY
@@ -55,6 +53,9 @@ upgrade_main(){
 
     echo "installing the JAR file"
     download_pool_manager
+
+    install_nginx
+    source nginx.conf > /etc/nginx/sites-enabled/widget-pool-manager.conf
 
     echo "installing service script under widget-pool"
     SERVICE_NAME=pool-manager SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
