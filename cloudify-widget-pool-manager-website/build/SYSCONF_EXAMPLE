@@ -7,3 +7,4 @@ INSTALL_LOCATION=/opt/pool-manager-website
 SYSCONFIG_UPGRADE_URL=url_for_sysconfig_online_for_auto_upgrades
 PROPERTIES_FILE_UPGRADE_URL=url_for_properties_online_for_auto_upgrades
 PROPERTIES_RESOURCE=classpath: , file: , http: spring resource standards
+WEBSITE_ME_CONTEXT_RESOURCE=classpath: , file: , http: spring resource standards
