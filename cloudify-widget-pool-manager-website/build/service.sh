@@ -5,11 +5,11 @@
 # Required-Stop:     $local_fs $network $named $time $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Description:       <DESCRIPTION>
+# Description:       A pool manager for cloudify widget
 ### END INIT INFO
 
-SCRIPT=<COMMAND>
-RUNAS=<USERNAME>
+SCRIPT=/opt/cloudify-widget-pool-manager/build/start.sh
+RUNAS=root
 
 PIDFILE=/var/run/cwpm.pid
 LOGFILE=/var/log/cwpm.log
