@@ -17,11 +17,12 @@ PIDFILE=/var/run/cwpm.pid
 LOGFILE=/var/log/cwpm.log
 
 start() {
+    echo "pidname is [$PIDNAME]"
   if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
     echo 'Service already running' >&2
     return 1
   fi
-  echo 'Starting service…' >&2
+  echo 'Starting service...' >&2
   local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
   su -c "$CMD" $RUNAS > "$PIDFILE"
   echo 'Service started' >&2
