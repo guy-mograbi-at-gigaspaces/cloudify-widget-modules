@@ -49,7 +49,9 @@ download_pool_manager(){
     mkdir -p $INSTALL_LOCATION
     tar -xf $TAR_FILENAME -C $INSTALL_LOCATION
     mv $INSTALL_LOCATION/target* $INSTALL_LOCATION/website-1.0.0.jar
+
     chmod +x $INSTALL_LOCATION/**/*.sh
+    dos2unix $INSTALL_LOCATION/**/*.sh
 }
 
 
