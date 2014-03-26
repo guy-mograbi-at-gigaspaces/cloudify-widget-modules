@@ -12,7 +12,8 @@ install_main(){
     CURRENT_DIRECTORY=`pwd`
     cd "$(dirname "$0")"
 
-    wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix | bash
+    eval "`wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix`"
+
 
     echo "reading sysconfig"
     SYSCONFIG_FILE=pool-manager read_sysconfig
