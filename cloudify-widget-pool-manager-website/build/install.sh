@@ -4,7 +4,7 @@
 install_main(){
 
     SYSCONFIG_FILE=/etc/sysconfig/widget-pool-manager
-    if [ ! -f SYSCONFIG_FILE ];
+    if [ ! -f SYSCONFIG_FILE ]; then
         echo "missing file $SYSCONFIG_FILE"
         exit 1
     fi
