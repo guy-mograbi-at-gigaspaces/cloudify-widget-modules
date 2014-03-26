@@ -1,5 +1,7 @@
 read_sysconfig(){
-    SYSCONFIG_FILE=/etc/sysconfig/cwpm
+
+
+
     if [ ! -f $SYSCONFIG_FILE ]; then
         echo "sysconfig file does not exists"
         touch /etc/sysconfig/cwpm
@@ -10,20 +12,25 @@ read_sysconfig(){
     fi
 }
 
-download_jar(){
-    if [ "$1" = "latest" ];then
-        URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/website-1.0.0-LATEST.jar
-    else
-        URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/website-1.0.0-SNAPSHOT.jar
-    fi
+download_pool_manager(){
+    URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/cloudify-widget-pool-manager-website-1.0.0.tar
 
-    rm -Rf /opt/cloudify-widget-pool-manager
-    wget --no-check-certificate "$URL" -O /tmp/cwpm.jar
+    TAR_FILENAME=cloudify-widget-pool-manager-website-1.0.0.tar
+    wget --no-check-certificate "$URL" -O $TAR_FILENAME
+
+    OPT_LOCATION=/opt/cloudify-widget-pool-manager
+    mkdir -p $OPT_LOCATION
+    tar -xf $TAR_FILENAME -C $OPT_LOCATION
+    mv $OPT_LOCATION/target* $OPT_LOCATION/website-1.0.0.jar
 }
 
 install_service(){
-    wget --no-check-certificate "https://raw.githubusercontent.com/guy-mograbi-at-gigaspaces/cloudify-widget-modules/manager-website/build/service.sh" -O /etc/init.d/widget-pool
-    chmod +x /etc/init.d/widget-pool
+    SERVICE_NAME=widget-pool
+    INITD_LOCATION=/etc/init.d/$SERVICE_NAME
+    SERVICE_FILE=$OPT_LOCATION/build/service.sh
+
+    cp $SERVICE_FILE $INITD_LOCATION
+    chmod +x $INITD_LOCATION
 }
 
 
@@ -33,6 +40,13 @@ install_service(){
 
 
 main(){
+
+    SYSCONFIG_FILE=/etc/sysconfig/widget-pool-manager
+    if [ ! -f SYSCONFIG_FILE ];
+        echo "missing file $SYSCONFIG_FILE"
+        exit 1
+    fi
+
     CURRENT_DIRECTORY=`pwd`
     cd "$(dirname "$0")"
 
@@ -58,8 +72,12 @@ main(){
 
     install_java
 
+    install_nginx
+
+    install_mysql
+
     echo "installing the JAR file"
-    download_jar $*
+    download_pool_manager $*
 
     echo "installing service script under widget-pool"
     install_service $*
