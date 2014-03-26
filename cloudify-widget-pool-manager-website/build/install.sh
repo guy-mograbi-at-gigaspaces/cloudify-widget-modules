@@ -1,4 +1,7 @@
-main(){
+# use this script by running
+# wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
+
+install_main(){
 
     SYSCONFIG_FILE=/etc/sysconfig/widget-pool-manager
     if [ ! -f SYSCONFIG_FILE ];
@@ -9,20 +12,7 @@ main(){
     CURRENT_DIRECTORY=`pwd`
     cd "$(dirname "$0")"
 
-    if [ ! -f /opt/gsat/gsui_functions.sh ]; then
-
-        mkdir /opt/gsat
-        echo "download gsui_functions.sh"
-        wget --no-cache --no-check-certificate -O /opt/gsat/gsat.tar http://get.gsdev.info/gsat/1.0.0/gsat-1.0.0.tar
-        tar -xvf /opt/gsat/gsat.tar
-
-    fi
-
-    echo "loading gsat functions"
-    dos2unix *.sh /opt/gsat/*.sh
-    chmod +x *.sh /opt/gsat/*.sh
-    source /opt/gsat/gsui_functions.sh
-    echo "gsat functions loaded"
+    wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix | bash
 
     echo "reading sysconfig"
     SYSCONFIG_FILE=pool-manager read_sysconfig
@@ -36,14 +26,47 @@ main(){
 
     install_mysql
 
-    upgrade
+    upgrade_main
 
     cd $CURRENT_DIRECTORY
 
     service widget-pool
 }
 
+download_pool_manager(){
+    URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/cloudify-widget-pool-manager-website-1.0.0.tar
+
+    TAR_FILENAME=cloudify-widget-pool-manager-website-1.0.0.tar
+    wget --no-check-certificate "$URL" -O $TAR_FILENAME
+
+
+    mkdir -p $INSTALL_LOCATION
+    tar -xf $TAR_FILENAME -C $INSTALL_LOCATION
+    mv $INSTALL_LOCATION/target* $INSTALL_LOCATION/website-1.0.0.jar
+}
+
+
+
+upgrade_main(){
+
+    source /opt/gsat/gsui_functions.sh
+    SYSCONFIG_FILE=pool-manager read_sysconfig
+
+    echo "installing the JAR file"
+    download_pool_manager
+
+    echo "installing service script under widget-pool"
+    SERVICE_NAME=pool-manager SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
+}
+
+
 set -e
-main $*
+if [ "$1" = "upgrade" ];then
+    echo "running upgrade"
+    upgrade_main $*
+else
+    echo "running install"
+    install_main $*
+fi
 set +e
 
