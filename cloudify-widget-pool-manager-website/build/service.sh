@@ -1,3 +1,5 @@
+cat <<END
+
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          cwpm
@@ -74,3 +76,5 @@ case "$1" in
   *)
     echo "Usage: $0 {start|stop|restart}"
 esac
+
+END
