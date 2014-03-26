@@ -55,7 +55,6 @@ upgrade_main(){
     echo "installing the JAR file"
     download_pool_manager
 
-    install_nginx
     source nginx.conf > /etc/nginx/sites-enabled/widget-pool-manager.conf
 
     echo "installing service script under widget-pool"
