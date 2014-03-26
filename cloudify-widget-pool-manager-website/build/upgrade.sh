@@ -14,14 +14,16 @@ download_pool_manager(){
 
 
 
-main(){
+upgrade_main(){
 
     source /opt/gsat/gsui_functions.sh
     SYSCONFIG_FILE=pool-manager read_sysconfig
 
     echo "installing the JAR file"
-    download_pool_manager $*
+    download_pool_manager
 
     echo "installing service script under widget-pool"
     SERVICE_NAME=pool-manager SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_scriptinstall_service
 }
+
+upgrade_main
