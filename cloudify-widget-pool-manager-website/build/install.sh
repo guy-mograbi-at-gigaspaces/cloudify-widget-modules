@@ -24,6 +24,7 @@ install_main(){
 
     install_mysql
 
+    download_pool_manager
     cd $INSTALL_LOCATION/build
     upgrade_main
 
