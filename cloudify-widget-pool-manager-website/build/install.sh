@@ -16,7 +16,7 @@ install_main(){
 
 
     echo "reading sysconfig"
-    SYSCONFIG_FILE=pool-manager read_sysconfig
+    SYSCONFIG_FILE=widget-pool-manager read_sysconfig
     check_exists INSTALL_LOCATION
 
 
@@ -51,7 +51,7 @@ download_pool_manager(){
 upgrade_main(){
 
     eval "`wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix`"
-    SYSCONFIG_FILE=pool-manager read_sysconfig
+    SYSCONFIG_FILE=widget-pool-manager read_sysconfig
 
     echo "installing the JAR file"
     download_pool_manager
