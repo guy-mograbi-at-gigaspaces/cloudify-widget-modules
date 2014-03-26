@@ -24,13 +24,7 @@ install_main(){
 
     install_mysql
 
-    if [ ! -f INSTALL_LOCATION/buid/upgrade.sh ];then
-        download_pool_manager
-    else
-        echo "manager already installed. skipping. "
-    fi
 
-    cd $INSTALL_LOCATION/build
     upgrade_main
 
     cd $CURRENT_DIRECTORY
@@ -66,8 +60,9 @@ upgrade_main(){
     echo "installing the JAR file"
     download_pool_manager
 
-    dos2unix nginx.conf
-    source nginx.conf | dos2unix > /etc/nginx/sites-enabled/widget-pool-manager.conf
+
+    dos2unix $INSTALL_LOCATION/build/nginx.conf
+    source $INSTALL_LOCATION/build/nginx.conf | dos2unix > /etc/nginx/sites-enabled/widget-pool-manager.conf
 
     echo "installing service script under widget-pool"
     SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
