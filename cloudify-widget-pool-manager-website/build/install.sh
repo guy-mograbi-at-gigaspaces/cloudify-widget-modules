@@ -50,7 +50,7 @@ download_pool_manager(){
 
 upgrade_main(){
 
-    source /opt/gsat/gsui_functions.sh
+    eval "`wget --no-cache --no-check-certificate -O - http://get.gsdev.info/gsat/1.0.0/install_gsat.sh | dos2unix`"
     SYSCONFIG_FILE=pool-manager read_sysconfig
 
     echo "installing the JAR file"
