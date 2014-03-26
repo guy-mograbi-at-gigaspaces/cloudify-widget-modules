@@ -49,6 +49,10 @@ status(){
     fi
 }
 
+upgrade(){
+    $INSTALL_LOCATION/build/upgrade.sh
+}
+
 
 case "$1" in
   start)
@@ -56,6 +60,9 @@ case "$1" in
     ;;
   stop)
     stop
+    ;;
+  upgrade)
+    upgrade
     ;;
   status)
     status
