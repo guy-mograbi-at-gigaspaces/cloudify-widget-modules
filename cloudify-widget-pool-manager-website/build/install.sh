@@ -17,6 +17,7 @@ download_jar(){
         URL=http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/website-1.0.0-SNAPSHOT.jar
     fi
 
+    rm -Rf /opt/cloudify-widget-pool-manager
     wget --no-check-certificate "$URL" -O /tmp/cwpm.jar
 }
 
@@ -42,16 +43,20 @@ main(){
 
         tar -xvf gsat.tar
 
-        source gsui_functions.sh
+
     fi
 
-    echo "installing widget-pool from workspace `pwd`"
+    echo "loading gsat functions"
+    dos2unix *.sh
+    chmod +x *.sh
+    source ./gsui_functions.sh
+    echo "gsat functions loaded"
 
     echo "reading sysconfig"
     read_sysconfig $*
 
-    echo "installing java"
-    install_java $*
+
+    install_java
 
     echo "installing the JAR file"
     download_jar $*
