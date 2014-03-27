@@ -58,18 +58,16 @@ upgrade_main(){
     echo "installing the JAR file"
     download_pool_manager
 
+    # create the DB and upgrade it. if already exists it will just upgrade it.
 
-        echo "creating DB"
-        UPGRADE_TO=create
-        BASEDIR=$INSTALL_LOCATION/manager-schema
-        migrate_db
+    echo "creating DB"
+    UPGRADE_TO=create
+    BASEDIR=$INSTALL_LOCATION/manager-schema
+    migrate_db
 
-        BASEDIR=$INSTALL_LOCATION/website-schema
-        migrate_db
+    BASEDIR=$INSTALL_LOCATION/website-schema
+    migrate_db
 
-    else
-        echo "db already exists"
-    fi
 
     echo "migrating dbs"
      UPGRADE_TO=latest
