@@ -8,7 +8,7 @@
        http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 
-    <import resource="classpath:/conf/dev/dev-context.xml"/>
+    <import resource="${websiteMeContext}"/>
 
 
     <mvc:annotation-driven/>
