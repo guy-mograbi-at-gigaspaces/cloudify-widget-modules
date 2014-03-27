@@ -1,5 +1,5 @@
 # use this script by running
-# yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
+# dos2unix yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
 
 install_main(){
 
@@ -60,8 +60,13 @@ upgrade_main(){
 
     # create the DB and upgrade it. if already exists it will just upgrade it.
 
+    DB_USER=$DB_ADMIN
+    DB_PASSWORD=$DB_ADMIN_PASSWORD
+
+
     echo "creating DB"
     UPGRADE_TO=create
+
     BASEDIR=$INSTALL_LOCATION/manager-schema
     migrate_db
 
