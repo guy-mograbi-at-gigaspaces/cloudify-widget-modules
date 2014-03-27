@@ -73,13 +73,25 @@ public class PoolDaoImpl implements IPoolDao {
     @Override
     public Long createPool( Long accountId, String poolSettingsJson ) {
 
-        Map<String,Object> parametersMap = new HashMap<String,Object>(2);
-        parametersMap.put( "account_id", accountId );
-        parametersMap.put( "pool_setting", poolSettingsJson );
+        PoolSettings poolSettings = null;
+        try {
+            poolSettings = objectMapper.readValue(poolSettingsJson, PoolSettings.class);
+            poolSettingsJson = objectMapper.writeValueAsString(poolSettings);
+        } catch (IOException e) {
+            logger.error("failed to map pool settings from json string", e);
+            e.printStackTrace();
+        }
+
+        Map<String, Object> parametersMap = new HashMap<String, Object>(2);
+        parametersMap.put("account_id", accountId);
+        parametersMap.put("pool_setting", poolSettingsJson);
+        if (poolSettings != null) {
+            parametersMap.put("uuid", poolSettings.getUuid());
+        }
 
         Number id = jdbcInsert.executeAndReturnKey(parametersMap);
 
-        return ( Long )id;
+        return (Long) id;
     }
 
     @Override
