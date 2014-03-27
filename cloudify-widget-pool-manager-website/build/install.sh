@@ -1,5 +1,5 @@
 # use this script by running
-# wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
+# yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
 
 install_main(){
 
@@ -24,7 +24,6 @@ install_main(){
 
     install_mysql
 
-
     upgrade_main
 
     cd $CURRENT_DIRECTORY
@@ -42,7 +41,6 @@ download_pool_manager(){
 
     mkdir -p $INSTALL_LOCATION
     tar -xf $TAR_FILENAME -C $INSTALL_LOCATION
-    mv $INSTALL_LOCATION/target* $INSTALL_LOCATION/website-1.0.0.jar
 
     chmod +x $INSTALL_LOCATION/**/*.sh
     dos2unix $INSTALL_LOCATION/**/*.sh
@@ -59,6 +57,27 @@ upgrade_main(){
 
     echo "installing the JAR file"
     download_pool_manager
+
+
+        echo "creating DB"
+        UPGRADE_TO=create
+        BASEDIR=$INSTALL_LOCATION/manager-schema
+        migrate_db
+
+        BASEDIR=$INSTALL_LOCATION/website-schema
+        migrate_db
+
+    else
+        echo "db already exists"
+    fi
+
+    echo "migrating dbs"
+     UPGRADE_TO=latest
+     BASEDIR=$INSTALL_LOCATION/manager-schema
+     migrate_db
+
+     BASEDIR=$INSTALL_LOCATION/website-schema
+     migrate_db
 
 
     dos2unix $INSTALL_LOCATION/build/nginx.conf

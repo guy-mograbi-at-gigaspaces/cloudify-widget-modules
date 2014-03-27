@@ -8,3 +8,6 @@ SYSCONFIG_UPGRADE_URL=url_for_sysconfig_online_for_auto_upgrades
 PROPERTIES_FILE_UPGRADE_URL=url_for_properties_online_for_auto_upgrades
 PROPERTIES_RESOURCE=classpath: , file: , http: spring resource standards
 WEBSITE_ME_CONTEXT_RESOURCE=classpath: , file: , http: spring resource standards
+
+# alternatively, you can put the sysconfig available somewhere online and simply write
+# eval "`wget --no-cache --no-check-certificate -O - url_to_sysconfig | dos2unix`"
