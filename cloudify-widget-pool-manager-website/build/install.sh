@@ -102,14 +102,8 @@ upgrade_main(){
     echo "installing service script under widget-pool"
     SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
 
-    if [ -z $SYSCONFIG_UPGRADE_URL ]; then
-        echo "no SYSCONFIG_UPGRADE_URL defined. skipping"
-    else
-        echo "upgrading sysconfig file using url $SYSCONFIG_UPGRADE_URL"
-        run_wget -O $SYSCONFIG_FILE  $SYSCONFIG_UPGRADE_URL
-        dos2unix $SYSCONFIG_FILE
-        chmod +x $SYSCONFIG_FILE
-    fi
+    run_wget -O $INSTALL_LOCATION/build/me-context.xml "$WEBSITE_ME_CONTEXT_RESOURCE"
+    run_wget -O $INSTALL_LOCATION/build/manager.properties "$PROPERTIES_RESOURCE"
 
 }
 

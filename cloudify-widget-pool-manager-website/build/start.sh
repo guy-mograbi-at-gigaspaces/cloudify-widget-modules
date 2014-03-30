@@ -6,7 +6,8 @@ if [ -z PROPERTIES_RESOURCE ] || [ "$PROPERTIES_RESOURCE" = "" ];then
 fi
 
 VM_ARGS="-Dspring.profiles.active=manager-app"
-VM_ARGS="$VM_ARGS  -DmanagerPropertiesLocation=$PROPERTIES_RESOURCE"
+VM_ARGS="$VM_ARGS  -DmanagerPropertiesLocation=file://$INSTALL_LOCATION/build/manager.properties"
+VM_ARGS="$VM_ARGS -DwebsiteMeContext=file://$INSTALL_LOCATION/build/me-context.xml"
 
 
-java $VM_ARGS -jar ../website-1.0.0.jar
+java $VM_ARGS -jar $INSTALL_LOCATION/website-1.0.0.jar
