@@ -1,5 +1,3 @@
-cat <<END
-
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          cwpm
@@ -15,12 +13,13 @@ source /etc/sysconfig/widget-pool-manager
 SCRIPT=$INSTALL_LOCATION/build/start.sh
 RUNAS=root
 
-PIDFILE=/var/run/cwpm.pid
-LOGFILE=/var/log/cwpm.log
+PIDNAME=poolmanager
+PIDFILE=/var/run/$PIDNAME.pid
+LOGFILE=/var/log/poolmanager.log
 
 start() {
     echo "pidname is [$PIDNAME]"
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
+  if [ -f $PIDFILE ] && kill -0 $(cat /var/run/$PIDNAME); then
     echo 'Service already running' >&2
     return 1
   fi
@@ -42,11 +41,12 @@ stop() {
 
 status(){
 
-    if [ ! -f $(cat "/proc/$PIDFILE"); then
-        echo "service is stopped"
+    PROC_FILE=/proc/`cat $PIDFILE`
+    if [ -e $PROC_FILE ]; then
+        echo "service is running"
         return 0
     else
-        echo "service is running"
+        echo "service is stopped"
         return 0
     fi
 }
@@ -69,12 +69,10 @@ case "$1" in
   status)
     status
     ;;
-  retart)
+  restart)
     stop
     start
     ;;
   *)
     echo "Usage: $0 {start|stop|restart}"
 esac
-
-END
