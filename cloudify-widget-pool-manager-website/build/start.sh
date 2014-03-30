@@ -1,6 +1,6 @@
 source /etc/sysconfig/widget-pool-manager
 
-if [ ! -f $PROPERTIES_RESOURCE ];then
+if [ -z PROPERTIES_RESOURCE ] || [ "$PROPERTIES_RESOURCE" = "" ];then
     echo "you must define $PROPERTIES_RESOURCE"
     exit 1
 fi

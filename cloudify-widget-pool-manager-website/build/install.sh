@@ -39,7 +39,10 @@ download_pool_manager(){
     TAR_FILENAME=cloudify-widget-pool-manager-website-1.0.0.tar
     wget --no-check-certificate "$URL" -O $TAR_FILENAME
 
+    echo "deleting install location"
+    rm -Rf $INSTALL_LOCATION
 
+    echo "recreating install location"
     mkdir -p $INSTALL_LOCATION
     tar -xf $TAR_FILENAME -C $INSTALL_LOCATION
 
