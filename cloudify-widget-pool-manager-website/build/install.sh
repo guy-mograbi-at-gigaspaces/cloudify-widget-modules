@@ -1,5 +1,5 @@
 # use this script by running
-# dos2unix yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
+# yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
 
 install_main(){
 
@@ -19,6 +19,7 @@ install_main(){
     SYSCONFIG_FILE=widget-pool-manager read_sysconfig
     check_exists INSTALL_LOCATION
 
+    install_nginx
 
     install_java
 
