@@ -10,15 +10,17 @@ import cloudify.widget.api.clouds.IConnectDetails;
  */
 public class HpCloudComputeConnectDetails implements IConnectDetails {
 
+    public static final String DEFAULT_API_VERSION = "1.1";
+
     private String project;
     private String key;
     private String secretKey;
-    private String apiVersion;
+    private String apiVersion = DEFAULT_API_VERSION;
 
     public HpCloudComputeConnectDetails() {}
 
     public HpCloudComputeConnectDetails( String project, String key, String secretKey ) {
-        this( project, key, secretKey, "1.1" );
+        this( project, key, secretKey, DEFAULT_API_VERSION);
     }
 
     public HpCloudComputeConnectDetails( String project, String key, String secretKey, String apiVersion ) {
