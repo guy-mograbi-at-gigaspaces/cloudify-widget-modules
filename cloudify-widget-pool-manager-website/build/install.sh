@@ -68,20 +68,29 @@ upgrade_main(){
     echo "creating DB"
     UPGRADE_TO=create
 
+    check_exists MANAGER_DB
+    DB=$MANAGER_DB
     BASEDIR=$INSTALL_LOCATION/manager-schema
     migrate_db
 
+    check_exists WEBSITE_DB
+    DB=$WEBSITE_DB
     BASEDIR=$INSTALL_LOCATION/website-schema
     migrate_db
 
 
     echo "migrating dbs"
-     UPGRADE_TO=latest
-     BASEDIR=$INSTALL_LOCATION/manager-schema
-     migrate_db
 
-     BASEDIR=$INSTALL_LOCATION/website-schema
-     migrate_db
+    echo "migrating manager schema"
+    DB=$MANAGER_DB
+    UPGRADE_TO=latest
+    BASEDIR=$INSTALL_LOCATION/manager-schema
+    migrate_db
+
+    echo "migrating website schema"
+    DB=$WEBSITE_DB
+    BASEDIR=$INSTALL_LOCATION/website-schema
+    migrate_db
 
 
     dos2unix $INSTALL_LOCATION/build/nginx.conf
