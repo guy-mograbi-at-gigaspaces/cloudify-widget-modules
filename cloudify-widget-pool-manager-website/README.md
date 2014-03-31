@@ -21,13 +21,23 @@ a different build each time.
 ## Installation Steps
 
  * Create a [manager.properties file](./build/website-context.example.xml) and put it 
- * Create an executable file /etc/sysconfig/widget-pool-manager
- * Have a look at [example file](./build/SYSCONF_EXAMPLE)
- * You can download the install file from get.gsdev.info, or you can run this one-liner to download it and execute it
+ * Create an executable file [/etc/sysconfig/widget-pool-manage](./build/SYSCONF_EXAMPLE)
+ * Run the following line of code
 
 ````
 
 yum -y install dos2unix && wget --no-cache --no-check-certificate -O - http://get.gsdev.info/cloudify-widget-pool-manager-website/1.0.0/install.sh | dos2unix | bash
+
+````
+
+if installation went successfully you will have the following commands available on your command line
+
+```` 
+
+service widget-pool status
+service widget-pool start
+service widget-pool stop
+service widget-pool upgrade
 
 ````
 
