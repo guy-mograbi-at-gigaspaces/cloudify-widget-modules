@@ -20,7 +20,7 @@ a different build each time.
 
 ## Installation Steps
 
- * Create an executable file [/etc/sysconfig/widget-pool-manage](./build/SYSCONF_EXAMPLE)
+ * Create an executable file [/etc/sysconfig/widget-pool-manager](./build/SYSCONF_EXAMPLE)
  * Create a [website-context.xml file](./build/website-context.example.xml) and configure it in your sysconfig file
  * Run the following line of code
 
