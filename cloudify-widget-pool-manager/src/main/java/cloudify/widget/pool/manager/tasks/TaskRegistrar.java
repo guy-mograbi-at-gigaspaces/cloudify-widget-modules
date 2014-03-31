@@ -19,7 +19,7 @@ public class TaskRegistrar {
      * @param <C> The task config type.
      * @param <R> The expected callable response type.
      */
-    public static abstract class Decorator<C extends TaskConfig, R> implements Task<C, R> {
+    public static abstract class TaskDecorator<C extends TaskConfig, R> implements Task<C, R> {
 
         protected abstract void register();
 
@@ -33,9 +33,9 @@ public class TaskRegistrar {
      *
      * @param <C> The task config type.
      * @param <R> The expected callable response type.
-     * @see Decorator
+     * @see cloudify.widget.pool.manager.tasks.TaskRegistrar.TaskDecorator
      */
-    public static class DecoratorImpl<C extends TaskConfig, R> extends Decorator<C, R> {
+    public static class TaskDecoratorImpl<C extends TaskConfig, R> extends TaskDecorator<C, R> {
 
         Task<C, R> _decorated;
 
@@ -47,7 +47,7 @@ public class TaskRegistrar {
 
         private ITasksDao _tasksDao;
 
-        public DecoratorImpl(Task<C, R> decorated) {
+        public TaskDecoratorImpl(Task<C, R> decorated) {
             this._decorated = decorated;
         }
 

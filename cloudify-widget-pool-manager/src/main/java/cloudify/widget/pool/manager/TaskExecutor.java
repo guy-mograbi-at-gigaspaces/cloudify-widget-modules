@@ -24,6 +24,8 @@ public class TaskExecutor {
 
     private ListeningExecutorService executorService;
 
+//    private ListeningExecutorService backgroundExecutorService;
+
     private int terminationTimeoutInSeconds = 30;
 
     @Autowired
@@ -35,9 +37,11 @@ public class TaskExecutor {
 
     public void destroy() {
         executorService.shutdown();
+//        backgroundExecutorService.shutdown();
         try {
             // Wait until all threads are finish
             executorService.awaitTermination(terminationTimeoutInSeconds, TimeUnit.SECONDS);
+//            backgroundExecutorService.awaitTermination(terminationTimeoutInSeconds, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.error("await termination interrupted", e);
         }
@@ -51,7 +55,7 @@ public class TaskExecutor {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
-        TaskRegistrar.Decorator worker = new TaskRegistrar.DecoratorImpl<C, R>(task);
+        TaskRegistrar.TaskDecorator worker = new TaskRegistrar.TaskDecoratorImpl<C, R>(task);
         worker.setTasksDao(tasksDao);
         worker.setPoolSettings(poolSettings);
         worker.setTaskConfig(taskConfig);
@@ -73,4 +77,10 @@ public class TaskExecutor {
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = MoreExecutors.listeningDecorator(executorService);
     }
+
+/*
+    public void setBackgroundExecutorService(ListeningExecutorService backgroundExecutorService) {
+        this.backgroundExecutorService = backgroundExecutorService;
+    }
+*/
 }

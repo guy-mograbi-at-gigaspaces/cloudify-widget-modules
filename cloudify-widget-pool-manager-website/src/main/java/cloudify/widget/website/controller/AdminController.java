@@ -2,15 +2,11 @@ package cloudify.widget.website.controller;
 
 import cloudify.widget.pool.manager.PoolManagerApi;
 import cloudify.widget.pool.manager.dto.*;
-import cloudify.widget.pool.manager.tasks.NoopTaskCallback;
-import cloudify.widget.pool.manager.tasks.TaskCallback;
 import cloudify.widget.website.dao.IAccountDao;
 import cloudify.widget.website.dao.IPoolDao;
 import cloudify.widget.website.dao.IResourceDao;
-import cloudify.widget.website.exceptions.InternalServerError;
 import cloudify.widget.website.models.AccountModel;
 import cloudify.widget.website.models.PoolConfigurationModel;
-import cloudify.widget.website.models.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +99,8 @@ public class AdminController {
     @RequestMapping(value = "/admin/accounts/{accountId}/pools", method = RequestMethod.POST)
     @ResponseBody
     public PoolConfigurationModel createAccountPool(@PathVariable("accountId") Long accountId, @RequestBody String poolSettingJson) {
-        return poolDao.readPoolById(poolDao.createPool(accountId, poolSettingJson));
+        Long poolId = poolDao.createPool(accountId, poolSettingJson);
+        return poolDao.readPoolById(poolId);
     }
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}", method = RequestMethod.POST)
@@ -181,6 +178,13 @@ public class AdminController {
         return poolManagerApi.listRunningTasks(poolSettings);
     }
 
+    @RequestMapping(value = "/admin/pools/{poolId}/tasks/{taskId}/delete", method = RequestMethod.POST)
+    public void deletePoolTask(@PathVariable("poolId") Long poolConfigurationId, @PathVariable("taskId") Long taskId) {
+        // task IDs are currently unique across pools, no need to check for pool id
+//        PoolSettings poolSettings = poolDao.readPoolById(poolConfigurationId).getPoolSettings();
+        poolManagerApi.removeRunningTask(/*poolSettings,*/ taskId);
+    }
+
 
     @RequestMapping(value = "/admin/accounts/{accountId}/pools/{poolId}/nodes", method = RequestMethod.POST)
     @ResponseBody
@@ -232,6 +236,8 @@ public class AdminController {
     public void nodeDelete(@ModelAttribute("poolSettings") PoolSettings poolSettings, @PathVariable("nodeId") Long nodeId) {
         poolManagerApi.deleteNode(poolSettings, nodeId, null);
     }
+
+
 
     @RequestMapping(value = "/admin/pools/{poolId}/cloud/nodes", method = RequestMethod.GET)
     @ResponseBody

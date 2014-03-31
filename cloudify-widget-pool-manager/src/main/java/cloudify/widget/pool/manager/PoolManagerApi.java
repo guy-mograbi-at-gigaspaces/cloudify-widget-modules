@@ -52,6 +52,8 @@ public interface PoolManagerApi {
 
     List<TaskModel> listRunningTasks(PoolSettings poolSettings);
 
+    void removeRunningTask(long taskId);
+
     NodeModel occupy( PoolSettings poolSettings );
 
     List<NodeMappings> listCloudNodes (PoolSettings poolSettings);

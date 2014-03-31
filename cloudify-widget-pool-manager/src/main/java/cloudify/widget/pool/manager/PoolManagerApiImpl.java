@@ -37,6 +37,8 @@ public class PoolManagerApiImpl implements PoolManagerApi {
 
     private Task bootstrapMachineTask;
 
+//    private
+
 
 
     @Override
@@ -114,6 +116,11 @@ public class PoolManagerApiImpl implements PoolManagerApi {
     @Override
     public List<TaskModel> listRunningTasks(PoolSettings poolSettings) {
         return tasksDao.readAllOfPool(poolSettings.getUuid());
+    }
+
+    @Override
+    public void removeRunningTask(long taskId) {
+        tasksDao.delete(taskId);
     }
 
     private NodeModel _getNodeModel(long nodeId) {

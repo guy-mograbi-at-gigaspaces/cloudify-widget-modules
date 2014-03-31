@@ -12,8 +12,8 @@ import java.util.UUID;
  */
 public class PoolSettings {
 
-    // TODO make this poolId, create a new field for uid
-    private String uuid = UUID.randomUUID().toString();
+    private String uuid = regenerateUuid();
+
     private String name;
     private String authKey;
     private int maxNodes;
@@ -75,6 +75,12 @@ public class PoolSettings {
 
     public void setBootstrapProperties(BootstrapProperties bootstrapProperties) {
         this.bootstrapProperties = bootstrapProperties;
+    }
+
+    public String regenerateUuid() {
+        String uuid = UUID.randomUUID().toString();
+        setUuid(uuid);
+        return uuid;
     }
 
     @Override
