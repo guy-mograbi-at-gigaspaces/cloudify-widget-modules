@@ -103,7 +103,8 @@ upgrade_main(){
     SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
 
     run_wget -O $INSTALL_LOCATION/build/me-context.xml "$WEBSITE_ME_CONTEXT_RESOURCE"
-    run_wget -O $INSTALL_LOCATION/build/manager.properties "$PROPERTIES_RESOURCE"
+
+
 
 }
 
