@@ -8,6 +8,8 @@
        http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 
+    <bean id="conf" class="cloudify.widget.website.config.AppConfig"/>
+
     <import resource="${websiteMeContext}"/>
 
 
@@ -67,9 +69,7 @@
     </bean>
 
 
-    <beans profile="manager-app">
-        <util:properties location="#{systemProperties['managerPropertiesLocation']}" id="managerProperties"/>
-    </beans>
+
     <beans profile="manager-app,default,dev">
         <import resource="classpath:pool-manager-app-context.xml"/>
     </beans>
