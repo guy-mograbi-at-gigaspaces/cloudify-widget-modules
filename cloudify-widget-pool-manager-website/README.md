@@ -20,8 +20,8 @@ a different build each time.
 
 ## Installation Steps
 
- * Create a [manager.properties file](./build/website-context.example.xml) and put it 
  * Create an executable file [/etc/sysconfig/widget-pool-manage](./build/SYSCONF_EXAMPLE)
+ * Create a [website-context.xml file](./build/website-context.example.xml) and configure it in your sysconfig file
  * Run the following line of code
 
 ````
