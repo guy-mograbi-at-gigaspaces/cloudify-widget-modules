@@ -18,6 +18,10 @@ we are overriding existing builds, so when you point to a build, you might get
 a different build each time.
 
 
+## Installation Steps
+
+ * Create an executable file /etc/sysconfig/widget-pool-manager
+ * Have a look at [../
 
 
 API
