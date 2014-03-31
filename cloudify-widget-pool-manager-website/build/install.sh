@@ -29,6 +29,7 @@ install_main(){
 
     cd $CURRENT_DIRECTORY
 
+    echo "service widget-pool"
     service widget-pool
 }
 
