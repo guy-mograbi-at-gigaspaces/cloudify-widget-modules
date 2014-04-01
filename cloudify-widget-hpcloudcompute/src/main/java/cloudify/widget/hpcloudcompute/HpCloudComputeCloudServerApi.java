@@ -167,6 +167,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
             newNodesList.add( new HpCloudComputeCloudServerCreated( newNode ) );
         }
 
+        logger.info("[{}] new node(s) created [{}]", newNodesList.size(), newNodesList);
         return newNodesList;
     }
 

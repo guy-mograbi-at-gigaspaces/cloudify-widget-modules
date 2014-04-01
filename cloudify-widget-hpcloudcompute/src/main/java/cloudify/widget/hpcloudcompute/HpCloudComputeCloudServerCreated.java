@@ -2,7 +2,9 @@ package cloudify.widget.hpcloudcompute;
 
 
 import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.api.clouds.MachineCredentials;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.domain.LoginCredentials;
 
 /**
  * User: evgeny
@@ -26,7 +28,19 @@ public class HpCloudComputeCloudServerCreated implements CloudServerCreated {
         return newNode.getId();
     }
 
-	@Override
+    @Override
+    public MachineCredentials getCredentials() {
+        LoginCredentials loginCredentials = newNode.getCredentials();
+        if (loginCredentials != null) {
+            return new MachineCredentials()
+                    .setUser(loginCredentials.getUser())
+                    .setPassword(loginCredentials.getPassword())
+                    .setPrivateKey(loginCredentials.getPrivateKey());
+        }
+        return null;
+    }
+
+    @Override
 	public String toString() {
 		return "HpCloudComputeCloudServerCreated [newNode=" + newNode + "], id=" + newNode.getId();
 	}

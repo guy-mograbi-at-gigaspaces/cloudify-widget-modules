@@ -32,19 +32,22 @@ public class HpCloudComputeOperationsTest {
     private final String echoString = "hello world";
 
     @Autowired
-    private CloudServerApi cloudServerApi;
+    public CloudServerApi cloudServerApi;
 
     @Autowired
-    private IConnectDetails connectDetails;
+    public IConnectDetails connectDetails;
 
     @Autowired
-    private HpCloudComputeMachineOptions machineOptions;
+    public HpCloudComputeMachineOptions machineOptions;
 
     @Autowired
     public WaitTimeout waitMachineIsRunningTimeout;
 
     @Autowired
     public WaitTimeout waitMachineIsNotRunning;
+
+
+
 
     @Test
     public void testHpCloudComputeDriver() {
@@ -62,7 +65,7 @@ public class HpCloudComputeOperationsTest {
 
         logger.info("Start test create HP cloud machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag1");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -70,7 +73,7 @@ public class HpCloudComputeOperationsTest {
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag2");
+        machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
