@@ -76,7 +76,6 @@ public class MailChimpWidgetLoginHandler implements IWidgetLoginHandler{
         listSubscribeMethod.merge_vars = new MailChimpObject();
         listSubscribeMethod.merge_vars.put("NAME", loginDetails.getFirstName());
         listSubscribeMethod.merge_vars.put("LASTNAME", loginDetails.getLastName());
-        listSubscribeMethod.merge_vars.put("COMPANY", "dummyName");
 
         listSubscribeMethod.replace_interests = false;
         listSubscribeMethod.send_welcome = false;
@@ -100,12 +99,12 @@ public class MailChimpWidgetLoginHandler implements IWidgetLoginHandler{
 
         loginHandler.setApiKey(apiKey);
         loginHandler.setListId(listId);
-        loginHandler.handleWidgetLogin(new IWidgetLoginDetails() {
-            @Override
-            public String getEmail() {
-                return "someemail@example.com";
-            }
-        });
+//        loginHandler.handleWidgetLogin(new IWidgetLoginDetails() {
+//            @Override
+//            public String getEmail() {
+//                return "someemail@example.com";
+//            }
+//        });
 
 
 
