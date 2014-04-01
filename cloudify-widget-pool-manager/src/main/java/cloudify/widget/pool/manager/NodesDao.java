@@ -127,9 +127,12 @@ public class NodesDao {
     }
 
     public NodeModel occupyNode(PoolSettings poolSettings) {
-        List<NodeModel> nodeModels = jdbcTemplate.queryForList("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ", NodeModel.class, NodeStatus.BOOTSTRAPPED);
+//        List<NodeModel> nodeModels = jdbcTemplate.queryForList("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ", NodeModel.class, NodeStatus.BOOTSTRAPPED);
+        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ",
+                new Object[]{NodeStatus.BOOTSTRAPPED.name()},
+                new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
         for (NodeModel nodeModel : nodeModels) {
-            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED, nodeModel.id, NodeStatus.BOOTSTRAPPED);
+            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
             if (updated == 1) {
                 return nodeModel;
             }
