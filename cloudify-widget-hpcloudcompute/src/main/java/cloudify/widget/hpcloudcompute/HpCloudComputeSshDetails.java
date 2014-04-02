@@ -9,10 +9,12 @@ import cloudify.widget.api.clouds.ISshDetails;
  */
 public class HpCloudComputeSshDetails implements ISshDetails {
 
-    private final int port;
-    private final String user;
-    private final String privateKey;
-    private final String publicIp;
+    private int port;
+    private String user;
+    private String privateKey;
+    private String publicIp;
+
+    public HpCloudComputeSshDetails() {}
 
     public HpCloudComputeSshDetails(int port, String user, String privateKey, String publicIp){
         this.port = port;
@@ -21,19 +23,19 @@ public class HpCloudComputeSshDetails implements ISshDetails {
         this.publicIp = publicIp;
     }
 
-    public int port(){
+    public int getPort(){
         return port;
     }
 
-    public String user(){
+    public String getUser(){
         return user;
     }
 
-    public String privateKey(){
+    public String getPrivateKey(){
         return privateKey;
     }
 
-    public String publicIp(){ return publicIp; }
+    public String getPublicIp(){ return publicIp; }
 
     @Override
     public boolean equals(Object o) {

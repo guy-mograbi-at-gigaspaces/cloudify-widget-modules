@@ -18,7 +18,7 @@ public interface CloudServerCreated {
      * Machine credentials are available after the node is created, but are not guaranteed to be
      * persisted to the node metadata later in the node's lifecycle.
      *
-     * @return A representation of the node credentials in the time of creation.
+     * @return A representation of the machine credentials at the time of creation.
      */
-    MachineCredentials getCredentials();
+    ISshDetails getSshDetails();
 }

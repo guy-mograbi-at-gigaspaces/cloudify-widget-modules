@@ -82,9 +82,17 @@ public class Ec2OperationsTest {
         logger.info("Running script");
 
         /** run script on machine **/
-        for (CloudServer machine : machinesWithTag) {
-            String publicIp = machine.getServerIp().publicIp;
-            ISshDetails sshDetails = ((Ec2CloudServerApi)cloudServerApi).getMachineCredentialsByIp( publicIp );
+        for (final CloudServer machine : machinesWithTag) {
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            Ec2SshDetails sshDetails = (Ec2SshDetails) created.getSshDetails();
+
             CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );

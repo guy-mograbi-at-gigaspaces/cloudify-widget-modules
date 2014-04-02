@@ -241,32 +241,4 @@ public class Ec2CloudServerApi implements CloudServerApi {
         return new CloudExecResponseImpl( execResponse );
     }
 
-
-    Ec2SshDetails getMachineCredentialsByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
-        if(loginCredentials == null){
-            throw new RuntimeException( "LoginCredentials is null" );
-        }
-        String user = loginCredentials.getUser();
-        String privateKey = loginCredentials.getPrivateKey();
-        int port = nodeMetadata.getLoginPort();
-
-        return new Ec2SshDetails( port, user, privateKey, ip );
-    }
 }

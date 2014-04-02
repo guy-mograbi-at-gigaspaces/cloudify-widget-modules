@@ -78,16 +78,25 @@ public class HpCloudComputeOperationsTest {
 
         logger.info("Running script");
         /** run script on machine **/
-        for (CloudServer machine : machinesWithTag) {
+        for (final CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
             Assert.assertNotNull( "Public Ip cannot be null, machine Id is [ " + machine.getId() + "]",  publicIp );
-            ISshDetails sshDetails = ((HpCloudComputeCloudServerApi)cloudServerApi).getMachineCredentialsByIp( publicIp );
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            HpCloudComputeSshDetails sshDetails = (HpCloudComputeSshDetails) created.getSshDetails();
+
             //if sshUserName defined we need to overwrite it in received sshDetails
 
             if( sshUserName != null ){
-                HpCloudComputeSshDetails hpCloudSshDetails = ( HpCloudComputeSshDetails )sshDetails;
-                sshDetails = new HpCloudComputeSshDetails( hpCloudSshDetails.port(), sshUserName,
-                        hpCloudSshDetails.privateKey(), hpCloudSshDetails.publicIp() );
+                HpCloudComputeSshDetails hpCloudSshDetails = sshDetails;
+                sshDetails = new HpCloudComputeSshDetails( hpCloudSshDetails.getPort(), sshUserName,
+                        hpCloudSshDetails.getPrivateKey(), hpCloudSshDetails.getPublicIp() );
             }
 
             CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);

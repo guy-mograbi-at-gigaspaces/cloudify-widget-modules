@@ -1,7 +1,9 @@
 package cloudify.widget.pool.manager.dto;
 
-import cloudify.widget.api.clouds.MachineCredentials;
+import cloudify.widget.api.clouds.ISshDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -12,13 +14,15 @@ import java.io.IOException;
  */
 public class NodeModel {
 
+    private static Logger logger = LoggerFactory.getLogger(NodeModel.class);
+
     public static final int INITIAL_ID = -1;
 
     public long id = INITIAL_ID;
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
-    public String machineCredentials;
+    public String machineSshDetails;
 
     public NodeModel setId(long id) {
         this.id = id;
@@ -40,26 +44,27 @@ public class NodeModel {
         return this;
     }
 
-    public NodeModel setMachineCredentials(String machineCredentials) {
-        this.machineCredentials = machineCredentials;
+    public NodeModel setMachineSshDetails(String machineSshDetails) {
+        this.machineSshDetails = machineSshDetails;
         return this;
     }
 
-
     /**
-     * This method can't be named setCredentials, or JSON mapping will fail.
-     * @param machineCredentials
+     * This method can't be named setSshDetails, or JSON mapping will fail.
+     * @param sshDetails
      * @return
      */
-    public NodeModel setCredentialsFromObject(MachineCredentials machineCredentials) {
+    public NodeModel setSshDetailsFromObject(ISshDetails sshDetails) {
         try {
-            this.machineCredentials = new ObjectMapper().writeValueAsString(machineCredentials);
+            // we rely on ISshDetails implementations to have classic POJO getters,
+            // so no special configurations are made to the mapper. we may want to change that
+            // if we want to avoid breakage when new providers are added.
+            this.machineSshDetails = new ObjectMapper().writeValueAsString(sshDetails);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("failed serializing ssh details from object", e);
         }
         return this;
     }
-
 
 
     @Override
@@ -69,7 +74,7 @@ public class NodeModel {
                 ", poolId='" + poolId + '\'' +
                 ", nodeStatus=" + nodeStatus +
                 ", machineId='" + machineId + '\'' +
-                ", credentials='" + machineCredentials + '\'' +
+                ", machineSshDetails='" + machineSshDetails + '\'' +
                 '}';
     }
 

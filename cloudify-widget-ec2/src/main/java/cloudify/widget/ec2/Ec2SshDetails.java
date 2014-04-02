@@ -9,10 +9,12 @@ import cloudify.widget.api.clouds.ISshDetails;
  */
 public class Ec2SshDetails implements ISshDetails {
 
-    private final int port;
-    private final String user;
-    private final String privateKey;
-    private final String publicIp;
+    private int port;
+    private String user;
+    private String privateKey;
+    private String publicIp;
+
+    public Ec2SshDetails() {}
 
     public Ec2SshDetails( int port, String user, String privateKey, String publicIp ){
         this.port = port;
@@ -35,5 +37,29 @@ public class Ec2SshDetails implements ISshDetails {
 
     public String getPublicIp(){
         return publicIp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ec2SshDetails that = (Ec2SshDetails) o;
+
+        if (port != that.port) return false;
+        if (privateKey != null ? !privateKey.equals(that.privateKey) : that.privateKey != null) return false;
+        if (publicIp != null ? !publicIp.equals(that.publicIp) : that.publicIp != null) return false;
+        if (user != null ? !user.equals(that.user) : that.user != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = port;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (privateKey != null ? privateKey.hashCode() : 0);
+        result = 31 * result + (publicIp != null ? publicIp.hashCode() : 0);
+        return result;
     }
 }

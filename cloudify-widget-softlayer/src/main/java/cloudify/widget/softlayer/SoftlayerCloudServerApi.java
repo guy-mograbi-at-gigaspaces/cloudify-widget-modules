@@ -237,10 +237,10 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         ExecResponse execResponse;
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
         SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
-        LoginCredentials loginCredentials = LoginCredentials.builder().user(softlayerSshDetails.user()).password(softlayerSshDetails.password()).build();
+        LoginCredentials loginCredentials = LoginCredentials.builder().user(softlayerSshDetails.getUser()).password(softlayerSshDetails.getPassword()).build();
         //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
-        String serverIp = softlayerSshDetails.publicIp();
-        SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, softlayerSshDetails.port()),
+        String serverIp = softlayerSshDetails.getPublicIp();
+        SshClient sshConnection = factory.create(HostAndPort.fromParts(serverIp, softlayerSshDetails.getPort()),
                 loginCredentials );
         try{
             sshConnection.connect();
@@ -257,7 +257,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
 
     private ExecResponse executeCommandLineSsh(String script, SoftlayerSshDetails softlayerSshDetails) {
 
-        String serverIp = softlayerSshDetails.publicIp();
+        String serverIp = softlayerSshDetails.getPublicIp();
         // create file from script content, to pass to the sshpass command
         File file = new File(FilenameUtils.normalize("tmp/commandLineSshScript"));
         try {
@@ -269,10 +269,10 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         // build sshpass command
         CommandLine cmdLine = new CommandLine("sshpass");
         cmdLine.addArguments(new String[]{
-                "-p", softlayerSshDetails.password(),
+                "-p", softlayerSshDetails.getPassword(),
                 "ssh",
                 "-o", "StrictHostKeyChecking=no", // prevents "add key to known..." prompt
-                "-l", softlayerSshDetails.user(),
+                "-l", softlayerSshDetails.getUser(),
                 serverIp
         }, false);
 
@@ -312,28 +312,6 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         return new ExecResponse(outputStream.toString(), errorStream.toString(), exitValue);
     }
 
-    SoftlayerSshDetails getMachineCredentialsByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = getNodeMetadataByIp(ip);
-
-//        NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
-        if(loginCredentials == null){
-            throw new RuntimeException( "LoginCredentials is null" );
-        }
-        String user = loginCredentials.getUser();
-        String password = loginCredentials.getPassword();
-        int port = nodeMetadata.getLoginPort();
-
-        return new SoftlayerSshDetails( port, user, password, ip );
-    }
-
 
     private Set<? extends NodeMetadata> getNodeMetadataByIp(final String ip) {
         return computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
@@ -353,7 +331,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     public CloudExecResponse runScriptOnMachine(String script, ISshDetails sshDetails ){
 
         SoftlayerSshDetails softlayerSshDetails = (SoftlayerSshDetails)sshDetails;
-        String serverIp = softlayerSshDetails.publicIp();
+        String serverIp = softlayerSshDetails.getPublicIp();
         if (logger.isDebugEnabled()) {
             logger.debug("running ssh script on server [{}], script [{}], use-command-line [{}]", serverIp, script, useCommandLineSsh);
         }

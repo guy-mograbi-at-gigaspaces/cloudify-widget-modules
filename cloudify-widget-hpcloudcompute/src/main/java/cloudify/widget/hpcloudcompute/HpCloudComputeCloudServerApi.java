@@ -316,62 +316,14 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         throw new UnsupportedOperationException( "Method runScriptOnMachine(String script, String serverIp) is not supported anymore. Please use runScriptOnMachine(String script, ISshDetails sshDetails ) instead" );
     }
 
-    HpCloudComputeSshDetails getMachineCredentialsByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
-        if(loginCredentials == null){
-            throw new RuntimeException( "LoginCredentials is null" );
-        }
-        String user = loginCredentials.getUser();
-        String privateKey = loginCredentials.getPrivateKey();
-        int port = nodeMetadata.getLoginPort();
-
-        return new HpCloudComputeSshDetails( port, user, privateKey, ip );
-    }
-
-    private LoginCredentials getMachineLoginCredentialssByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        return nodeMetadata.getCredentials();
-    }
-
     public CloudExecResponse runScriptOnMachine(String script, ISshDetails sshDetails ){
 
         HpCloudComputeSshDetails hpCloudSshDetails = ( HpCloudComputeSshDetails )sshDetails;
-        String serverIp = hpCloudSshDetails.publicIp();
+        String serverIp = hpCloudSshDetails.getPublicIp();
         //retrieve missing ssh details
-        String user = hpCloudSshDetails.user();//"debian"
-        String privateKey = hpCloudSshDetails.privateKey();
-        int port = hpCloudSshDetails.port();
+        String user = hpCloudSshDetails.getUser();//"debian"
+        String privateKey = hpCloudSshDetails.getPrivateKey();
+        int port = hpCloudSshDetails.getPort();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         SshClient.Factory factory = computeServiceContext.getUtils().getSshClientFactory();

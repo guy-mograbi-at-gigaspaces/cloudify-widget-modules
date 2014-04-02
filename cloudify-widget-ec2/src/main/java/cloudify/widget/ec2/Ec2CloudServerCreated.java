@@ -2,7 +2,8 @@ package cloudify.widget.ec2;
 
 
 import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.api.clouds.MachineCredentials;
+import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.domain.LoginCredentials;
 
@@ -13,35 +14,29 @@ import org.jclouds.domain.LoginCredentials;
  */
 public class Ec2CloudServerCreated implements CloudServerCreated {
 
-    private final NodeMetadata newNode;
+    private final NodeMetadata nodeMetadata;
 
-    public Ec2CloudServerCreated(NodeMetadata newNode) {
-        this.newNode = newNode;
-    }
-
-    public NodeMetadata getNewNode() {
-        return newNode;
+    public Ec2CloudServerCreated(NodeMetadata nodeMetadata) {
+        this.nodeMetadata = nodeMetadata;
     }
 
     @Override
     public String getId() {
-        return newNode.getId();
+        return nodeMetadata.getId();
     }
 
     @Override
-    public MachineCredentials getCredentials() {
-        LoginCredentials loginCredentials = newNode.getCredentials();
-        if (loginCredentials != null) {
-            return new MachineCredentials()
-                    .setUser(loginCredentials.getUser())
-                    .setPassword(loginCredentials.getPassword())
-                    .setPrivateKey(loginCredentials.getPrivateKey());
+    public ISshDetails getSshDetails() {
+
+        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
+        if (loginCredentials == null) {
+            throw new RuntimeException("LoginCredentials is null");
         }
-        return null;
-    }
+        String user = loginCredentials.getUser();
+        String privateKey = loginCredentials.getPrivateKey();
+        String publicIp = CollectionUtils.first(nodeMetadata.getPublicAddresses());
+        int port = nodeMetadata.getLoginPort();
 
-    @Override
-    public String toString() {
-        return "Ec2CloudServerCreated [newNode=" + newNode + "], id=" + newNode.getId();
+        return new Ec2SshDetails(port, user, privateKey, publicIp);
     }
 }

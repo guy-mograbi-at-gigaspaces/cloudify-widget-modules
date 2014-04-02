@@ -8,10 +8,12 @@ import cloudify.widget.api.clouds.ISshDetails;
  */
 public class SoftlayerSshDetails implements ISshDetails {
 
-    private final int port;
-    private final String user;
-    private final String password;
-    private final String publicIp;
+    private int port;
+    private String user;
+    private String password;
+    private String publicIp;
+
+    public SoftlayerSshDetails() {}
 
     public SoftlayerSshDetails( int port, String user, String password, String publicIp ){
         this.port = port;
@@ -20,19 +22,19 @@ public class SoftlayerSshDetails implements ISshDetails {
         this.publicIp = publicIp;
     }
 
-    public int port(){
+    public int getPort(){
         return port;
     }
 
-    public String user(){
+    public String getUser(){
         return user;
     }
 
-    public String password(){
+    public String getPassword(){
         return password;
     }
 
-    public String publicIp(){ return publicIp; }
+    public String getPublicIp(){ return publicIp; }
 
     @Override
     public boolean equals(Object o) {

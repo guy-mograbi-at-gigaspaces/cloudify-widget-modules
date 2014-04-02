@@ -2,7 +2,8 @@ package cloudify.widget.softlayer;
 
 
 import cloudify.widget.api.clouds.CloudServerCreated;
-import cloudify.widget.api.clouds.MachineCredentials;
+import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.domain.LoginCredentials;
 
@@ -13,35 +14,28 @@ import org.jclouds.domain.LoginCredentials;
  */
 public class SoftlayerCloudServerCreated implements CloudServerCreated {
 
-	private final NodeMetadata newNode;
+	private final NodeMetadata nodeMetadata;
 
-	public SoftlayerCloudServerCreated(NodeMetadata newNode){
-		this.newNode = newNode;
-	}
-
-	public NodeMetadata getNewNode() {
-		return newNode;
+	public SoftlayerCloudServerCreated(NodeMetadata nodeMetadata){
+		this.nodeMetadata = nodeMetadata;
 	}
 
     @Override
     public String getId() {
-        return newNode.getId();
+        return nodeMetadata.getId();
     }
 
     @Override
-    public MachineCredentials getCredentials() {
-        LoginCredentials loginCredentials = newNode.getCredentials();
-        if (loginCredentials != null) {
-            return new MachineCredentials()
-                    .setUser(loginCredentials.getUser())
-                    .setPassword(loginCredentials.getPassword())
-                    .setPrivateKey(loginCredentials.getPrivateKey());
+    public ISshDetails getSshDetails() {
+        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
+        if(loginCredentials == null){
+            throw new RuntimeException( "LoginCredentials is null" );
         }
-        return null;
-    }
+        String user = loginCredentials.getUser();
+        String password = loginCredentials.getPassword();
+        int port = nodeMetadata.getLoginPort();
+        String publicIp = CollectionUtils.first(nodeMetadata.getPublicAddresses());
 
-    @Override
-	public String toString() {
-		return "SoftlayerCloudServerCreated [newNode=" + newNode + "], id=" + newNode.getId();
-	}
+        return new SoftlayerSshDetails( port, user, password, publicIp );
+    }
 }

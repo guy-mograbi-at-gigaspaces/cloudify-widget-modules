@@ -76,7 +76,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
                     .setMachineId(created.getId())
                     .setPoolId(poolSettings.getUuid())
                     .setNodeStatus(NodeStatus.CREATED)
-                    .setCredentialsFromObject(created.getCredentials());
+                    .setSshDetailsFromObject(created.getSshDetails());
             logger.info("machine created, adding node to database. node model is [{}]", nodeModel);
             nodesDao.create(nodeModel);
             nodeModelsCreated.add(nodeModel);

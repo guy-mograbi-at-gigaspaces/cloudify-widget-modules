@@ -33,7 +33,7 @@ public class NodesDao {
     public static final String COL_POOL_ID = "pool_id";
     public static final String COL_NODE_STATUS = "node_status";
     public static final String COL_MACHINE_ID = "machine_id";
-    public static final String COL_MACHINE_CREDENTIALS = "machine_credentials";
+    public static final String COL_MACHINE_SSH_DETAILS = "machine_ssh_details";
     public static final String COL_ALIAS_COUNT = "count";
 
     private JdbcTemplate jdbcTemplate;
@@ -56,13 +56,13 @@ public class NodesDao {
                     @Override
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                         PreparedStatement ps = con.prepareStatement(
-                                "insert into " + TABLE_NAME + " (" + COL_POOL_ID + "," + COL_NODE_STATUS + "," + COL_MACHINE_ID + "," + COL_MACHINE_CREDENTIALS + ") values (?, ?, ?, ?)",
+                                "insert into " + TABLE_NAME + " (" + COL_POOL_ID + "," + COL_NODE_STATUS + "," + COL_MACHINE_ID + "," + COL_MACHINE_SSH_DETAILS + ") values (?, ?, ?, ?)",
                                 Statement.RETURN_GENERATED_KEYS // specify to populate the generated key holder
                         );
                         ps.setString(1, nodeModel.poolId);
                         ps.setString(2, nodeModel.nodeStatus.name());
                         ps.setString(3, nodeModel.machineId);
-                        ps.setString(4, nodeModel.machineCredentials);
+                        ps.setString(4, nodeModel.machineSshDetails);
                         return ps;
                     }
                 },
@@ -104,8 +104,8 @@ public class NodesDao {
 
     public int update(NodeModel nodeModel) {
         return jdbcTemplate.update(
-                "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_MACHINE_CREDENTIALS + " = ? where " + COL_NODE_ID + " = ?",
-                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, nodeModel.machineCredentials, nodeModel.id);
+                "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_MACHINE_SSH_DETAILS + " = ? where " + COL_NODE_ID + " = ?",
+                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, nodeModel.machineSshDetails, nodeModel.id);
     }
 
     public int delete(long nodeId) {

@@ -93,9 +93,17 @@ public class SoftlayerNonDestructiveOperationsTest {
         final String echoString = "hello world";
         Collection<CloudServer> machines = cloudServerApi.listByMask(machineOptions.getMask());
 
-        for (CloudServer machine : machines) {
-            String publicIp = machine.getServerIp().publicIp;
-            SoftlayerSshDetails sshDetails = ((SoftlayerCloudServerApi) cloudServerApi).getMachineCredentialsByIp(publicIp);
+        for (final CloudServer machine : machines) {
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            SoftlayerSshDetails sshDetails = (SoftlayerSshDetails) created.getSshDetails();
+
             CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
