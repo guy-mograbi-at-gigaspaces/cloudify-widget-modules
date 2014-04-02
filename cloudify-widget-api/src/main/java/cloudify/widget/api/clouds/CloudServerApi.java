@@ -11,14 +11,13 @@ public interface CloudServerApi {
 
     /**
      * Looks up machines by the specific mask.
-     * If tag is null, it will return all machines
-     * <p/>
+     * If mask is null, it will return all machines.
      * A mask is an identifier of machines of a specific pool.
      *
      * @param mask A mask to match against when searching for machines.
      * @return Machines from the pool matching the mask, or all machines, if {@code mask} is null.
      */
-    public Collection<CloudServer> findByMask(String mask);
+    public Collection<CloudServer> listByMask(String mask);
 
     /**
      * get CloudServer by id

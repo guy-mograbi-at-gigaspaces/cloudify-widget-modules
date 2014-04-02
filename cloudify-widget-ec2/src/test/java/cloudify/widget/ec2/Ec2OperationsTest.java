@@ -63,7 +63,7 @@ public class Ec2OperationsTest {
 
         logger.info("Start test create ec2 machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask("testtag2");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.listByMask("testtag2");
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -71,7 +71,7 @@ public class Ec2OperationsTest {
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.findByMask("testtag1");
+        machinesWithTag = cloudServerApi.listByMask("testtag1");
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());

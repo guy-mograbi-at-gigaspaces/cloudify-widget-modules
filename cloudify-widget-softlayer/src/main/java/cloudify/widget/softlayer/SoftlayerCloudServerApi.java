@@ -64,7 +64,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> findByMask(final String mask) {
+    public Collection<CloudServer> listByMask(final String mask) {
         logger.info("getting all machines matching mask [{}]", mask);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override

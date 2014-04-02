@@ -52,7 +52,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> findByMask(final String mask) {
+    public Collection<CloudServer> listByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override

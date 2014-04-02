@@ -65,7 +65,7 @@ public class HpCloudComputeOperationsTest {
 
         logger.info("Start test create HP cloud machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
+        Collection<CloudServer> machinesWithTag = cloudServerApi.listByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -73,7 +73,7 @@ public class HpCloudComputeOperationsTest {
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
+        machinesWithTag = cloudServerApi.listByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
