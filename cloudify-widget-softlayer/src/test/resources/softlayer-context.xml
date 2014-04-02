@@ -20,7 +20,7 @@
     </bean>
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
-        <property name="tag" value="testsoft"/> <!-- should be only lowercase! (DNS naming constraints) -->
+        <property name="mask" value="testsoft"/> <!-- should be only lowercase! (DNS naming constraints) -->
         <property name="hardwareId" value="1643,21275,13887"/>
         <property name="locationId" value="37473"/>
         <property name="osFamily" value="CENTOS"/>

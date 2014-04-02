@@ -52,14 +52,14 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
+    public Collection<CloudServer> findByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
                 NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
                 return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
-                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
+                        ( mask == null ? true : computeMetadata.getTags().contains( mask ));
             }
         });
 
@@ -128,8 +128,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         HpCloudComputeMachineOptions hpCloudMachineOptions = ( HpCloudComputeMachineOptions )machineOpts;
-        String name = hpCloudMachineOptions.name();
-        int machinesCount = hpCloudMachineOptions.machinesCount();
+        String name = hpCloudMachineOptions.getMask();
+        int machinesCount = hpCloudMachineOptions.getMachinesCount();
         Template template = createTemplate(hpCloudMachineOptions);
         Set<? extends NodeMetadata> newNodes = null;
         try {
@@ -277,8 +277,8 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         logger.info( "listNodes [{}]", Arrays.toString( listNodes.toArray() ) );
         logger.info( "locations [{}]", Arrays.toString( locations.toArray() ) );
 */
-        String hardwareId = machineOptions.hardwareId();
-        String imageId = machineOptions.imageId();
+        String hardwareId = machineOptions.getHardwareId();
+        String imageId = machineOptions.getImageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
@@ -295,8 +295,9 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         long totalTime = endTime - startTime;
         logger.info( "After building template, build took [" + ( totalTime ) + "] msec." );
 
-        if( machineOptions.tags() != null ){
-            template.getOptions().tags( machineOptions.tags() );
+        // we use tags to identify the node by mask
+        if( machineOptions.getMask() != null ){
+            template.getOptions().tags( Arrays.asList(machineOptions.getMask()) );
         }
 
         return template;
@@ -308,7 +309,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         HpCloudComputeSshDetails hpCloudSshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details

@@ -64,12 +64,12 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
-        logger.info("getting all machines with tag [{}]", tag);
+    public Collection<CloudServer> findByMask(final String mask) {
+        logger.info("getting all machines matching mask [{}]", mask);
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
-                return tag == null || computeMetadata.getName().startsWith(tag);
+                return mask == null || computeMetadata.getName().startsWith(mask);
             }
         });
 
@@ -197,9 +197,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     private Template createTemplate( SoftlayerMachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
-        String hardwareId = machineOptions.hardwareId();
-        String locationId = machineOptions.locationId();
-        OsFamily osFamily = machineOptions.osFamily();
+        String hardwareId = machineOptions.getHardwareId();
+        String locationId = machineOptions.getLocationId();
+        OsFamily osFamily = machineOptions.getOsFamily();
         if( osFamily != null ){
             templateBuilder.osFamily(osFamily);
         }
@@ -226,7 +226,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("running ssh script on server [{}], script [{}], use-command-line [{}]", serverIp, script, useCommandLineSsh);

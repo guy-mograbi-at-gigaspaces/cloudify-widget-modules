@@ -22,12 +22,10 @@ public class ExceptionInterceptor extends HandlerInterceptorAdapter {
     private static Logger logger = LoggerFactory.getLogger(ExceptionInterceptor.class);
     private ObjectMapper mapper = new ObjectMapper();
 
-
     public void sendError(  HttpServletResponse response, BaseException baseException ) throws Exception{
         HashMap<String,Object> responseContent = new HashMap<String, Object>();
         responseContent.put("message", baseException.message);
         responseContent.put("info", baseException.info);
-
 
         String responseJson = mapper.writeValueAsString( responseContent );
         response.sendError( baseException.status, responseJson );
@@ -35,13 +33,15 @@ public class ExceptionInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        logger.info("got an exception : " + ex);
+        logger.trace("got an exception : " + ex + " and response status is : " + response.getStatus());
 
-        if ( ex instanceof BaseException ){
-            BaseException baseException = (BaseException) ex;
-            sendError( response, baseException );
-        }else{
-            sendError( response, new InternalServerError("unknown error, caused by " + ex.getMessage()));
+        if( ex != null ){
+            if (ex instanceof BaseException) {
+                BaseException baseException = (BaseException) ex;
+                sendError(response, baseException);
+            } else {
+                sendError(response, new InternalServerError("unknown error, caused by " + ex.getMessage()));
+            }
         }
 
         super.afterCompletion(request, response, handler, null);

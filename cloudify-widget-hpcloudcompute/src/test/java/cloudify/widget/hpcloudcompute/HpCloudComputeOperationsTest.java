@@ -58,20 +58,20 @@ public class HpCloudComputeOperationsTest {
         Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
         logger.info("hpCloudCloudServerApi created");
         logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
-        Assert.assertEquals("should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection));
+        Assert.assertEquals("should create number of machines specified", machineOptions.getMachinesCount(), CollectionUtils.size(cloudServerCreatedCollection));
 
         logger.info("Start test create HP cloud machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("hpCloudTestTag1");
-        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
+        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag1");
+        Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server name [{}]", cloudServer.getName());
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.getAllMachinesWithTag("hpCloudTestTag2");
-        Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
+        machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag2");
+        Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
@@ -84,7 +84,7 @@ public class HpCloudComputeOperationsTest {
         for (CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
             Assert.assertNotNull( "Public Ip cannot be null, machine Id is [ " + machine.getId() + "]",  publicIp );
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

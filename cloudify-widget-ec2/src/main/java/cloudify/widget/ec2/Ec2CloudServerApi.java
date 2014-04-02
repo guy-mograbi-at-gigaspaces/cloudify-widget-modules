@@ -20,10 +20,7 @@ import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Collections2.transform;
 
@@ -44,14 +41,14 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> getAllMachinesWithTag(final String tag) {
+    public Collection<CloudServer> findByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
                 NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
                 return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
-                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
+                        ( mask == null ? true : computeMetadata.getTags().contains( mask ));
             }
         });
 
@@ -99,8 +96,8 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long startTime = System.currentTimeMillis();
 
         Ec2MachineOptions ec2MachineOptions = ( Ec2MachineOptions )machineOpts;
-        String name = ec2MachineOptions.name();
-        int machinesCount = ec2MachineOptions.machinesCount();
+        String name = ec2MachineOptions.getMask();
+        int machinesCount = ec2MachineOptions.getMachinesCount();
         Template template = createTemplate(ec2MachineOptions);
         Set<? extends NodeMetadata> newNodes;
         try {
@@ -171,9 +168,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
     private Template createTemplate( Ec2MachineOptions machineOptions ) {
         TemplateBuilder templateBuilder = computeService.templateBuilder();
 
-        String hardwareId = machineOptions.hardwareId();
-        String locationId = machineOptions.locationId();
-        String imageId = machineOptions.imageId();
+        String hardwareId = machineOptions.getHardwareId();
+        String locationId = machineOptions.getLocationId();
+        String imageId = machineOptions.getImageId();
 
         if( !StringUtils.isEmpty(hardwareId)){
             templateBuilder.hardwareId(hardwareId);
@@ -192,8 +189,9 @@ public class Ec2CloudServerApi implements CloudServerApi {
         long totalTime = endTime - startTime;
         logger.info( "After building template, build took [" + ( totalTime ) + "] msec." );
 
-        if( machineOptions.tags() != null ){
-            template.getOptions().tags( machineOptions.tags() );
+        // we use tags to identify the node by mask
+        if( machineOptions.getMask() != null ){
+            template.getOptions().tags(Arrays.asList(machineOptions.getMask()));
         }
 
         return template;
@@ -205,13 +203,13 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
         Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
         //retrieve missing ssh details
-        String user = ec2SshDetails.user();
-        String privateKey = ec2SshDetails.privateKey();
-        int port = ec2SshDetails.port();
+        String user = ec2SshDetails.getUser();
+        String privateKey = ec2SshDetails.getPrivateKey();
+        int port = ec2SshDetails.getPort();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());

@@ -70,7 +70,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
 
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
+        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -79,7 +79,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         // get machine by id
 
-        Collection<CloudServer> cloudServers = cloudServerApi.getAllMachinesWithTag(tagMask);
+        Collection<CloudServer> cloudServers = cloudServerApi.findByMask(tagMask);
         for (CloudServer cloudServer : cloudServers) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
@@ -91,11 +91,11 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         logger.info("starting run-script on machine...");
         final String echoString = "hello world";
-        Collection<CloudServer> machines = cloudServerApi.getAllMachinesWithTag(machineOptions.getTag());
+        Collection<CloudServer> machines = cloudServerApi.findByMask(machineOptions.getMask());
 
         for (CloudServer machine : machines) {
             String publicIp = machine.getServerIp().publicIp;
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp, null);
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

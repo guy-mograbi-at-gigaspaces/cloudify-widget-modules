@@ -9,15 +9,10 @@ public class NodeModel {
 
     public static final int INITIAL_ID = -1;
 
-    public static enum NodeStatus {
-        CREATING, BOOTSTRAPPING, READY, OCCUPIED;
-    }
-
     public long id = INITIAL_ID;
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
-    public String cloudifyVersion;
 
     public NodeModel setId(long id) {
         this.id = id;
@@ -39,11 +34,6 @@ public class NodeModel {
         return this;
     }
 
-    public NodeModel setCloudifyVersion(String cloudifyVersion) {
-        this.cloudifyVersion = cloudifyVersion;
-        return this;
-    }
-
     @Override
     public String toString() {
         return "NodeModel{" +
@@ -51,7 +41,6 @@ public class NodeModel {
                 ", poolId='" + poolId + '\'' +
                 ", nodeStatus=" + nodeStatus +
                 ", machineId='" + machineId + '\'' +
-                ", cloudifyVersion='" + cloudifyVersion + '\'' +
                 '}';
     }
 

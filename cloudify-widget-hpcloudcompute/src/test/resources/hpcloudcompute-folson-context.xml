@@ -17,10 +17,9 @@
     <bean id="cloudServer" class="cloudify.widget.hpcloudcompute.HpCloudComputeCloudServerApi"/>
 
     <bean id="machineOptions" class="cloudify.widget.hpcloudcompute.HpCloudComputeMachineOptions">
-        <property name="name" value="testhpcloudfolson"/>
-        <property name="tags" value="hpCloudTestTag1,hpCloudTestTag2"/>
+        <property name="mask" value="testhpcloudfolson"/>
         <property name="hardwareId" value="az-2.region-a.geo-1/102"/>
-        <property name="imageId" value="az-2.region-a.geo-1/311725"/>
+        <property name="imageId" value="az-2.region-a.geo-1/67478"/>
         <property name="machinesCount" value="1"/>
     </bean>
 

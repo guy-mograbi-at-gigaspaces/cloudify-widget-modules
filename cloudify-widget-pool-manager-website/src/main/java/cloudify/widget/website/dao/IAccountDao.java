@@ -2,6 +2,8 @@ package cloudify.widget.website.dao;
 
 import cloudify.widget.website.models.AccountModel;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -15,4 +17,6 @@ public interface IAccountDao {
     public boolean deleteAccount( Long id );
 
     public AccountModel readAccountByUuid( String uuid );
+
+    public List<AccountModel> readAccounts();
 }

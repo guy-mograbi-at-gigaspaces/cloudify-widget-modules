@@ -26,9 +26,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     private IAccountDao accountDao;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception{
         logger.info("in interceptor");
         String accountUuid = request.getHeader("AccountUuid");
+
+
 
         if ( StringUtils.isEmpty(accountUuid) ){
             response.sendError(401, "{'message' : 'account uuid missing on request header'}");
@@ -38,7 +40,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         AccountModel accountModel = accountDao.readAccountByUuid(accountUuid);
 
         if ( accountModel == null ){
-            response.sendError(401, "{'message' : 'account uuid " + accountUuid + " not found'}");
+            response.sendError(401, "{'message' : 'Account with uuid [" + accountUuid + "] not found'}");
             return false;
         }
 
@@ -50,8 +52,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     public IAccountDao getAccountDao() {
         return accountDao;
     }
-
-
 
     public void setAccountDao(IAccountDao accountDao) {
         this.accountDao = accountDao;
