@@ -79,6 +79,9 @@ public interface CloudServerApi {
      */
     public void createSecurityGroup(ISecurityGroupDetails securityGroupDetails);
 
+    @Deprecated
     public CloudExecResponse runScriptOnMachine(String script, String serverIp);
 
+
+    public CloudExecResponse runScriptOnMachine(String script, ISshDetails sshDetails);
 }
