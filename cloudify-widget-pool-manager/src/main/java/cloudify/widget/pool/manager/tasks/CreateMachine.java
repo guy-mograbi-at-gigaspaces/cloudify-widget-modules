@@ -65,7 +65,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
         }
 
 
-        logger.debug("connecting to provider [{}]", providerSettings.getName());
+        logger.info("connecting to provider [{}]", providerSettings.getName());
         cloudServerApi.connect(providerSettings.getConnectDetails());
 
         Collection<NodeModel> nodeModelsCreated = new ArrayList<NodeModel>();
@@ -75,8 +75,9 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
             NodeModel nodeModel = new NodeModel()
                     .setMachineId(created.getId())
                     .setPoolId(poolSettings.getUuid())
-                    .setNodeStatus(NodeStatus.CREATED);
-            logger.debug("machine created, adding node to database. node model is [{}]", nodeModel);
+                    .setNodeStatus(NodeStatus.CREATED)
+                    .setCredentialsFromObject(created.getCredentials());
+            logger.info("machine created, adding node to database. node model is [{}]", nodeModel);
             nodesDao.create(nodeModel);
             nodeModelsCreated.add(nodeModel);
         }

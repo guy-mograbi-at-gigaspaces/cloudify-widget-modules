@@ -1,5 +1,10 @@
 package cloudify.widget.pool.manager.dto;
 
+import cloudify.widget.api.clouds.MachineCredentials;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+
 /**
  * User: eliranm
  * Date: 3/2/14
@@ -13,6 +18,7 @@ public class NodeModel {
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
+    public String machineCredentials;
 
     public NodeModel setId(long id) {
         this.id = id;
@@ -34,6 +40,28 @@ public class NodeModel {
         return this;
     }
 
+    public NodeModel setMachineCredentials(String machineCredentials) {
+        this.machineCredentials = machineCredentials;
+        return this;
+    }
+
+
+    /**
+     * This method can't be named setCredentials, or JSON mapping will fail.
+     * @param machineCredentials
+     * @return
+     */
+    public NodeModel setCredentialsFromObject(MachineCredentials machineCredentials) {
+        try {
+            this.machineCredentials = new ObjectMapper().writeValueAsString(machineCredentials);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+
+
     @Override
     public String toString() {
         return "NodeModel{" +
@@ -41,6 +69,7 @@ public class NodeModel {
                 ", poolId='" + poolId + '\'' +
                 ", nodeStatus=" + nodeStatus +
                 ", machineId='" + machineId + '\'' +
+                ", credentials='" + machineCredentials + '\'' +
                 '}';
     }
 

@@ -147,7 +147,6 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public PoolConfigurationModel readPoolById( Long poolId ) {
-
         logger.debug( "select query is [{}] poolId [{}]", selectSqlByPoolId, poolId );
         PoolConfigurationModel poolConfigurationModel =( PoolConfigurationModel )jdbcTemplate.queryForObject(
                 selectSqlByPoolId, new Object[]{ poolId }, poolRowMapper );
@@ -162,7 +161,6 @@ public class PoolDaoImpl implements IPoolDao {
 
     @Override
     public List<PoolConfigurationModel> readPools(Long accountId) {
-
         logger.debug( "select query is [{}] accountId [{}]", selectAllByAccountId, accountId );
         List<PoolConfigurationModel> pools =  jdbcTemplate.query(
                 selectAllByAccountId, new Object[]{accountId}, poolRowMapper );
