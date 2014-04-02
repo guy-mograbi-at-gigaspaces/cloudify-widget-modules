@@ -1,8 +1,8 @@
 package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.api.clouds.CloudExecResponse;
-import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.api.clouds.ISshDetails;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.ErrorsDao;
 import cloudify.widget.pool.manager.NodesDao;
@@ -55,10 +55,9 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
         cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
+        ISshDetails sshDetails = null;//TODO init it
 
-        CloudServer cloudServer = getCloudServer(cloudServerApi);
-
-        runBootstrapScriptOnMachine(script, cloudServerApi, cloudServer);
+        runBootstrapScriptOnMachine(script, cloudServerApi, sshDetails);
 
         return null;
     }
@@ -113,7 +112,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
                 .replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath())
                 .replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
     }
-
+/*
     private CloudServer getCloudServer(CloudServerApi cloudServerApi) {
         String machineId = taskConfig.getNodeModel().machineId;
         CloudServer cloudServer = cloudServerApi.get(machineId);
@@ -127,11 +126,11 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             throw new RuntimeException(message);
         }
         return cloudServer;
-    }
+    }*/
 
-    private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, CloudServer cloudServer) {
+    private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, ISshDetails sshDetails) {
         updateNodeModelStatus(NodeStatus.BOOTSTRAPPING);
-        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);
+        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, sshDetails);
         int exitStatus = cloudExecResponse.getExitStatus();
         logger.debug("bootstrap was run on the machine, node id [{}]", taskConfig.getNodeModel().id);
         if (exitStatus == 0) {

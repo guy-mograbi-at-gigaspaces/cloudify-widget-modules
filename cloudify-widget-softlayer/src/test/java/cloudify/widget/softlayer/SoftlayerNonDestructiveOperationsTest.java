@@ -95,7 +95,8 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         for (CloudServer machine : machines) {
             String publicIp = machine.getServerIp().publicIp;
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+            SoftlayerSshDetails sshDetails = ((SoftlayerCloudServerApi) cloudServerApi).getMachineCredentialsByIp(publicIp);
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

@@ -32,13 +32,13 @@ public class HpCloudComputeOperationsTest {
     private final String echoString = "hello world";
 
     @Autowired
-    public CloudServerApi cloudServerApi;
+    protected CloudServerApi cloudServerApi;
 
     @Autowired
-    public IConnectDetails connectDetails;
+    protected IConnectDetails connectDetails;
 
     @Autowired
-    public HpCloudComputeMachineOptions machineOptions;
+    protected HpCloudComputeMachineOptions machineOptions;
 
     @Autowired
     public WaitTimeout waitMachineIsRunningTimeout;
@@ -46,6 +46,8 @@ public class HpCloudComputeOperationsTest {
     @Autowired
     public WaitTimeout waitMachineIsNotRunning;
 
+    @Autowired(required = false)
+    private String sshUserName;
 
 
 
@@ -69,25 +71,26 @@ public class HpCloudComputeOperationsTest {
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server name [{}]", cloudServer.getName());
-        }
-
-        /** get machine by id **/
-        machinesWithTag = cloudServerApi.listByMask(machineOptions.getMask());
-        Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
-        for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server found with id [{}]", cloudServer.getId());
+            logger.info("cloud server found with id [{}], name [{}]", cloudServer.getId(), cloudServer.getName());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);
         }
 
         logger.info("Running script");
-
         /** run script on machine **/
         for (CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
             Assert.assertNotNull( "Public Ip cannot be null, machine Id is [ " + machine.getId() + "]",  publicIp );
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+            ISshDetails sshDetails = ((HpCloudComputeCloudServerApi)cloudServerApi).getMachineCredentialsByIp( publicIp );
+            //if sshUserName defined we need to overwrite it in received sshDetails
+
+            if( sshUserName != null ){
+                HpCloudComputeSshDetails hpCloudSshDetails = ( HpCloudComputeSshDetails )sshDetails;
+                sshDetails = new HpCloudComputeSshDetails( hpCloudSshDetails.port(), sshUserName,
+                        hpCloudSshDetails.privateKey(), hpCloudSshDetails.publicIp() );
+            }
+
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

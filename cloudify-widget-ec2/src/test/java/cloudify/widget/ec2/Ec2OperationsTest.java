@@ -84,7 +84,8 @@ public class Ec2OperationsTest {
         /** run script on machine **/
         for (CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+            ISshDetails sshDetails = ((Ec2CloudServerApi)cloudServerApi).getMachineCredentialsByIp( publicIp );
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
