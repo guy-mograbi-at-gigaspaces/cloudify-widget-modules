@@ -18,31 +18,36 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         property = "name",
         visible = true) // we want the 'name' property to be in the output as well
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NodeSshDetails.HpCloudComputeNodeSshDetails.class, name = "hp"),
-        @JsonSubTypes.Type(value = NodeSshDetails.Ec2NodeSshDetails.class, name = "ec2"),
-        @JsonSubTypes.Type(value = NodeSshDetails.SoftlayerNodeSshDetails.class, name = "softlayer")})
+        @JsonSubTypes.Type(value = NodeModelSshDetails.HpCloudComputeNodeModelSshDetails.class, name = "hp"),
+        @JsonSubTypes.Type(value = NodeModelSshDetails.Ec2NodeModelSshDetails.class, name = "ec2"),
+        @JsonSubTypes.Type(value = NodeModelSshDetails.SoftlayerNodeModelSshDetails.class, name = "softlayer")})
 
-public class NodeSshDetails {
+public abstract class NodeModelSshDetails {
 
+    public abstract ISshDetails getMachineSshDetails();
 
-    public static NodeSshDetails toNodeSshDetails(ISshDetails sshDetails) {
+    public static ISshDetails toSshDetails(NodeModelSshDetails nodeModelSshDetails) {
+        return nodeModelSshDetails.getMachineSshDetails();
+    }
+
+    public static NodeModelSshDetails fromSshDetails(ISshDetails sshDetails) {
         if (sshDetails instanceof Ec2SshDetails) {
             Ec2SshDetails details = (Ec2SshDetails) sshDetails;
-            Ec2NodeSshDetails result = new Ec2NodeSshDetails();
+            Ec2NodeModelSshDetails result = new Ec2NodeModelSshDetails();
             result.machineSshDetails = details;
             return result;
         }
 
         if (sshDetails instanceof HpCloudComputeSshDetails) {
             HpCloudComputeSshDetails details = (HpCloudComputeSshDetails) sshDetails;
-            HpCloudComputeNodeSshDetails result = new HpCloudComputeNodeSshDetails();
+            HpCloudComputeNodeModelSshDetails result = new HpCloudComputeNodeModelSshDetails();
             result.machineSshDetails = details;
             return result;
         }
 
         if (sshDetails instanceof SoftlayerSshDetails) {
             SoftlayerSshDetails details = (SoftlayerSshDetails) sshDetails;
-            SoftlayerNodeSshDetails result = new SoftlayerNodeSshDetails();
+            SoftlayerNodeModelSshDetails result = new SoftlayerNodeModelSshDetails();
             result.machineSshDetails = details;
             return result;
         }
@@ -50,7 +55,7 @@ public class NodeSshDetails {
         throw new RuntimeException("unsupported ssh details type " + sshDetails.getClass());
     }
 
-    public static class SoftlayerNodeSshDetails extends NodeSshDetails {
+    public static class SoftlayerNodeModelSshDetails extends NodeModelSshDetails {
         public String name = "softlayer";
         public SoftlayerSshDetails machineSshDetails;
 
@@ -71,7 +76,7 @@ public class NodeSshDetails {
         }
     }
 
-    public static class HpCloudComputeNodeSshDetails extends NodeSshDetails {
+    public static class HpCloudComputeNodeModelSshDetails extends NodeModelSshDetails {
         public String name = "hp";
         public HpCloudComputeSshDetails machineSshDetails;
 
@@ -92,7 +97,7 @@ public class NodeSshDetails {
         }
     }
 
-    public static class Ec2NodeSshDetails extends NodeSshDetails {
+    public static class Ec2NodeModelSshDetails extends NodeModelSshDetails {
         public String name = "ec2";
         public Ec2SshDetails machineSshDetails;
 

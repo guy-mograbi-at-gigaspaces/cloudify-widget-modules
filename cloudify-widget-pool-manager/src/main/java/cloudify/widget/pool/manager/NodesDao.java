@@ -71,7 +71,7 @@ public class NodesDao {
                         ps.setString(1, nodeModel.poolId);
                         ps.setString(2, nodeModel.nodeStatus.name());
                         ps.setString(3, nodeModel.machineId);
-                        ps.setString(4, objectToJson( NodeSshDetails.toNodeSshDetails(nodeModel.machineSshDetails)));
+                        ps.setString(4, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)));
                         return ps;
                     }
                 },
@@ -98,14 +98,14 @@ public class NodesDao {
     public List<NodeModel> readAllOfPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
-                new NodeModelRowMapper(NodeModel.class));
+                new NodeModelRowMapper());
     }
 
     public NodeModel read(long nodeId) {
         try {
             return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?",
                     new Object[]{nodeId},
-                    new NodeModelRowMapper(NodeModel.class));
+                    new NodeModelRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -114,7 +114,7 @@ public class NodesDao {
     public int update(NodeModel nodeModel) {
         return jdbcTemplate.update(
                 "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_MACHINE_SSH_DETAILS + " = ? where " + COL_NODE_ID + " = ?",
-                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, objectToJson( NodeSshDetails.toNodeSshDetails(nodeModel.machineSshDetails)), nodeModel.id);
+                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)), nodeModel.id);
     }
 
     public int delete(long nodeId) {
@@ -141,14 +141,7 @@ public class NodesDao {
 
 
         public NodeModelRowMapper() {
-        }
-
-        public NodeModelRowMapper(Class<NodeModel> mappedClass) {
-            super(mappedClass);
-        }
-
-        public NodeModelRowMapper(Class<NodeModel> mappedClass, boolean checkFullyPopulated) {
-            super(mappedClass, checkFullyPopulated);
+            super(NodeModel.class);
         }
 
         @Override
@@ -158,7 +151,8 @@ public class NodesDao {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String sshDetailsString = rs.getString(index);
                 try {
-                    objectMapper.readValue( sshDetailsString, NodeSshDetails.class );
+                    NodeModelSshDetails nodeModelSshDetails = objectMapper.readValue(sshDetailsString, NodeModelSshDetails.class);
+                    return NodeModelSshDetails.toSshDetails(nodeModelSshDetails);
                 } catch (IOException e) {
                     logger.error("unable to deserialize ssh details [" + sshDetailsString + "]", e);
                 }
@@ -170,7 +164,7 @@ public class NodesDao {
     public NodeModel occupyNode(PoolSettings poolSettings) {
         List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ",
                 new Object[]{NodeStatus.BOOTSTRAPPED.name()},
-                new NodeModelRowMapper(NodeModel.class));
+                new NodeModelRowMapper());
         for (NodeModel nodeModel : nodeModels) {
             int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
             if (updated == 1) {
