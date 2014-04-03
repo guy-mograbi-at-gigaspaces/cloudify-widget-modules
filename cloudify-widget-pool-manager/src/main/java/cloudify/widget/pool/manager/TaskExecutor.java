@@ -76,6 +76,7 @@ public class TaskExecutor {
             TaskRegistrar.TaskCallbackDecorator<R> callbackDecorator = new TaskRegistrar.TaskCallbackDecoratorImpl<R>(taskCallback);
             callbackDecorator.setErrorsDao(errorsDao);
             callbackDecorator.setPoolSettings(poolSettings);
+            callbackDecorator.setTaskName(task.getTaskName());
             Futures.addCallback(listenableFuture, callbackDecorator);
         }
     }

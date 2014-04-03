@@ -36,15 +36,6 @@ public class TaskRegistrar {
         public abstract void setTasksDao(ITasksDao tasksDao);
     }
 
-    public static abstract class TaskCallbackDecorator<R> implements TaskCallback<R> {
-
-        protected abstract void registerError(Throwable thrown);
-
-        public abstract void setErrorsDao(ErrorsDao errorsDao);
-
-        public abstract void setPoolSettings(PoolSettings poolSettings);
-    }
-
     /**
      * A decorator which facilitates a DAO for data registration.
      *
@@ -138,6 +129,18 @@ public class TaskRegistrar {
         }
     }
 
+
+    public static abstract class TaskCallbackDecorator<R> implements TaskCallback<R> {
+
+        protected abstract void registerError(Throwable thrown);
+
+        public abstract void setErrorsDao(ErrorsDao errorsDao);
+
+        public abstract void setPoolSettings(PoolSettings poolSettings);
+
+        public abstract void setTaskName(TaskName taskName);
+    }
+
     public static class TaskCallbackDecoratorImpl<R> extends TaskCallbackDecorator<R> {
 
         private TaskCallback<R> _decorated;
@@ -146,6 +149,8 @@ public class TaskRegistrar {
 
         private PoolSettings _poolSettings;
 
+        private TaskName _taskName;
+
         public TaskCallbackDecoratorImpl(TaskCallback<R> decorated) {
             _decorated = decorated;
         }
@@ -153,11 +158,11 @@ public class TaskRegistrar {
         @Override
         protected void registerError(Throwable thrown) {
             HashMap<String, Object> infoMap = Maps.newHashMap();
-            infoMap.put("stackTrace", "i am the stack trace"); // testing, testing
+            infoMap.put("stackTrace", thrown.getStackTrace());
             _errorsDao.create(new ErrorModel()
-//                            .setTaskName(/*_decorated.getTaskName()*/) // TODO get the real task name
-//                            .setMessage(thrown.getMessage()) // TODO enalrge column data length
-                            .setMessage(thrown.getMessage().substring(0, 200))
+                            .setTaskName(_taskName)
+                            .setMessage(thrown.getMessage())
+                            .setMessage(thrown.getMessage())
                             .setInfoFromMap(infoMap)
                             .setPoolId(_poolSettings.getUuid())
             );
@@ -181,6 +186,11 @@ public class TaskRegistrar {
 
         public void setPoolSettings(PoolSettings poolSettings) {
             _poolSettings = poolSettings;
+        }
+
+        @Override
+        public void setTaskName(TaskName taskName) {
+            _taskName = taskName;
         }
     }
 }
