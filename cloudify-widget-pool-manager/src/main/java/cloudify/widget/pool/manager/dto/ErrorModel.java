@@ -16,7 +16,7 @@ public class ErrorModel {
     public static final int INITIAL_ID = -1;
 
     public long id = INITIAL_ID;
-    public TaskName taskName;
+    public TaskName taskName = TaskName.UNKNOWN;
     public String poolId;
     public String message;
     public String info;

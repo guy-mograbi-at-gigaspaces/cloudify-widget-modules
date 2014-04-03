@@ -85,4 +85,14 @@ public class HpCloudComputeConnectDetails implements IConnectDetails {
         result = 31 * result + (apiVersion != null ? apiVersion.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "HpCloudComputeConnectDetails{" +
+                "project='" + project + '\'' +
+                ", key='" + key + '\'' +
+                ", secretKey='***'" +
+                ", apiVersion='" + apiVersion + '\'' +
+                '}';
+    }
 }

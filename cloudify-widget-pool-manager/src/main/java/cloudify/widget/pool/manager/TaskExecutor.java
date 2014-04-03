@@ -2,10 +2,12 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.tasks.*;
+import cloudify.widget.pool.manager.tasks.Task;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.sun.jmx.snmp.tasks.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class TaskExecutor {
     @Autowired
     private ITasksDao tasksDao;
 
+    @Autowired
+    private ErrorsDao errorsDao;
 
     public void init() {
     }
@@ -51,21 +55,28 @@ public class TaskExecutor {
         execute(task, taskConfig, poolSettings, new NoopTaskCallback());
     }
 
+
     public <T extends Task, C extends TaskConfig, R> void execute(T task, C taskConfig, PoolSettings poolSettings, TaskCallback<R> taskCallback) {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
+        // wrapping the worker to register tasks
         TaskRegistrar.TaskDecorator worker = new TaskRegistrar.TaskDecoratorImpl<C, R>(task);
         worker.setTasksDao(tasksDao);
         worker.setPoolSettings(poolSettings);
         worker.setTaskConfig(taskConfig);
 
         if (worker != null) {
+
             ListenableFuture listenableFuture = executorService.submit(worker);
             if (taskCallback == null) {
                 taskCallback = new NoopTaskCallback();
             }
-            Futures.addCallback(listenableFuture, taskCallback);
+            // wrapping the callback to register errors
+            TaskRegistrar.TaskCallbackDecorator<R> callbackDecorator = new TaskRegistrar.TaskCallbackDecoratorImpl<R>(taskCallback);
+            callbackDecorator.setErrorsDao(errorsDao);
+            callbackDecorator.setPoolSettings(poolSettings);
+            Futures.addCallback(listenableFuture, callbackDecorator);
         }
     }
 

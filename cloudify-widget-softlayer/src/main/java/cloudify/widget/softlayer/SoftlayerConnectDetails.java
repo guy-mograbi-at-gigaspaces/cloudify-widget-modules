@@ -67,4 +67,13 @@ public class SoftlayerConnectDetails implements IConnectDetails {
         result = 31 * result + (networkId != null ? networkId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "SoftlayerConnectDetails{" +
+                "username='" + username + '\'' +
+                ", key='***'"+
+                ", networkId='" + networkId + '\'' +
+                '}';
+    }
 }

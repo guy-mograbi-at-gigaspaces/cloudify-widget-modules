@@ -6,5 +6,5 @@ package cloudify.widget.pool.manager.tasks;
  * Time: 2:20 PM
  */
 public enum TaskName {
-    CREATE_MACHINE, DELETE_MACHINE, BOOTSTRAP_MACHINE;
+    UNKNOWN, CREATE_MACHINE, DELETE_MACHINE, BOOTSTRAP_MACHINE;
 }

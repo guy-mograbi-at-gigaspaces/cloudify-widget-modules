@@ -35,4 +35,33 @@ public class Ec2ConnectDetails implements IConnectDetails {
     public void setSecretAccessKey(String secretAccessKey) {
         this.secretAccessKey = secretAccessKey;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ec2ConnectDetails that = (Ec2ConnectDetails) o;
+
+        if (accessId != null ? !accessId.equals(that.accessId) : that.accessId != null) return false;
+        if (secretAccessKey != null ? !secretAccessKey.equals(that.secretAccessKey) : that.secretAccessKey != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = accessId != null ? accessId.hashCode() : 0;
+        result = 31 * result + (secretAccessKey != null ? secretAccessKey.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Ec2ConnectDetails{" +
+                "accessId='" + accessId + '\'' +
+                ", secretAccessKey='***'" +
+                '}';
+    }
 }

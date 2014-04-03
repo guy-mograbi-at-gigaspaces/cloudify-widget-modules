@@ -23,11 +23,9 @@ import java.util.HashMap;
  * Date: 3/5/14
  * Time: 6:00 PM
  */
-public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
+public class BootstrapMachine extends AbstractPoolTask<BootstrapMachineConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
-
-    private static final TaskName TASK_NAME = TaskName.BOOTSTRAP_MACHINE;
 
     @Autowired
     private NodesDao nodesDao;
@@ -35,9 +33,8 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
     @Autowired
     private ErrorsDao errorsDao;
 
-    private PoolSettings poolSettings;
 
-    private BootstrapMachineConfig taskConfig;
+
 
     @Override
     public Void call() throws Exception {
@@ -76,7 +73,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             logger.error(message, e);
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
             );
             throw new RuntimeException(message);
@@ -94,7 +91,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             logger.error(message, e);
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
             );
             throw new RuntimeException(message);
@@ -144,7 +141,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             infoMap.put("output", cloudExecResponse.getOutput());
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
                             .setInfoFromMap(infoMap)
             );
@@ -162,7 +159,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
     @Override
     public TaskName getTaskName() {
-        return TASK_NAME;
+        return TaskName.BOOTSTRAP_MACHINE;
     }
 
     @Override

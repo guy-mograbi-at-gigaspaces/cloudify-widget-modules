@@ -21,33 +21,17 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
+public class CreateMachine extends AbstractPoolTask<TaskConfig, Collection<NodeModel>> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
-
-    private PoolSettings poolSettings;
 
     @Autowired
     private NodesDao nodesDao;
 
-    @Autowired
-    private ErrorsDao errorsDao;
-
-    private static final TaskName TASK_NAME = TaskName.CREATE_MACHINE;
 
     @Override
     public TaskName getTaskName() {
-        return TASK_NAME;
-    }
-
-    @Override
-    public void setPoolSettings(PoolSettings poolSettings) {
-        this.poolSettings = poolSettings;
-    }
-
-    @Override
-    public void setTaskConfig(TaskConfig taskConfig) {
-        // no need for task data for this task
+        return TaskName.CREATE_MACHINE;
     }
 
     @Override

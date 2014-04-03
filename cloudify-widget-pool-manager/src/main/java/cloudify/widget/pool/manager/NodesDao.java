@@ -109,6 +109,7 @@ public class NodesDao {
     }
 
     public int delete(long nodeId) {
+        logger.debug("deleting :: " + nodeId );
         return jdbcTemplate.update("delete from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?", nodeId);
     }
 
