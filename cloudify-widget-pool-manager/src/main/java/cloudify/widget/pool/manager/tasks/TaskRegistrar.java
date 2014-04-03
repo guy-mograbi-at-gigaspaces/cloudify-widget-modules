@@ -2,9 +2,12 @@ package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.pool.manager.*;
 import cloudify.widget.pool.manager.dto.ErrorModel;
+import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.TaskModel;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -17,6 +20,7 @@ import java.util.HashMap;
  */
 public class TaskRegistrar {
 
+    private static Logger logger = LoggerFactory.getLogger(TaskRegistrar.class);
     /**
      * Decorates tasks with data registration behavior.
      *
@@ -69,10 +73,26 @@ public class TaskRegistrar {
             _taskModel = new TaskModel()
                     .setTaskName(_decorated.getTaskName())
                     .setPoolId(_poolSettings.getUuid());
-            if (_taskConfig != null && NodeModelProvider.class.isAssignableFrom(_taskConfig.getClass())) {
-                _taskModel.setNodeId(((NodeModelProvider) _taskConfig).getNodeModel().id);
+            NodeModel nodeModel = getNodeModel();
+            if ( nodeModel != null ){
+                _taskModel.setNodeId( nodeModel.id );
             }
             _tasksDao.create(_taskModel);
+        }
+
+        private NodeModel getNodeModel(){
+            if ( _taskConfig instanceof NodeModelProvider ) {
+                return ( (NodeModelProvider) _taskConfig).getNodeModel();
+            }
+            return null;
+        }
+
+        private String getMachineId(){
+            NodeModel nodeModel = getNodeModel();
+            if ( nodeModel != null ){
+                return nodeModel.machineId;
+            }
+            return null;
         }
 
         @Override
@@ -87,6 +107,7 @@ public class TaskRegistrar {
 
         @Override
         public R call() throws Exception {
+            logger.info("calling task with machine id [{}]", getMachineId() );
             registerTask();
             try {
                 R call = _decorated.call();

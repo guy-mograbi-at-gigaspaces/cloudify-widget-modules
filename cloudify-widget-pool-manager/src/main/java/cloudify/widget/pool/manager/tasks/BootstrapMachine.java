@@ -52,7 +52,7 @@ public class BootstrapMachine extends AbstractPoolTask<BootstrapMachineConfig, V
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
         cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
-        ISshDetails sshDetails = null;//TODO init it
+        ISshDetails sshDetails = taskConfig.getNodeModel().machineSshDetails;
 
         runBootstrapScriptOnMachine(script, cloudServerApi, sshDetails);
 

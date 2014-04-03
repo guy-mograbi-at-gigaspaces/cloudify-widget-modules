@@ -1,11 +1,8 @@
 package cloudify.widget.pool.manager.dto;
 
 import cloudify.widget.api.clouds.ISshDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * User: eliranm
@@ -22,7 +19,7 @@ public class NodeModel {
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
-    public String machineSshDetails;
+    public ISshDetails machineSshDetails;
 
     public NodeModel setId(long id) {
         this.id = id;
@@ -44,25 +41,14 @@ public class NodeModel {
         return this;
     }
 
-    public NodeModel setMachineSshDetails(String machineSshDetails) {
-        this.machineSshDetails = machineSshDetails;
-        return this;
-    }
-
     /**
      * This method can't be named setSshDetails, or JSON mapping will fail.
+     *
      * @param sshDetails
      * @return
      */
-    public NodeModel setSshDetailsFromObject(ISshDetails sshDetails) {
-        try {
-            // we rely on ISshDetails implementations to have classic POJO getters,
-            // so no special configurations are made to the mapper. we may want to change that
-            // if we want to avoid breakage when new providers are added.
-            this.machineSshDetails = new ObjectMapper().writeValueAsString(sshDetails);
-        } catch (IOException e) {
-            logger.error("failed serializing ssh details from object", e);
-        }
+    public NodeModel setMachineSshDetails(ISshDetails sshDetails) {
+        this.machineSshDetails = sshDetails;
         return this;
     }
 

@@ -30,7 +30,7 @@ public class DeleteMachine extends AbstractPoolTask<DeleteMachineConfig, Void> {
 
     @Override
     public Void call() throws Exception {
-        logger.info("deleting machine with pool settings [{}]", poolSettings);
+        logger.info("deleting machine [{}] with pool settings [{}]", taskConfig.getNodeModel().machineId, poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
 
@@ -56,7 +56,7 @@ public class DeleteMachine extends AbstractPoolTask<DeleteMachineConfig, Void> {
         cloudServerApi.connect(providerSettings.getConnectDetails());
         cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
-        logger.info("machine deleted, removing node model in the database [{}]");
+        logger.info("machine deleted, removing node model in the database [{}]", taskConfig.getNodeModel().machineId);
         nodesDao.delete(taskConfig.getNodeModel().id);
 
         return null;
