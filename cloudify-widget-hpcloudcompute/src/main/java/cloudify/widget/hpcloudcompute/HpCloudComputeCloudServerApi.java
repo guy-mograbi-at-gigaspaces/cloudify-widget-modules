@@ -18,6 +18,7 @@ import org.jclouds.compute.domain.*;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
+import org.jclouds.openstack.nova.v2_0.compute.options.NovaTemplateOptions;
 import org.jclouds.openstack.nova.v2_0.config.NovaProperties;
 import org.jclouds.openstack.nova.v2_0.domain.FloatingIP;
 import org.jclouds.openstack.nova.v2_0.extensions.FloatingIPApi;
@@ -288,7 +289,14 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
             templateBuilder.imageId(imageId);
         }
 
-        logger.info( "Before building template" );
+        if ( machineOptions.getSecurityGroup() != null ) {
+            logger.info("setting security group " + machineOptions.getSecurityGroup() );
+            NovaTemplateOptions options = new NovaTemplateOptions();
+            options.securityGroupNames(machineOptions.getSecurityGroup());
+            templateBuilder.options(options);
+        }
+
+        logger.info("Before building template");
         long startTime = System.currentTimeMillis();
         Template template = templateBuilder.build();
         long endTime = System.currentTimeMillis();

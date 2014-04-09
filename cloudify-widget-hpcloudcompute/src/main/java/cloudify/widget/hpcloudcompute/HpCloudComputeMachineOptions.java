@@ -14,6 +14,7 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
     private int machinesCount;
     private String hardwareId;
     private String imageId;
+    private String securityGroup = null;
 
     public HpCloudComputeMachineOptions(){}
 
@@ -60,6 +61,14 @@ public class HpCloudComputeMachineOptions implements MachineOptions {
 
     public String getImageId() {
         return imageId;
+    }
+
+    public String getSecurityGroup() {
+        return securityGroup;
+    }
+
+    public void setSecurityGroup(String securityGroup) {
+        this.securityGroup = securityGroup;
     }
 
     @Override
