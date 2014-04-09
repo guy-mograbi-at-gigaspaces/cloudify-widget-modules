@@ -60,15 +60,14 @@ public class TaskExecutor {
         assert executorService != null : "executor must not be null";
         assert poolSettings != null : "pool settings must not be null";
 
-        // wrapping the worker to register tasks
-        TaskRegistrar.TaskDecorator worker = new TaskRegistrar.TaskDecoratorImpl<C, R>(task);
-        worker.setTasksDao(tasksDao);
-        worker.setPoolSettings(poolSettings);
-        worker.setTaskConfig(taskConfig);
-
-        if (worker != null) {
-
-            ListenableFuture listenableFuture = executorService.submit(worker);
+        if (task != null) {
+            // wrapping the worker to register tasks
+            TaskRegistrar.TaskDecorator taskDecorator = new TaskRegistrar.TaskDecoratorImpl<C, R>(task);
+            taskDecorator.setTasksDao(tasksDao);
+            taskDecorator.setPoolSettings(poolSettings);
+            taskDecorator.setTaskConfig(taskConfig);
+            // execute via the thread pool
+            ListenableFuture listenableFuture = executorService.submit(taskDecorator);
             if (taskCallback == null) {
                 taskCallback = new NoopTaskCallback();
             }
