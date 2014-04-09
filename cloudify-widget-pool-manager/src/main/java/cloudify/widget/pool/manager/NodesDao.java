@@ -1,9 +1,8 @@
 package cloudify.widget.pool.manager;
 
-import cloudify.widget.pool.manager.dto.NodeModel;
-import cloudify.widget.pool.manager.dto.NodeStatus;
-import cloudify.widget.pool.manager.dto.PoolSettings;
-import cloudify.widget.pool.manager.dto.PoolStatusCount;
+import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.pool.manager.dto.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysql.jdbc.Statement;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
@@ -15,6 +14,8 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +34,7 @@ public class NodesDao {
     public static final String COL_POOL_ID = "pool_id";
     public static final String COL_NODE_STATUS = "node_status";
     public static final String COL_MACHINE_ID = "machine_id";
+    public static final String COL_MACHINE_SSH_DETAILS = "machine_ssh_details";
     public static final String COL_ALIAS_COUNT = "count";
 
     private JdbcTemplate jdbcTemplate;
@@ -42,6 +44,14 @@ public class NodesDao {
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         logger.info("this is datasrouce url [{}]", ((BasicDataSource) jdbcTemplate.getDataSource()).getUrl());
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private String objectToJson( Object obj ){
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (IOException e) {
+            throw new RuntimeException("unable to serialize obj to json " + obj , e);
+        }
     }
 
 
@@ -55,12 +65,13 @@ public class NodesDao {
                     @Override
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                         PreparedStatement ps = con.prepareStatement(
-                                "insert into " + TABLE_NAME + " (" + COL_POOL_ID + "," + COL_NODE_STATUS + "," + COL_MACHINE_ID + ") values (?, ?, ?)",
+                                "insert into " + TABLE_NAME + " (" + COL_POOL_ID + "," + COL_NODE_STATUS + "," + COL_MACHINE_ID + "," + COL_MACHINE_SSH_DETAILS + ") values (?, ?, ?, ?)",
                                 Statement.RETURN_GENERATED_KEYS // specify to populate the generated key holder
                         );
                         ps.setString(1, nodeModel.poolId);
                         ps.setString(2, nodeModel.nodeStatus.name());
                         ps.setString(3, nodeModel.machineId);
+                        ps.setString(4, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)));
                         return ps;
                     }
                 },
@@ -87,14 +98,14 @@ public class NodesDao {
     public List<NodeModel> readAllOfPool(String poolId) {
         return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ?",
                 new Object[]{poolId},
-                new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
+                new NodeModelRowMapper());
     }
 
     public NodeModel read(long nodeId) {
         try {
             return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?",
                     new Object[]{nodeId},
-                    new BeanPropertyRowMapper<NodeModel>(NodeModel.class));
+                    new NodeModelRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -102,8 +113,8 @@ public class NodesDao {
 
     public int update(NodeModel nodeModel) {
         return jdbcTemplate.update(
-                "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ? where " + COL_NODE_ID + " = ?",
-                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, nodeModel.id);
+                "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_MACHINE_SSH_DETAILS + " = ? where " + COL_NODE_ID + " = ?",
+                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)), nodeModel.id);
     }
 
     public int delete(long nodeId) {
@@ -126,10 +137,36 @@ public class NodesDao {
         }
     }
 
+    public static class NodeModelRowMapper extends BeanPropertyRowMapper<NodeModel>{
+
+
+        public NodeModelRowMapper() {
+            super(NodeModel.class);
+        }
+
+        @Override
+        protected Object getColumnValue(ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
+            Class<?> propertyType = pd.getPropertyType();
+            if ( ISshDetails.class.isAssignableFrom( propertyType) ){
+                ObjectMapper objectMapper = new ObjectMapper();
+                String sshDetailsString = rs.getString(index);
+                try {
+                    NodeModelSshDetails nodeModelSshDetails = objectMapper.readValue(sshDetailsString, NodeModelSshDetails.class);
+                    return NodeModelSshDetails.toSshDetails(nodeModelSshDetails);
+                } catch (IOException e) {
+                    logger.error("unable to deserialize ssh details [" + sshDetailsString + "]", e);
+                }
+            }
+            return super.getColumnValue(rs, index, pd);
+        }
+    }
+
     public NodeModel occupyNode(PoolSettings poolSettings) {
-        List<NodeModel> nodeModels = jdbcTemplate.queryForList("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ", NodeModel.class, NodeStatus.BOOTSTRAPPED);
+        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ",
+                new Object[]{NodeStatus.BOOTSTRAPPED.name()},
+                new NodeModelRowMapper());
         for (NodeModel nodeModel : nodeModels) {
-            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED, nodeModel.id, NodeStatus.BOOTSTRAPPED);
+            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
             if (updated == 1) {
                 return nodeModel;
             }

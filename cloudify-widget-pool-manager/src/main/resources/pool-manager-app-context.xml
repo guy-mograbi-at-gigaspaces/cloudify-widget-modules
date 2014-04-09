@@ -48,10 +48,6 @@
         <property name="nodeMappingsDao" ref="cloudNodesDao" />
         <property name="statusManager" ref="statusManager" />
         <property name="taskExecutor" ref="taskExecutor" />
-        <property name="createMachineTask" ref="createMachineTask" />
-        <property name="deleteMachineTask" ref="deleteMachineTask" />
-        <property name="bootstrapMachineTask" ref="bootstrapMachineTask" />
-        <!-- TODO update bootstrap resource path -->
         <property name="bootstrapScriptResourcePath" value="classpath:bootstrap_machine.sh" />
     </bean>
 

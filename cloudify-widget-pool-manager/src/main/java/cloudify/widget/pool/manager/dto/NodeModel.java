@@ -1,5 +1,9 @@
 package cloudify.widget.pool.manager.dto;
 
+import cloudify.widget.api.clouds.ISshDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * User: eliranm
  * Date: 3/2/14
@@ -7,12 +11,15 @@ package cloudify.widget.pool.manager.dto;
  */
 public class NodeModel {
 
+    private static Logger logger = LoggerFactory.getLogger(NodeModel.class);
+
     public static final int INITIAL_ID = -1;
 
     public long id = INITIAL_ID;
     public String poolId;
     public NodeStatus nodeStatus;
     public String machineId;
+    public ISshDetails machineSshDetails;
 
     public NodeModel setId(long id) {
         this.id = id;
@@ -34,6 +41,18 @@ public class NodeModel {
         return this;
     }
 
+    /**
+     * This method can't be named setSshDetails, or JSON mapping will fail.
+     *
+     * @param sshDetails
+     * @return
+     */
+    public NodeModel setMachineSshDetails(ISshDetails sshDetails) {
+        this.machineSshDetails = sshDetails;
+        return this;
+    }
+
+
     @Override
     public String toString() {
         return "NodeModel{" +
@@ -41,6 +60,7 @@ public class NodeModel {
                 ", poolId='" + poolId + '\'' +
                 ", nodeStatus=" + nodeStatus +
                 ", machineId='" + machineId + '\'' +
+                ", machineSshDetails='" + machineSshDetails + '\'' +
                 '}';
     }
 

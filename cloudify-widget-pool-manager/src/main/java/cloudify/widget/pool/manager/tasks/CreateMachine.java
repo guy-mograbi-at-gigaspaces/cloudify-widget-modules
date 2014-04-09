@@ -3,11 +3,9 @@ package cloudify.widget.pool.manager.tasks;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
-import cloudify.widget.pool.manager.ErrorsDao;
 import cloudify.widget.pool.manager.NodesDao;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.NodeStatus;
-import cloudify.widget.pool.manager.dto.PoolSettings;
 import cloudify.widget.pool.manager.dto.ProviderSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,33 +19,17 @@ import java.util.Collection;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
+public class CreateMachine extends AbstractPoolTask<TaskConfig, Collection<NodeModel>> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
-
-    private PoolSettings poolSettings;
 
     @Autowired
     private NodesDao nodesDao;
 
-    @Autowired
-    private ErrorsDao errorsDao;
-
-    private static final TaskName TASK_NAME = TaskName.CREATE_MACHINE;
 
     @Override
     public TaskName getTaskName() {
-        return TASK_NAME;
-    }
-
-    @Override
-    public void setPoolSettings(PoolSettings poolSettings) {
-        this.poolSettings = poolSettings;
-    }
-
-    @Override
-    public void setTaskConfig(TaskConfig taskConfig) {
-        // no need for task data for this task
+        return TaskName.CREATE_MACHINE;
     }
 
     @Override
@@ -65,7 +47,7 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
         }
 
 
-        logger.debug("connecting to provider [{}]", providerSettings.getName());
+        logger.info("connecting to provider [{}]", providerSettings.getName());
         cloudServerApi.connect(providerSettings.getConnectDetails());
 
         Collection<NodeModel> nodeModelsCreated = new ArrayList<NodeModel>();
@@ -75,8 +57,9 @@ public class CreateMachine implements Task<TaskConfig, Collection<NodeModel>> {
             NodeModel nodeModel = new NodeModel()
                     .setMachineId(created.getId())
                     .setPoolId(poolSettings.getUuid())
-                    .setNodeStatus(NodeStatus.CREATED);
-            logger.debug("machine created, adding node to database. node model is [{}]", nodeModel);
+                    .setNodeStatus(NodeStatus.CREATED)
+                    .setMachineSshDetails(created.getSshDetails());
+            logger.info("machine created, adding node to database. node model is [{}]", nodeModel);
             nodesDao.create(nodeModel);
             nodeModelsCreated.add(nodeModel);
         }

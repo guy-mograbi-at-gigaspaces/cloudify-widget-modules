@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Date: 3/5/14
  * Time: 5:32 PM
  */
-public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
+public class DeleteMachine extends AbstractPoolTask<DeleteMachineConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(DeleteMachine.class);
 
@@ -28,15 +28,9 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
     @Autowired
     private ErrorsDao errorsDao;
 
-    private PoolSettings poolSettings;
-
-    private DeleteMachineConfig taskConfig;
-
-    private static final TaskName TASK_NAME = TaskName.DELETE_MACHINE;
-
     @Override
     public Void call() throws Exception {
-        logger.info("deleting machine with pool settings [{}]", poolSettings);
+        logger.info("deleting machine [{}] with pool settings [{}]", taskConfig.getNodeModel().machineId, poolSettings);
 
         ProviderSettings providerSettings = poolSettings.getProvider();
 
@@ -52,7 +46,7 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
             String message = "pool has reached its minimum capacity as defined in the pool settings";
             logger.error(message);
             errorsDao.create(new ErrorModel()
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setPoolId(poolSettings.getUuid())
                             .setMessage(message)
             );
@@ -62,7 +56,7 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
         cloudServerApi.connect(providerSettings.getConnectDetails());
         cloudServerApi.delete(taskConfig.getNodeModel().machineId);
 
-        logger.info("machine deleted, removing node model in the database [{}]");
+        logger.info("machine deleted, removing node model in the database [{}]", taskConfig.getNodeModel().machineId);
         nodesDao.delete(taskConfig.getNodeModel().id);
 
         return null;
@@ -71,7 +65,7 @@ public class DeleteMachine implements Task<DeleteMachineConfig, Void> {
 
     @Override
     public TaskName getTaskName() {
-        return TASK_NAME;
+        return TaskName.DELETE_MACHINE;
     }
 
     @Override

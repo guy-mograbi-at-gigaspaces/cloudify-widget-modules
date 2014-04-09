@@ -2,7 +2,10 @@ package cloudify.widget.hpcloudcompute;
 
 
 import cloudify.widget.api.clouds.CloudServerCreated;
+import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.domain.LoginCredentials;
 
 /**
  * User: evgeny
@@ -11,23 +14,29 @@ import org.jclouds.compute.domain.NodeMetadata;
  */
 public class HpCloudComputeCloudServerCreated implements CloudServerCreated {
 
-	private final NodeMetadata newNode;
+	private final NodeMetadata nodeMetadata;
 
-	public HpCloudComputeCloudServerCreated(NodeMetadata newNode){
-		this.newNode = newNode;
-	}
-
-	public NodeMetadata getNewNode() {
-		return newNode;
+	public HpCloudComputeCloudServerCreated(NodeMetadata nodeMetadata){
+		this.nodeMetadata = nodeMetadata;
 	}
 
     @Override
     public String getId() {
-        return newNode.getId();
+        return nodeMetadata.getId();
     }
 
-	@Override
-	public String toString() {
-		return "HpCloudComputeCloudServerCreated [newNode=" + newNode + "], id=" + newNode.getId();
-	}
+    @Override
+    public ISshDetails getSshDetails() {
+        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
+        if(loginCredentials == null){
+            throw new RuntimeException( "LoginCredentials is null" );
+        }
+        String user = loginCredentials.getUser();
+        String privateKey = loginCredentials.getPrivateKey();
+        int port = nodeMetadata.getLoginPort();
+        String publicIp = CollectionUtils.first(nodeMetadata.getPublicAddresses());
+
+        return new HpCloudComputeSshDetails( port, user, privateKey, publicIp );
+    }
+
 }

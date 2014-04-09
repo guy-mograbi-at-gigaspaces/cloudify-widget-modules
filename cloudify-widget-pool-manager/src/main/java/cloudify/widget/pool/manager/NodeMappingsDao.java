@@ -26,7 +26,7 @@ public class NodeMappingsDao {
         ProviderSettings provider = poolSettings.getProvider();
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(provider.getName());
         cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
-        Collection<CloudServer> cloudServers = cloudServerApi.findByMask(provider.getMachineOptions().getMask());
+        Collection<CloudServer> cloudServers = cloudServerApi.listByMask(provider.getMachineOptions().getMask());
 
         // get current node models representation
         List<NodeModel> nodeModels = nodesDao.readAllOfPool(poolSettings.getUuid());

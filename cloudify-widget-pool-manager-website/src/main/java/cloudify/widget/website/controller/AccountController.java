@@ -42,13 +42,7 @@ public class AccountController {
     @RequestMapping(value="/account/pools", method=RequestMethod.GET)
     @ResponseBody
     public List<PoolConfigurationModel> getPools( @ModelAttribute("account") AccountModel accountModel){
-        try{
-            return poolDao.readPools( accountModel );
-        }catch(Exception e){
-            logger.error("unable to retrieve pools", e);
-            return null;
-//            return new ResponseEntity<String>( HttpStatus.INTERNAL_SERVER_ERROR );
-        }
+        return poolDao.readPools( accountModel );
     }
 
     @RequestMapping(value="/account/pools/{poolId}", method=RequestMethod.GET)
@@ -120,7 +114,7 @@ public class AccountController {
     @RequestMapping(value="/account/pools/{poolId}/occupy", method=RequestMethod.GET)
     @ResponseBody
     public NodeModel occupyPool( @ModelAttribute("account") AccountModel accountModel , @PathVariable("poolId") Long poolId ){
-        PoolSettings poolSettings = poolDao.readPoolByIdAndAccountId(accountModel.getId(), poolId).getPoolSettings();
+        PoolSettings poolSettings = poolDao.readPoolByIdAndAccountId(poolId, accountModel.getId()).getPoolSettings();
         return poolManagerApi.occupy( poolSettings );
     }
 
@@ -135,6 +129,7 @@ public class AccountController {
         }
     }
 
+    // who's loading the "account" attribute on the request?
     @ModelAttribute("account")
     public AccountModel getUser(HttpServletRequest request)
     {

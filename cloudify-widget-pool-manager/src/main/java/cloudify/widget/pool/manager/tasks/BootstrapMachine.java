@@ -1,8 +1,8 @@
 package cloudify.widget.pool.manager.tasks;
 
 import cloudify.widget.api.clouds.CloudExecResponse;
-import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.api.clouds.ISshDetails;
 import cloudify.widget.pool.manager.CloudServerApiFactory;
 import cloudify.widget.pool.manager.ErrorsDao;
 import cloudify.widget.pool.manager.NodesDao;
@@ -23,11 +23,9 @@ import java.util.HashMap;
  * Date: 3/5/14
  * Time: 6:00 PM
  */
-public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
+public class BootstrapMachine extends AbstractPoolTask<BootstrapMachineConfig, Void> {
 
     private static Logger logger = LoggerFactory.getLogger(CreateMachine.class);
-
-    private static final TaskName TASK_NAME = TaskName.BOOTSTRAP_MACHINE;
 
     @Autowired
     private NodesDao nodesDao;
@@ -35,9 +33,8 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
     @Autowired
     private ErrorsDao errorsDao;
 
-    private PoolSettings poolSettings;
 
-    private BootstrapMachineConfig taskConfig;
+
 
     @Override
     public Void call() throws Exception {
@@ -55,10 +52,9 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
         CloudServerApi cloudServerApi = CloudServerApiFactory.create(poolSettings.getProvider().getName());
         cloudServerApi.connect(poolSettings.getProvider().getConnectDetails());
+        ISshDetails sshDetails = taskConfig.getNodeModel().machineSshDetails;
 
-        CloudServer cloudServer = getCloudServer(cloudServerApi);
-
-        runBootstrapScriptOnMachine(script, cloudServerApi, cloudServer);
+        runBootstrapScriptOnMachine(script, cloudServerApi, sshDetails);
 
         return null;
     }
@@ -77,7 +73,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             logger.error(message, e);
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
             );
             throw new RuntimeException(message);
@@ -95,7 +91,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             logger.error(message, e);
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
             );
             throw new RuntimeException(message);
@@ -113,7 +109,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
                 .replaceAll("##recipeRelativePath##", bootstrapProperties.getRecipeRelativePath())
                 .replaceAll("##recipeUrl##", bootstrapProperties.getRecipeUrl());
     }
-
+/*
     private CloudServer getCloudServer(CloudServerApi cloudServerApi) {
         String machineId = taskConfig.getNodeModel().machineId;
         CloudServer cloudServer = cloudServerApi.get(machineId);
@@ -127,11 +123,11 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             throw new RuntimeException(message);
         }
         return cloudServer;
-    }
+    }*/
 
-    private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, CloudServer cloudServer) {
+    private void runBootstrapScriptOnMachine(String script, CloudServerApi cloudServerApi, ISshDetails sshDetails) {
         updateNodeModelStatus(NodeStatus.BOOTSTRAPPING);
-        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, cloudServer.getServerIp().publicIp);
+        CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine(script, sshDetails);
         int exitStatus = cloudExecResponse.getExitStatus();
         logger.debug("bootstrap was run on the machine, node id [{}]", taskConfig.getNodeModel().id);
         if (exitStatus == 0) {
@@ -145,7 +141,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
             infoMap.put("output", cloudExecResponse.getOutput());
             errorsDao.create(new ErrorModel()
                             .setPoolId(poolSettings.getUuid())
-                            .setTaskName(TASK_NAME)
+                            .setTaskName(getTaskName())
                             .setMessage(message)
                             .setInfoFromMap(infoMap)
             );
@@ -163,7 +159,7 @@ public class BootstrapMachine implements Task<BootstrapMachineConfig, Void> {
 
     @Override
     public TaskName getTaskName() {
-        return TASK_NAME;
+        return TaskName.BOOTSTRAP_MACHINE;
     }
 
     @Override

@@ -63,7 +63,7 @@ public class Ec2OperationsTest {
 
         logger.info("Start test create ec2 machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask("testtag2");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.listByMask("testtag2");
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -71,7 +71,7 @@ public class Ec2OperationsTest {
         }
 
         /** get machine by id **/
-        machinesWithTag = cloudServerApi.findByMask("testtag1");
+        machinesWithTag = cloudServerApi.listByMask("testtag1");
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         for (CloudServer cloudServer : machinesWithTag) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
@@ -82,9 +82,18 @@ public class Ec2OperationsTest {
         logger.info("Running script");
 
         /** run script on machine **/
-        for (CloudServer machine : machinesWithTag) {
-            String publicIp = machine.getServerIp().publicIp;
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+        for (final CloudServer machine : machinesWithTag) {
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            Ec2SshDetails sshDetails = (Ec2SshDetails) created.getSshDetails();
+
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

@@ -32,19 +32,24 @@ public class HpCloudComputeOperationsTest {
     private final String echoString = "hello world";
 
     @Autowired
-    private CloudServerApi cloudServerApi;
+    protected CloudServerApi cloudServerApi;
 
     @Autowired
-    private IConnectDetails connectDetails;
+    protected IConnectDetails connectDetails;
 
     @Autowired
-    private HpCloudComputeMachineOptions machineOptions;
+    protected HpCloudComputeMachineOptions machineOptions;
 
     @Autowired
     public WaitTimeout waitMachineIsRunningTimeout;
 
     @Autowired
     public WaitTimeout waitMachineIsNotRunning;
+
+    @Autowired(required = false)
+    private String sshUserName;
+
+
 
     @Test
     public void testHpCloudComputeDriver() {
@@ -62,29 +67,39 @@ public class HpCloudComputeOperationsTest {
 
         logger.info("Start test create HP cloud machine, completed");
 
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag1");
+        Collection<CloudServer> machinesWithTag = cloudServerApi.listByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server name [{}]", cloudServer.getName());
-        }
-
-        /** get machine by id **/
-        machinesWithTag = cloudServerApi.findByMask("hpCloudTestTag2");
-        Assert.assertEquals( "should list machines that were created", machineOptions.getMachinesCount(), CollectionUtils.size(machinesWithTag));
-        for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server found with id [{}]", cloudServer.getId());
+            logger.info("cloud server found with id [{}], name [{}]", cloudServer.getId(), cloudServer.getName());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
             assertNotNull("expecting server not to be null", cs);
         }
 
         logger.info("Running script");
-
         /** run script on machine **/
-        for (CloudServer machine : machinesWithTag) {
+        for (final CloudServer machine : machinesWithTag) {
             String publicIp = machine.getServerIp().publicIp;
             Assert.assertNotNull( "Public Ip cannot be null, machine Id is [ " + machine.getId() + "]",  publicIp );
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            HpCloudComputeSshDetails sshDetails = (HpCloudComputeSshDetails) created.getSshDetails();
+
+            //if sshUserName defined we need to overwrite it in received sshDetails
+
+            if( sshUserName != null ){
+                HpCloudComputeSshDetails hpCloudSshDetails = sshDetails;
+                sshDetails = new HpCloudComputeSshDetails( hpCloudSshDetails.getPort(), sshUserName,
+                        hpCloudSshDetails.getPrivateKey(), hpCloudSshDetails.getPublicIp() );
+            }
+
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }

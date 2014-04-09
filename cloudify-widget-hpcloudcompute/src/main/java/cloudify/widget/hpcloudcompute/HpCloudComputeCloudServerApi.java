@@ -53,7 +53,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> findByMask(final String mask) {
+    public Collection<CloudServer> listByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
@@ -168,6 +168,7 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
             newNodesList.add( new HpCloudComputeCloudServerCreated( newNode ) );
         }
 
+        logger.info("[{}] new node(s) created [{}]", newNodesList.size(), newNodesList);
         return newNodesList;
     }
 
@@ -317,13 +318,20 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
     }
 
     @Override
+    @Deprecated
     public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
-        HpCloudComputeSshDetails hpCloudSshDetails = getMachineCredentialsByIp( serverIp );
+        throw new UnsupportedOperationException( "Method runScriptOnMachine(String script, String serverIp) is not supported anymore. Please use runScriptOnMachine(String script, ISshDetails sshDetails ) instead" );
+    }
+
+    public CloudExecResponse runScriptOnMachine(String script, ISshDetails sshDetails ){
+
+        HpCloudComputeSshDetails hpCloudSshDetails = ( HpCloudComputeSshDetails )sshDetails;
+        String serverIp = hpCloudSshDetails.getPublicIp();
         //retrieve missing ssh details
-        String user = "debian";//hpCloudSshDetails.user();
-        String privateKey = hpCloudSshDetails.privateKey();
-        int port = hpCloudSshDetails.port();
+        String user = hpCloudSshDetails.getUser();//"debian"
+        String privateKey = hpCloudSshDetails.getPrivateKey();
+        int port = hpCloudSshDetails.getPort();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         SshClient.Factory factory = computeServiceContext.getUtils().getSshClientFactory();
@@ -358,50 +366,5 @@ public class HpCloudComputeCloudServerApi implements CloudServerApi {
         }
 
         return new CloudExecResponseImpl( execResponse );
-    }
-
-    private HpCloudComputeSshDetails getMachineCredentialsByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
-        String user = loginCredentials.getUser();
-        String privateKey = loginCredentials.getPrivateKey();
-        int port = nodeMetadata.getLoginPort();
-
-        return new HpCloudComputeSshDetails( port, user, privateKey );
-    }
-
-    private LoginCredentials getMachineLoginCredentialssByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        return nodeMetadata.getCredentials();
     }
 }

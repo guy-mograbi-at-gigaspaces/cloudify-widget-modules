@@ -19,10 +19,13 @@
 
     <bean id="machineOptions" class="cloudify.widget.hpcloudcompute.HpCloudComputeMachineOptions">
         <property name="mask" value="testhpcloudgrizzly"/>
-        <property name="tags" value="hpCloudTestTag1,hpCloudTestTag2"/>
         <property name="hardwareId" value="region-b.geo-1/100"/>
         <property name="imageId" value="region-b.geo-1/4ee377d7-e940-4fcc-b957-4b7d2bd7929c"/>
         <property name="machinesCount" value="1"/>
+    </bean>
+
+    <bean id="sshUserName" class="java.lang.String">
+        <constructor-arg value="debian"/>
     </bean>
 
     <bean id="waitMachineIsRunningTimeout" class="cloudify.widget.common.WaitTimeout"/>

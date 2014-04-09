@@ -41,7 +41,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
-    public Collection<CloudServer> findByMask(final String mask) {
+    public Collection<CloudServer> listByMask(final String mask) {
 
         Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
@@ -203,13 +203,21 @@ public class Ec2CloudServerApi implements CloudServerApi {
     }
 
     @Override
+    @Deprecated
     public CloudExecResponse runScriptOnMachine(String script, String serverIp) {
 
-        Ec2SshDetails ec2SshDetails = getMachineCredentialsByIp( serverIp );
+        throw new UnsupportedOperationException( "Method runScriptOnMachine(String script, String serverIp) is not supported anymore. Please use runScriptOnMachine(String script, ISshDetails sshDetails ) instead" );
+    }
+
+    @Override
+    public CloudExecResponse runScriptOnMachine(String script, ISshDetails sshDetails) {
+
+        Ec2SshDetails ec2SshDetails = ( Ec2SshDetails )sshDetails;
         //retrieve missing ssh details
         String user = ec2SshDetails.getUser();
         String privateKey = ec2SshDetails.getPrivateKey();
         int port = ec2SshDetails.getPort();
+        String serverIp = ec2SshDetails.getPublicIp();
 
         logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
         Injector i = Guice.createInjector(new SshjSshClientModule(), new NullLoggingModule());
@@ -233,29 +241,4 @@ public class Ec2CloudServerApi implements CloudServerApi {
         return new CloudExecResponseImpl( execResponse );
     }
 
-
-    private Ec2SshDetails getMachineCredentialsByIp( final String ip ){
-
-        Set<? extends NodeMetadata> nodeMetadatas = computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
-            @Override
-            public boolean apply(ComputeMetadata computeMetadata) {
-                NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
-                Set<String> publicAddresses = nodeMetadata.getPublicAddresses();
-                return publicAddresses.contains(ip);
-            }
-        });
-
-        if( nodeMetadatas.isEmpty() ){
-            throw new RuntimeException( "Machine [" + ip + "] was not found" );
-        }
-
-        NodeMetadata nodeMetadata = nodeMetadatas.iterator().next();
-
-        LoginCredentials loginCredentials = nodeMetadata.getCredentials();
-        String user = loginCredentials.getUser();
-        String privateKey = loginCredentials.getPrivateKey();
-        int port = nodeMetadata.getLoginPort();
-
-        return new Ec2SshDetails( port, user, privateKey );
-    }
 }

@@ -9,27 +9,33 @@ import cloudify.widget.api.clouds.ISshDetails;
  */
 public class HpCloudComputeSshDetails implements ISshDetails {
 
-    private final int port;
-    private final String user;
-    private final String privateKey;
+    private int port;
+    private String user;
+    private String privateKey;
+    private String publicIp;
 
-    public HpCloudComputeSshDetails(int port, String user, String privateKey){
+    public HpCloudComputeSshDetails() {}
+
+    public HpCloudComputeSshDetails(int port, String user, String privateKey, String publicIp){
         this.port = port;
         this.user = user;
         this.privateKey = privateKey;
+        this.publicIp = publicIp;
     }
 
-    public int port(){
+    public int getPort(){
         return port;
     }
 
-    public String user(){
+    public String getUser(){
         return user;
     }
 
-    public String privateKey(){
+    public String getPrivateKey(){
         return privateKey;
     }
+
+    public String getPublicIp(){ return publicIp; }
 
     @Override
     public boolean equals(Object o) {
@@ -40,6 +46,7 @@ public class HpCloudComputeSshDetails implements ISshDetails {
 
         if (port != that.port) return false;
         if (privateKey != null ? !privateKey.equals(that.privateKey) : that.privateKey != null) return false;
+        if (publicIp != null ? !publicIp.equals(that.publicIp) : that.publicIp != null) return false;
         if (user != null ? !user.equals(that.user) : that.user != null) return false;
 
         return true;
@@ -50,6 +57,7 @@ public class HpCloudComputeSshDetails implements ISshDetails {
         int result = port;
         result = 31 * result + (user != null ? user.hashCode() : 0);
         result = 31 * result + (privateKey != null ? privateKey.hashCode() : 0);
+        result = 31 * result + (publicIp != null ? publicIp.hashCode() : 0);
         return result;
     }
 }

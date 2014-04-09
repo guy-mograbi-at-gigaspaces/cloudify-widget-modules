@@ -70,7 +70,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
 
         cloudServerApi.connect( connectDetails );
-        Collection<CloudServer> machinesWithTag = cloudServerApi.findByMask(machineOptions.getMask());
+        Collection<CloudServer> machinesWithTag = cloudServerApi.listByMask(machineOptions.getMask());
         Assert.assertEquals( "should list machines that were created", machineOptions.machinesCount(), CollectionUtils.size(machinesWithTag));
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
@@ -79,7 +79,7 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         // get machine by id
 
-        Collection<CloudServer> cloudServers = cloudServerApi.findByMask(tagMask);
+        Collection<CloudServer> cloudServers = cloudServerApi.listByMask(tagMask);
         for (CloudServer cloudServer : cloudServers) {
             logger.info("cloud server found with id [{}]", cloudServer.getId());
             CloudServer cs = cloudServerApi.get(cloudServer.getId());
@@ -91,11 +91,20 @@ public class SoftlayerNonDestructiveOperationsTest {
 
         logger.info("starting run-script on machine...");
         final String echoString = "hello world";
-        Collection<CloudServer> machines = cloudServerApi.findByMask(machineOptions.getMask());
+        Collection<CloudServer> machines = cloudServerApi.listByMask(machineOptions.getMask());
 
-        for (CloudServer machine : machines) {
-            String publicIp = machine.getServerIp().publicIp;
-            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, publicIp);
+        for (final CloudServer machine : machines) {
+
+            logger.info("looking for the SshDetails in the CloudServerCreated matching the CloudServer");
+            CloudServerCreated created = CollectionUtils.firstBy(cloudServerCreatedCollection, new CollectionUtils.Predicate<CloudServerCreated>() {
+                @Override
+                public boolean evaluate(CloudServerCreated object) {
+                    return object.getId().equals(machine.getId());
+                }
+            });
+            SoftlayerSshDetails sshDetails = (SoftlayerSshDetails) created.getSshDetails();
+
+            CloudExecResponse cloudExecResponse = cloudServerApi.runScriptOnMachine("echo " + echoString, sshDetails);
             logger.info("run Script on machine, completed, response [{}]" , cloudExecResponse );
             assertTrue( "Script must have [" + echoString + "]" , cloudExecResponse.getOutput().contains( echoString ) );
         }
