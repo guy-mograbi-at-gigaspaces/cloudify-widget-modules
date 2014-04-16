@@ -24,8 +24,6 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
 
     private String cloudPropertiesFilenameSuffix = "-cloud.properties";
 
-    private String cloudifyCloudFoldername = "softlayer";
-
     @Override
     public File createNewCloud(ICloudBootstrapDetails details) {
 
@@ -35,6 +33,7 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         }
 
         SoftlayerCloudBootstrapDetails bootstrapDetails = (SoftlayerCloudBootstrapDetails) details ;
+        String cloudifyCloudFoldername = bootstrapDetails.driverName;
         String userId = bootstrapDetails.getUsername();
         String secretKey = bootstrapDetails.getApiKey();
 
@@ -97,11 +96,4 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         this.cloudPropertiesFilenameSuffix = cloudPropertiesFilenameSuffix;
     }
 
-    public String getCloudifyCloudFoldername() {
-        return cloudifyCloudFoldername;
-    }
-
-    public void setCloudifyCloudFoldername(String cloudifyCloudFoldername) {
-        this.cloudifyCloudFoldername = cloudifyCloudFoldername;
-    }
 }
