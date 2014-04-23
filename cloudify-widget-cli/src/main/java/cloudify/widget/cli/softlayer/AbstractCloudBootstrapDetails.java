@@ -20,4 +20,11 @@ public abstract class AbstractCloudBootstrapDetails implements ICloudBootstrapDe
     public void setCloudDriver(String name) {
         this.driverName = name;
     }
+
+    @Override
+    public String toString() {
+        return "AbstractCloudBootstrapDetails{" +
+                "driverName='" + driverName + '\'' +
+                '}';
+    }
 }

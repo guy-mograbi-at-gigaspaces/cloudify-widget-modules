@@ -4,6 +4,8 @@ import cloudify.widget.cli.ICloudBootstrapDetails;
 import cloudify.widget.cli.ICloudifyCliHandler;
 import cloudify.widget.common.StringUtils;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +26,12 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
 
     private String cloudPropertiesFilenameSuffix = "-cloud.properties";
 
+    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudifyCliHandler.class);
+
     @Override
     public File createNewCloud(ICloudBootstrapDetails details) {
 
+        logger.info("creating new cloud for [{}]", details);
 
         if ( ! ( details instanceof SoftlayerCloudBootstrapDetails ) ){
             throw new RuntimeException("expected SoftlayerBootstrapDetails implementation");
@@ -38,6 +43,7 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         String secretKey = bootstrapDetails.getApiKey();
 
         File cloudsFolder = new File(cloudifyHomeDir, cloudifyCloudsFolderRelativePath);
+        logger.info("cloudsFolder :: [{}]  ;  cloudifyCloudFolderName  :: [{}]", cloudsFolder, cloudifyCloudFoldername);
         File origFolder = new File(cloudsFolder, cloudifyCloudFoldername);
         File destFolder = new File(cloudsFolder, cloudifyCloudFoldername + System.currentTimeMillis());
 

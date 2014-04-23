@@ -37,7 +37,7 @@ public class SoftlayerCloudBootstrapDetails extends AbstractCloudBootstrapDetail
     public String toString() {
         return "SoftlayerCloudBootstrapDetails{" +
                 "username='" + username + '\'' +
-                ", apiKey='***'" +
-                '}';
+                ", apiKey='" + apiKey + '\'' +
+                "} " + super.toString();
     }
 }
