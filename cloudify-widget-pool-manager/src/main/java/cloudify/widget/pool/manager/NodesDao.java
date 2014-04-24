@@ -162,8 +162,8 @@ public class NodesDao {
     }
 
     public NodeModel occupyNode(PoolSettings poolSettings) {
-        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? ",
-                new Object[]{NodeStatus.BOOTSTRAPPED.name()},
+        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? and " + COL_POOL_ID + " = ?",
+                new Object[]{ NodeStatus.BOOTSTRAPPED.name(), poolSettings.getUuid() },
                 new NodeModelRowMapper());
         for (NodeModel nodeModel : nodeModels) {
             int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
