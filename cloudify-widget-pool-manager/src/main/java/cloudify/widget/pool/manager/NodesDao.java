@@ -42,7 +42,7 @@ public class NodesDao {
     private static Logger logger = LoggerFactory.getLogger(NodesDao.class);
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        logger.info("this is datasrouce url [{}]", ((BasicDataSource) jdbcTemplate.getDataSource()).getUrl());
+        logger.info("data-source url is [{}]", ((BasicDataSource) jdbcTemplate.getDataSource()).getUrl());
         this.jdbcTemplate = jdbcTemplate;
     }
 
