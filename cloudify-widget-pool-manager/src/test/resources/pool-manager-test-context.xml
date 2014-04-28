@@ -30,7 +30,7 @@
     <!--</bean>-->
 
     <bean id="testTaskExecutor" class="cloudify.widget.pool.manager.TaskExecutor" init-method="init" destroy-method="destroy">
-        <property name="executorService" ref="fixedSizePool" />
+        <property name="executorService" ref="taskPool" />
     </bean>
 
     <bean id="nExecutions" class="java.lang.Integer">

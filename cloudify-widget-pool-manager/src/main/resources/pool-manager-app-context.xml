@@ -51,7 +51,12 @@
         <property name="bootstrapScriptResourcePath" value="classpath:bootstrap_machine.sh" />
     </bean>
 
+    <bean id="nodeManagementRunner" class="cloudify.widget.pool.manager.node_management.NodeManagementRunner">
+    </bean>
 
+    <bean id="createNodeManager" class="cloudify.widget.pool.manager.node_management.CreateNodeManager">
+        <!--<property name="nodesDao" ref="nodesDao" />-->
+    </bean>
 
     <bean id="bootstrapMonitor" class="cloudify.widget.pool.manager.BootstrapMonitor">
             <property name="applicationUrlPattern" value="https://%s:8443"/>
@@ -74,6 +79,10 @@
     </bean>
 
     <bean id="errorsDao" class="cloudify.widget.pool.manager.ErrorsDao">
+        <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
+    </bean>
+
+    <bean id="decisionsDao" class="cloudify.widget.pool.manager.node_management.DecisionsDao">
         <property name="jdbcTemplate" ref="poolManagerJdbcTemplate"/>
     </bean>
 

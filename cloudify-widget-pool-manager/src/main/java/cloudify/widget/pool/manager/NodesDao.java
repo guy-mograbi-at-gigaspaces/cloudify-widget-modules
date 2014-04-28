@@ -46,14 +46,6 @@ public class NodesDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private String objectToJson( Object obj ){
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (IOException e) {
-            throw new RuntimeException("unable to serialize obj to json " + obj , e);
-        }
-    }
-
 
     public boolean create(final NodeModel nodeModel) {
 
@@ -71,7 +63,7 @@ public class NodesDao {
                         ps.setString(1, nodeModel.poolId);
                         ps.setString(2, nodeModel.nodeStatus.name());
                         ps.setString(3, nodeModel.machineId);
-                        ps.setString(4, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)));
+                        ps.setString(4, Utils.objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)));
                         return ps;
                     }
                 },
@@ -101,6 +93,18 @@ public class NodesDao {
                 new NodeModelRowMapper());
     }
 
+    public List<String> readIdsOfPoolWithNodeStatus(String poolId, NodeStatus nodeStatus) {
+        return jdbcTemplate.query("select id from " + TABLE_NAME + " where " + COL_POOL_ID + " = ? and " + COL_NODE_STATUS + " = ?",
+                new Object[]{poolId, nodeStatus.name()},
+                new BeanPropertyRowMapper<String>(String.class));
+    }
+
+    public List<String> readIdsOfPoolWithoutNodeStatus(String poolId, NodeStatus nodeStatus) {
+        return jdbcTemplate.query("select id from " + TABLE_NAME + " where " + COL_POOL_ID + " = ? and " + COL_NODE_STATUS + " != ?",
+                new Object[]{poolId, nodeStatus.name()},
+                new BeanPropertyRowMapper<String>(String.class));
+    }
+
     public NodeModel read(long nodeId) {
         try {
             return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_NODE_ID + " = ?",
@@ -114,7 +118,7 @@ public class NodesDao {
     public int update(NodeModel nodeModel) {
         return jdbcTemplate.update(
                 "update " + TABLE_NAME + " set " + COL_POOL_ID + " = ?," + COL_NODE_STATUS + " = ?," + COL_MACHINE_ID + " = ?," + COL_MACHINE_SSH_DETAILS + " = ? where " + COL_NODE_ID + " = ?",
-                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)), nodeModel.id);
+                nodeModel.poolId, nodeModel.nodeStatus.name(), nodeModel.machineId, Utils.objectToJson( NodeModelSshDetails.fromSshDetails(nodeModel.machineSshDetails)), nodeModel.id);
     }
 
     public int delete(long nodeId) {
@@ -137,8 +141,21 @@ public class NodesDao {
         }
     }
 
-    public static class NodeModelRowMapper extends BeanPropertyRowMapper<NodeModel>{
+    // TODO combine select and update to a compound statement - no need for two transactions here
+    public NodeModel occupyNode(PoolSettings poolSettings) {
+        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_NODE_STATUS + " = ? and " + COL_POOL_ID + " = ?",
+                new Object[]{ NodeStatus.BOOTSTRAPPED.name(), poolSettings.getUuid() },
+                new NodeModelRowMapper());
+        for (NodeModel nodeModel : nodeModels) {
+            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
+            if (updated == 1) {
+                return nodeModel;
+            }
+        }
+        return null;
+    }
 
+    public static class NodeModelRowMapper extends BeanPropertyRowMapper<NodeModel>{
 
         public NodeModelRowMapper() {
             super(NodeModel.class);
@@ -159,18 +176,5 @@ public class NodesDao {
             }
             return super.getColumnValue(rs, index, pd);
         }
-    }
-
-    public NodeModel occupyNode(PoolSettings poolSettings) {
-        List<NodeModel> nodeModels = jdbcTemplate.query("select * from " + TABLE_NAME + " where  " + COL_NODE_STATUS + " = ? and " + COL_POOL_ID + " = ?",
-                new Object[]{ NodeStatus.BOOTSTRAPPED.name(), poolSettings.getUuid() },
-                new NodeModelRowMapper());
-        for (NodeModel nodeModel : nodeModels) {
-            int updated = jdbcTemplate.update("update " + TABLE_NAME + " set " + COL_NODE_STATUS + " = ? where " + COL_NODE_ID + " = ? and " + COL_NODE_STATUS + " =  ? ", NodeStatus.OCCUPIED.name(), nodeModel.id, NodeStatus.BOOTSTRAPPED.name());
-            if (updated == 1) {
-                return nodeModel;
-            }
-        }
-        return null;
     }
 }
