@@ -2,6 +2,7 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.node_management.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,27 +78,24 @@ public class TestNodeManagement {
 
         PoolSettings poolSettings = managerSettings.getPools().getByProviderName(ProviderSettings.ProviderName.hp);
 
-        // create
-
-        decisionsDao.create(new DecisionModel()
-                        .setDecisionType(DecisionType.CREATE)
-                        .setPoolId(poolSettings.getUuid())
-                        .setApproved(true)
-                        .setDetails(new Decision.CreateDecisionDetails()
-                                        .setInstances(3)
-                        )
-        );
-
         Set<String> machineIds = new HashSet<String>();
         machineIds.addAll(Arrays.asList("a", "b", "c"));
-        decisionsDao.create(new DecisionModel()
-                        .setDecisionType(DecisionType.DELETE)
-                        .setPoolId(poolSettings.getUuid())
-                        .setApproved(false)
-                        .setDetails(new Decision.DeleteDecisionDetails()
-                                        .addMachineIds(machineIds)
-                        )
-        );
+
+        DecisionModel createDecisionModel = new DecisionModel()
+                .setDecisionType(DecisionType.CREATE)
+                .setPoolId(poolSettings.getUuid())
+                .setApproved(false)
+                .setDetails(new Decision.CreateDecisionDetails()
+                                .setInstances(3)
+                );
+
+        DecisionModel deleteDecisionModel = new DecisionModel()
+                .setDecisionType(DecisionType.DELETE)
+                .setPoolId(poolSettings.getUuid())
+                .setApproved(false)
+                .setDetails(new Decision.DeleteDecisionDetails()
+                                .addMachineIds(machineIds)
+                );
 
         DecisionModel prepareDecisionModel = new DecisionModel()
                 .setDecisionType(DecisionType.PREPARE)
@@ -106,15 +104,47 @@ public class TestNodeManagement {
                 .setDetails(new Decision.PrepareDecisionDetails()
                                 .addMachineIds(machineIds)
                 );
-        decisionsDao.create(prepareDecisionModel);
+
+        // create
+
+        boolean createModelCreated = decisionsDao.create(createDecisionModel);
+        boolean deleteModelCreated = decisionsDao.create(deleteDecisionModel);
+        boolean prepareModelCreated = decisionsDao.create(prepareDecisionModel);
+
+        logger.info("created models: create [{}] delete [{}] prepare [{}]", createModelCreated, deleteModelCreated, prepareModelCreated);
+
+        Assert.assertTrue(
+                String.format("failed to create models: create [%s] delete [%s] prepare [%s]", createModelCreated, deleteModelCreated, prepareModelCreated),
+                createModelCreated && deleteModelCreated && prepareModelCreated);
 
         // read
 
         DecisionModel readPrepareDecisionModel = decisionsDao.read(prepareDecisionModel.id);
+        Assert.assertNotNull(readPrepareDecisionModel);
+        Assert.assertEquals("model ids should be equal", prepareDecisionModel.id, readPrepareDecisionModel.id);
 
-        logger.info(String.valueOf(readPrepareDecisionModel));
+        // update
 
+        decisionsDao.update(createDecisionModel.setApproved(true));
+        DecisionModel readCreateDecisionModel = decisionsDao.read(createDecisionModel.id);
+        logger.info("updated create decision model 'approved' to [{}]", readCreateDecisionModel.approved);
 
+        Assert.assertTrue("model 'approved' should be updated to 'true'", readCreateDecisionModel.approved);
+
+        // delete
+        decisionsDao.delete(createDecisionModel.id);
+        decisionsDao.delete(deleteDecisionModel.id);
+        decisionsDao.delete(prepareDecisionModel.id);
+
+        DecisionModel deletedCreateDecisionModel = decisionsDao.read(createDecisionModel.id);
+        DecisionModel deletedDeleteDecisionModel = decisionsDao.read(deleteDecisionModel.id);
+        DecisionModel deletedPrepareDecisionModel = decisionsDao.read(prepareDecisionModel.id);
+
+        logger.info("deleted models: create [{}] delete [{}] prepare [{}]", deletedCreateDecisionModel, deletedDeleteDecisionModel, deletedPrepareDecisionModel);
+
+        Assert.assertNull(deletedCreateDecisionModel);
+        Assert.assertNull(deletedDeleteDecisionModel);
+        Assert.assertNull(deletedPrepareDecisionModel);
     }
 
 
