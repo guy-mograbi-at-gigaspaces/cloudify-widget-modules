@@ -94,6 +94,8 @@ upgrade_main(){
     echo "migrating website schema"
     DB=$WEBSITE_DB
     BASEDIR=$INSTALL_LOCATION/website-schema
+    # need to specify latest again because it was rewritten by the migrate_db function
+    UPGRADE_TO=latest
     migrate_db
 
 
