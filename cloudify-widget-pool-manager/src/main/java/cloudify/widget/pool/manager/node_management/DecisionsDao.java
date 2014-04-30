@@ -2,7 +2,7 @@ package cloudify.widget.pool.manager.node_management;
 
 import cloudify.widget.pool.manager.Utils;
 import cloudify.widget.pool.manager.dto.DecisionModel;
-import cloudify.widget.pool.manager.dto.NodeModelSshDetails;
+import cloudify.widget.pool.manager.dto.DecisionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysql.jdbc.Statement;
 import org.slf4j.Logger;
@@ -81,6 +81,12 @@ public class DecisionsDao {
                 new DecisionModelRowMapper());
     }
 
+    public List<DecisionModel> readAllOfPoolWithDecisionType(String poolId, DecisionType decisionType) {
+        return jdbcTemplate.query("select * from " + TABLE_NAME + " where " + COL_POOL_ID + " = ? and " + COL_DECISION_TYPE + " = ?",
+                new Object[]{poolId, decisionType.name()},
+                new DecisionModelRowMapper());
+    }
+
     public DecisionModel read(long decisionId) {
         try {
             return jdbcTemplate.queryForObject("select * from " + TABLE_NAME + " where " + COL_ID + " = ?",
@@ -111,11 +117,11 @@ public class DecisionsDao {
         @Override
         protected Object getColumnValue(ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
             Class<?> propertyType = pd.getPropertyType();
-            if (Decision.DecisionDetails.class.isAssignableFrom(propertyType)) {
+            if (DecisionDetails.class.isAssignableFrom(propertyType)) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String decisionDetailsString = rs.getString(index);
                 try {
-                    return objectMapper.readValue(decisionDetailsString, Decision.DecisionDetails.class);
+                    return objectMapper.readValue(decisionDetailsString, DecisionDetails.class);
                 } catch (IOException e) {
                     logger.error("unable to deserialize decision details [" + decisionDetailsString + "]", e);
                 }

@@ -3,7 +3,6 @@ package cloudify.widget.pool.manager.node_management;
 import cloudify.widget.common.CollectionUtils;
 import cloudify.widget.pool.manager.dto.NodeModel;
 import cloudify.widget.pool.manager.dto.NodeStatus;
-import cloudify.widget.pool.manager.tasks.TaskName;
 import org.apache.commons.collections.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,16 +52,13 @@ public class DeleteNodeManager extends NodeManager<DeleteNodeManager> {
 
         logger.info("minNodes [{}], maxNodes [{}], nodeModelsSize [{}]", minNodes, maxNodes, nodeModelsSize);
 
-        Decision deleteMachineDecision = new Decision()
-                .to(TaskName.DELETE_MACHINE)
-                .details(new Decision.DeleteDecisionDetails()
-                                .addMachineIds(expiredIds)
-                                .addMachineIds(unoccupiedIds)
-                );
+        DeleteDecisionDetails decisionDetails = new DeleteDecisionDetails()
+                .addMachineIds(expiredIds)
+                .addMachineIds(unoccupiedIds);
 
         // queue it! (persist)
 
-        logger.info("queuing decision [{}]", deleteMachineDecision);
+//        logger.info("queuing decision [{}]", deleteDecision);
 
         return this;
 

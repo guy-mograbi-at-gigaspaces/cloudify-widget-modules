@@ -1,6 +1,6 @@
 package cloudify.widget.pool.manager.dto;
 
-import cloudify.widget.pool.manager.node_management.Decision;
+import cloudify.widget.pool.manager.node_management.DecisionDetails;
 
 /**
  * User: eliranm
@@ -15,7 +15,7 @@ public class DecisionModel {
     public DecisionType decisionType;
     public String poolId;
     public boolean approved;
-    public Decision.DecisionDetails details;
+    public DecisionDetails details;
 
     public DecisionModel setId(long id) {
         this.id = id;
@@ -37,7 +37,7 @@ public class DecisionModel {
         return this;
     }
 
-    public DecisionModel setDetails(Decision.DecisionDetails details) {
+    public DecisionModel setDetails(DecisionDetails details) {
         this.details = details;
         return this;
     }
@@ -52,4 +52,5 @@ public class DecisionModel {
                 ", details=" + details +
                 '}';
     }
+
 }

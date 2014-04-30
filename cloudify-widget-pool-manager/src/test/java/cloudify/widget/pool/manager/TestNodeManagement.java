@@ -2,7 +2,6 @@ package cloudify.widget.pool.manager;
 
 import cloudify.widget.pool.manager.dto.*;
 import cloudify.widget.pool.manager.node_management.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -85,15 +85,15 @@ public class TestNodeManagement {
                 .setDecisionType(DecisionType.CREATE)
                 .setPoolId(poolSettings.getUuid())
                 .setApproved(false)
-                .setDetails(new Decision.CreateDecisionDetails()
-                                .setInstances(3)
+                .setDetails(new CreateDecisionDetails()
+                                .setNumInstances(3)
                 );
 
         DecisionModel deleteDecisionModel = new DecisionModel()
                 .setDecisionType(DecisionType.DELETE)
                 .setPoolId(poolSettings.getUuid())
                 .setApproved(false)
-                .setDetails(new Decision.DeleteDecisionDetails()
+                .setDetails(new DeleteDecisionDetails()
                                 .addMachineIds(machineIds)
                 );
 
@@ -101,7 +101,7 @@ public class TestNodeManagement {
                 .setDecisionType(DecisionType.PREPARE)
                 .setPoolId(poolSettings.getUuid())
                 .setApproved(false)
-                .setDetails(new Decision.PrepareDecisionDetails()
+                .setDetails(new PrepareDecisionDetails()
                                 .addMachineIds(machineIds)
                 );
 
@@ -122,6 +122,13 @@ public class TestNodeManagement {
         DecisionModel readPrepareDecisionModel = decisionsDao.read(prepareDecisionModel.id);
         Assert.assertNotNull(readPrepareDecisionModel);
         Assert.assertEquals("model ids should be equal", prepareDecisionModel.id, readPrepareDecisionModel.id);
+
+        List<DecisionModel> decisionsOfPool = decisionsDao.readAllOfPool(poolSettings.getUuid());
+        Assert.assertEquals("decisions of pool should have a size of 3", 3, decisionsOfPool.size());
+
+        List<DecisionModel> decisionsWithTypeCreate = decisionsDao.readAllOfPoolWithDecisionType(poolSettings.getUuid(), DecisionType.CREATE);
+        Assert.assertEquals("there should only be 1 decision with type 'create'", 1, decisionsWithTypeCreate.size());
+        Assert.assertEquals("decision should be of type 'create'", DecisionType.CREATE, decisionsWithTypeCreate.iterator().next().decisionType);
 
         // update
 
