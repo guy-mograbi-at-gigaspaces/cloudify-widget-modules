@@ -19,4 +19,8 @@ public interface IAccountDao {
     public AccountModel readAccountByUuid( String uuid );
 
     public List<AccountModel> readAccounts();
+
+    public AccountModel regenerateUuid(Long accountId);
+
+    public AccountModel readById( Long accountId );
 }

@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * User: evgenyf
@@ -21,6 +21,8 @@ public class AccountDaoImpl implements IAccountDao {
     private static final String TABLE_NAME = "account";
     private static final String delQuery = "delete from " + TABLE_NAME + " where id = ?";
     private static final String selectSql = "select * from " + TABLE_NAME + " where uuid = ?";
+    private static final String selectByIdSql = "select * from " + TABLE_NAME + " where id = ?";
+    private static final String regenerateUuidSql = "update " + TABLE_NAME + " set uuid = ? where id = ?";
     private static final String selectAllSql = "select * from " + TABLE_NAME;
 
     private JdbcTemplate jdbcTemplate;
@@ -55,9 +57,7 @@ public class AccountDaoImpl implements IAccountDao {
     @Override
     public AccountModel readAccountByUuid( String uuid ) {
         logger.info( "select query is [{}] uuid [{}]", selectSql, uuid );
-        AccountModel accountModel  =
-                ( AccountModel )jdbcTemplate.queryForObject(selectSql, new Object[]{uuid}, accountRowMapper );
-        return accountModel;
+        return jdbcTemplate.queryForObject(selectSql, new Object[]{uuid}, accountRowMapper );
     }
 
     @Override
@@ -65,5 +65,17 @@ public class AccountDaoImpl implements IAccountDao {
         logger.info( "select query is [{}]", selectAllSql );
         List<AccountModel> pools =  jdbcTemplate.query( selectAllSql, accountRowMapper );
         return pools;
+    }
+
+
+    public AccountModel readById( Long accountId ){
+      return jdbcTemplate.queryForObject(selectByIdSql, new Object[]{ accountId }, accountRowMapper );
+    }
+
+    @Override
+    public AccountModel regenerateUuid(Long accountId) {
+        logger.info("regnerating uuid for [{}]", accountId );
+        jdbcTemplate.update(regenerateUuidSql, UUID.randomUUID().toString(), accountId );
+        return readById( accountId );
     }
 }
