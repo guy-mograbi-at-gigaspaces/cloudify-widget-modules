@@ -20,7 +20,6 @@ public interface IAccountDao {
 
     public List<AccountModel> readAccounts();
 
-    public AccountModel regenerateUuid(Long accountId);
 
     public AccountModel readById( Long accountId );
 }

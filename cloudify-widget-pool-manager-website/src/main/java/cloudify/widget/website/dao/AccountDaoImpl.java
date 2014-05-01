@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * User: evgenyf
@@ -72,10 +71,4 @@ public class AccountDaoImpl implements IAccountDao {
       return jdbcTemplate.queryForObject(selectByIdSql, new Object[]{ accountId }, accountRowMapper );
     }
 
-    @Override
-    public AccountModel regenerateUuid(Long accountId) {
-        logger.info("regnerating uuid for [{}]", accountId );
-        jdbcTemplate.update(regenerateUuidSql, UUID.randomUUID().toString(), accountId );
-        return readById( accountId );
-    }
 }
