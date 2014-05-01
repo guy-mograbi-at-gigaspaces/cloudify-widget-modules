@@ -101,6 +101,7 @@ upgrade_main(){
 
     dos2unix $INSTALL_LOCATION/build/nginx.conf
     source $INSTALL_LOCATION/build/nginx.conf | dos2unix > /etc/nginx/sites-enabled/widget-pool-manager.conf
+    service nginx restart
 
     echo "installing service script under widget-pool"
     SERVICE_NAME=widget-pool SERVICE_FILE=$INSTALL_LOCATION/build/service.sh install_initd_script
