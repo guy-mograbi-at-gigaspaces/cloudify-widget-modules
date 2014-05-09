@@ -50,7 +50,7 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
 
         try {
             FileUtils.copyDirectory(origFolder, destFolder);
-            File propertiesFile = new File(destFolder, cloudifyCloudFoldername + cloudPropertiesFilenameSuffix);
+            File propertiesFile = getPropertiesFile( destFolder, bootstrapDetails);
 
             // GUY - Important - Note - Even though this is the "properties" files, it is not used for "properties" per say
             // we are actually writing a groovy file that defines variables.
@@ -66,6 +66,15 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         }
 
 
+    }
+
+    public File getPropertiesFile( File destFolder, ICloudBootstrapDetails details  ){
+        if ( ! ( details instanceof SoftlayerCloudBootstrapDetails ) ){
+            throw new RuntimeException("expected SoftlayerBootstrapDetails implementation");
+        }
+
+        SoftlayerCloudBootstrapDetails bootstrapDetails = (SoftlayerCloudBootstrapDetails) details ;
+        return new File(destFolder, bootstrapDetails.driverName + cloudPropertiesFilenameSuffix);
     }
 
     @Override
