@@ -13,6 +13,10 @@
         <constructor-arg index="1" value="${ec2_secret_access_key}"/>
     </bean>
 
+    <bean id="testDetails" class="cloudify.widget.ec2.TestKeyPairGenerator$TestDetails">
+        <property name="key" value="${ec2_access_id}"/>
+        <property name="secretKey" value="${ec2_secret_access_key}"/>
+    </bean>
     <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi"/>
 
     <bean id="machineOptions" class="cloudify.widget.ec2.Ec2MachineOptions">
