@@ -4,6 +4,8 @@ import cloudify.widget.cli.ICloudBootstrapDetails;
 import cloudify.widget.cli.ICloudifyCliHandler;
 import cloudify.widget.common.StringUtils;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,28 +26,31 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
 
     private String cloudPropertiesFilenameSuffix = "-cloud.properties";
 
-    private String cloudifyCloudFoldername = "softlayer";
+    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudifyCliHandler.class);
 
     @Override
     public File createNewCloud(ICloudBootstrapDetails details) {
 
+        logger.info("creating new cloud for [{}]", details);
 
         if ( ! ( details instanceof SoftlayerCloudBootstrapDetails ) ){
             throw new RuntimeException("expected SoftlayerBootstrapDetails implementation");
         }
 
         SoftlayerCloudBootstrapDetails bootstrapDetails = (SoftlayerCloudBootstrapDetails) details ;
+        String cloudifyCloudFoldername = bootstrapDetails.driverName;
         String userId = bootstrapDetails.getUsername();
         String secretKey = bootstrapDetails.getApiKey();
 
         File cloudsFolder = new File(cloudifyHomeDir, cloudifyCloudsFolderRelativePath);
+        logger.info("cloudsFolder :: [{}]  ;  cloudifyCloudFolderName  :: [{}]", cloudsFolder, cloudifyCloudFoldername);
         File origFolder = new File(cloudsFolder, cloudifyCloudFoldername);
         File destFolder = new File(cloudsFolder, cloudifyCloudFoldername + System.currentTimeMillis());
 
 
         try {
             FileUtils.copyDirectory(origFolder, destFolder);
-            File propertiesFile = new File(destFolder, cloudifyCloudFoldername + cloudPropertiesFilenameSuffix);
+            File propertiesFile = getPropertiesFile( destFolder, bootstrapDetails);
 
             // GUY - Important - Note - Even though this is the "properties" files, it is not used for "properties" per say
             // we are actually writing a groovy file that defines variables.
@@ -61,6 +66,15 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         }
 
 
+    }
+
+    public File getPropertiesFile( File destFolder, ICloudBootstrapDetails details  ){
+        if ( ! ( details instanceof SoftlayerCloudBootstrapDetails ) ){
+            throw new RuntimeException("expected SoftlayerBootstrapDetails implementation");
+        }
+
+        SoftlayerCloudBootstrapDetails bootstrapDetails = (SoftlayerCloudBootstrapDetails) details ;
+        return new File(destFolder, bootstrapDetails.driverName + cloudPropertiesFilenameSuffix);
     }
 
     @Override
@@ -97,11 +111,4 @@ public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
         this.cloudPropertiesFilenameSuffix = cloudPropertiesFilenameSuffix;
     }
 
-    public String getCloudifyCloudFoldername() {
-        return cloudifyCloudFoldername;
-    }
-
-    public void setCloudifyCloudFoldername(String cloudifyCloudFoldername) {
-        this.cloudifyCloudFoldername = cloudifyCloudFoldername;
-    }
 }
