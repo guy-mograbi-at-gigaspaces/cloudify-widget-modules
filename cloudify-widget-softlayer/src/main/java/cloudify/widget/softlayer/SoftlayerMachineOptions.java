@@ -9,11 +9,11 @@ import org.jclouds.compute.domain.OsFamily;
  */
 public class SoftlayerMachineOptions implements MachineOptions {
 
-    private String tag;
-    private int machinesCount;
-    private OsFamily osFamily;
-    private String locationId;
-    private String hardwareId;
+    public String tag;
+    public int machinesCount;
+    public OsFamily osFamily;
+    public String locationId;
+    public String hardwareId;
 
 
 
