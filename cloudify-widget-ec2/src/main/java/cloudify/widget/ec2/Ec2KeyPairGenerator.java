@@ -31,6 +31,7 @@ private static Logger logger = LoggerFactory.getLogger(Ec2KeyPairGenerator.class
 
     String keyPrefix = "cloudify-widget-";
 
+    //todo : add region support
     public String  generate(String user, String apiKey ) {
         logger.info("generating private key");
         final AWSCredentials credentials = new BasicAWSCredentials(user, apiKey);
