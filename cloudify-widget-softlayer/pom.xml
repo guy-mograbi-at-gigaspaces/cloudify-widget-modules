@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
-            <artifactId>softlayer-cci-embedded</artifactId>
+            <artifactId>softlayer-all</artifactId>
             <version>${jCloudsVersion}</version>
         </dependency>
     </dependencies>

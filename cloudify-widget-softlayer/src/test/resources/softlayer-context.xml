@@ -6,12 +6,13 @@
 
     <context:component-scan base-package="cloudify.widget.softlayer" />
 
-    <context:property-placeholder location="conf/dev/me.conf"/>
+    <import resource="conf/dev/me-context.xml"/>
+
 
     <bean id="softlayerCloudCredentials" class="cloudify.widget.softlayer.SoftlayerConnectDetails">
         <property name="apiKey" value="true"/>
-        <property name="key" value="${softlayer_api_key}"/>
-        <property name="username" value="${softlayer_user}"/>
+        <property name="key" value="#{testConf.softlayerApiKey}"/>
+        <property name="username" value="#{testConf.softlayerUser}"/>
         <property name="networkId" value="274"/>
     </bean>
 
@@ -22,8 +23,8 @@
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">
         <property name="tag" value="networkfix"/>
-        <property name="hardwareId" value="1643,21275,13887"/>
-        <property name="locationId" value="37473"/>
+        <property name="hardwareId" value="860,1155,3876,188,439"/>
+        <property name="locationId" value="#{testConf.locationId}"/>
         <property name="osFamily" value="CENTOS"/>
         <property name="machinesCount" value="1"/>
     </bean>
