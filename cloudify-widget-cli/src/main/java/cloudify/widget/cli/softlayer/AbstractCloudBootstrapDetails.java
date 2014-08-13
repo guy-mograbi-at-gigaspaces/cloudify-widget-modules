@@ -2,6 +2,8 @@ package cloudify.widget.cli.softlayer;
 
 import cloudify.widget.cli.ICloudBootstrapDetails;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -10,21 +12,26 @@ import cloudify.widget.cli.ICloudBootstrapDetails;
  */
 public abstract class AbstractCloudBootstrapDetails implements ICloudBootstrapDetails {
 
-    public String driverName;
+    public String cloudDirectoryAbsolutePath;
+    public File propertiesFile;
 
-    public String getDriverName() {
-        return driverName;
+    @Override
+    public void setCloudDirectory(String cloudDirectoryAbsolutePath) {
+        this.cloudDirectoryAbsolutePath = cloudDirectoryAbsolutePath;
     }
 
     @Override
-    public void setCloudDriver(String name) {
-        this.driverName = name;
+    public String getCloudDirectory() {
+        return cloudDirectoryAbsolutePath;
     }
 
     @Override
-    public String toString() {
-        return "AbstractCloudBootstrapDetails{" +
-                "driverName='" + driverName + '\'' +
-                '}';
+    public void setCloudPropertiesFile(File propertiesFile) {
+        this.propertiesFile = propertiesFile;
+    }
+
+    @Override
+    public File getCloudPropertiesFile() {
+        return propertiesFile;
     }
 }

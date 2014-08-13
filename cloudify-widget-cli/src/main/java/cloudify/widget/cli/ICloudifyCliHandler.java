@@ -15,7 +15,7 @@ public interface ICloudifyCliHandler {
      * @param details -
      * @return new cloud folder
      */
-    public File createNewCloud( ICloudBootstrapDetails details );
+    public void writeBootstrapProperties( ICloudBootstrapDetails details );
 
     /**
      * Runs a command in the background
@@ -30,14 +30,6 @@ public interface ICloudifyCliHandler {
      */
     public String getOutput( ICloudBootstrapDetails details );
 
-    /**
-     *
-     *
-     *
-     * @param destFolder - output of {@link #createNewCloud(ICloudBootstrapDetails)}
-     * @param details - bootstrap details
-     * @return the properties file
-     */
-    public File getPropertiesFile( File destFolder, ICloudBootstrapDetails details  );
+
 
 }

@@ -162,7 +162,7 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
                 .overrides(overrides)
                 .modules(modules)
                 .buildView(ComputeServiceContext.class);
-
+        logger.info("new context built");
         return context;
     }
 
