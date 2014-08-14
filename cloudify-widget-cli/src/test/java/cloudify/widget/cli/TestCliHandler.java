@@ -1,6 +1,7 @@
 package cloudify.widget.cli;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.junit.Test;
@@ -17,6 +18,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,8 +29,8 @@ import java.io.IOException;
  * Date: 2/13/14
  * Time: 1:26 PM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:cli-context.xml"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(locations = {"classpath:cli-context.xml"})
 public class TestCliHandler implements ApplicationContextAware{
     private static Logger logger = LoggerFactory.getLogger(TestCliHandler.class);
 
@@ -47,11 +52,55 @@ public class TestCliHandler implements ApplicationContextAware{
 
     }
 
-    @Test
-    public void testCliHandler(){
-        File newCloudName = cliHandler.createNewCloud( bootstrapDetails );
-        logger.info("created new cloud name [{}]", newCloudName);
+
+    public void changeString( List<String> guy){
+        guy = new LinkedList<String>();
     }
+
+
+    public static class MyBean{
+        public String name;
+        public String lastName;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        @Override
+        public String toString() {
+            return "MyBean{" +
+                    "name='" + name + '\'' +
+                    ", lastName='" + lastName + '\'' +
+                    '}';
+        }
+    }
+
+
+    @Test
+    public void testMissingProperty() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String,String> map = new HashMap<String, String>();
+        map.put("name","guy");
+        String myString = objectMapper.writeValueAsString(map);
+        System.out.println("myString = " + myString);
+
+        MyBean myBean = objectMapper.readValue(myString, MyBean.class);
+        System.out.println("myBean = " + myBean);
+    }
+
+
 
 
     public ICloudifyCliHandler getCliHandler() {

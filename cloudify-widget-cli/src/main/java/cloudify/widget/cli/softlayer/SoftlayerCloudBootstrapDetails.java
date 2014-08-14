@@ -1,6 +1,11 @@
 package cloudify.widget.cli.softlayer;
 
 
+import cloudify.widget.common.StringUtils;
+
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * Created with IntelliJ IDEA.
  * User: guym
@@ -14,7 +19,7 @@ public class SoftlayerCloudBootstrapDetails extends AbstractCloudBootstrapDetail
 
 
     public SoftlayerCloudBootstrapDetails() {
-        driverName = "softlayer";
+
     }
 
     public String getUsername() {
@@ -31,6 +36,14 @@ public class SoftlayerCloudBootstrapDetails extends AbstractCloudBootstrapDetail
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    @Override
+    public Collection<String> getProperties() {
+        Collection<String> newLines = new LinkedList<String>();
+        newLines.add("user=" + StringUtils.wrapWithQuotes(username));
+        newLines.add("apiKey=" + StringUtils.wrapWithQuotes(apiKey));
+        return newLines;
     }
 
     @Override
