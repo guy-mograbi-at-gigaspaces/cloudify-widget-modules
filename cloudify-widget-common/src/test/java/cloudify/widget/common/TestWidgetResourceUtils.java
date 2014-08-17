@@ -1,6 +1,7 @@
 package cloudify.widget.common;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -116,5 +118,62 @@ public class TestWidgetResourceUtils {
         logger.info("last modified [{}] , [{}] ", manager.lastModified(), new Date(manager.lastModified()));
 
         // the assertion is that no error is thrown.
+    }
+
+    @Test
+    public void testWalk() throws IOException {
+        File tempFolder = new File(System.getProperty("java.io.tmpdir"),"testFreshCopyDir");
+        FileUtils.deleteDirectory( tempFolder );
+
+        WidgetResourcesUtils.ResourceManager manager = new WidgetResourcesUtils.ResourceManager();
+
+
+        manager.setUrl("https://github.com/guy-mograbi-at-gigaspaces/gs-ui-infra/archive/master.zip");
+        String resourceUuid = UUID.randomUUID().toString();
+        manager.setUid(resourceUuid);
+        manager.setBaseDir( tempFolder.getAbsolutePath() );
+
+        manager.download();
+        manager.extract();
+        List<ResourceWalker.ResourceWalkResult> walk = manager.walk();
+        logger.info("walking result is : [{}]", new ObjectMapper().writeValueAsString(walk));
+
+    }
+
+    public String findFirstFile( List<ResourceWalker.ResourceWalkResult> result ){
+        for (ResourceWalker.ResourceWalkResult resourceWalkResult : result) {
+            if ( resourceWalkResult.isDirectory ){
+                String firstFile = findFirstFile( resourceWalkResult.children );
+                if ( firstFile != null ){
+                    return firstFile;
+                }
+            }else{
+                return resourceWalkResult.path;
+            }
+        }
+        return null;
+    }
+
+    @Test
+    public void testReadContent() throws IOException {
+        File tempFolder = new File(System.getProperty("java.io.tmpdir"),"testFreshCopyDir");
+        FileUtils.deleteDirectory( tempFolder );
+
+        WidgetResourcesUtils.ResourceManager manager = new WidgetResourcesUtils.ResourceManager();
+
+
+        manager.setUrl("https://github.com/guy-mograbi-at-gigaspaces/gs-ui-infra/archive/master.zip");
+        String resourceUuid = UUID.randomUUID().toString();
+        manager.setUid(resourceUuid);
+        manager.setBaseDir( tempFolder.getAbsolutePath() );
+
+        manager.download();
+        manager.extract();
+        List<ResourceWalker.ResourceWalkResult> walk = manager.walk();
+        String str = findFirstFile( walk );
+        logger.info("reading contents of [{}]", str );
+        manager.read(str);
+
+        logger.info("walking result is : [{}]", new ObjectMapper().writeValueAsString(walk));
     }
 }

@@ -1,5 +1,6 @@
 package cloudify.widget.common;
 
+import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.ZipException;
 
 /**
@@ -82,6 +85,23 @@ public class WidgetResourcesUtils {
         }
     }
 
+    static public List<ResourceWalker.ResourceWalkResult> walk( File baseDir ){
+        List<ResourceWalker.ResourceWalkResult> result = new LinkedList<ResourceWalker.ResourceWalkResult>();
+        ResourceWalker walker = new ResourceWalker();
+        walker.walkResource( baseDir , result );
+        return result;
+    }
+
+    static public String readContent( File file ){
+        try {
+            return FileUtils.readFileToString(file);
+        }catch(Exception e){
+            throw new RuntimeException("unable to read contents",e);
+        }
+    }
+
+
+
 
     // takes care of a recipe
     public static class ResourceManager{
@@ -91,7 +111,6 @@ public class WidgetResourcesUtils {
         private static Logger logger = LoggerFactory.getLogger(ResourceManager.class);
         // the dest dir (base + uid )
         public File getDestDir(){
-
             return new File(baseDir, uid);
         }
 
@@ -117,10 +136,18 @@ public class WidgetResourcesUtils {
             WidgetResourcesUtils.deleteFile(getArchiveFile());
         }
 
+        public String read( String path ){
+            return readContent( new File(getDestDir(), path) );
+        }
+
         // copies dest dir to target
         public void copy( File target ){
             logger.info("copying [{}] to [{}]", getDestDir(), target);
             WidgetResourcesUtils.copyDir( getDestDir(), target );
+        }
+
+        public List<ResourceWalker.ResourceWalkResult> walk(){
+            return WidgetResourcesUtils.walk( getDestDir() );
         }
 
         // tells me if the resource already downloaded
@@ -146,6 +173,7 @@ public class WidgetResourcesUtils {
             copy(target);
             return performedDownload;
         }
+
 
 
         public long lastModified(){
