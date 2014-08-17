@@ -147,6 +147,11 @@ public class WidgetResourcesUtils {
             return performedDownload;
         }
 
+
+        public long lastModified(){
+            return getArchiveFile().lastModified();
+        }
+
         /**
          * This function ignores the cache altogether.
          * it downloads a new copy of the resource every single time.

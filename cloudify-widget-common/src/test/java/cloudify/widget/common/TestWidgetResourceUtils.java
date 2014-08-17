@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,8 @@ import java.util.UUID;
  * Time: 9:40 PM
  */
 public class TestWidgetResourceUtils {
+
+    private static Logger logger = LoggerFactory.getLogger(TestWidgetResourceUtils.class);
 
     @Test
     public void test() throws IOException {
@@ -87,10 +90,31 @@ public class TestWidgetResourceUtils {
         String resourceUuid = UUID.randomUUID().toString();
         manager.setUid(resourceUuid);
 
-        manager.copyFromCache(tempTarget );
-        Assert.assertFalse("expecting download will not happen again",manager.copyFromCache(tempTarget ));
+        manager.copyFromCache(tempTarget);
+        Assert.assertFalse("expecting download will not happen again", manager.copyFromCache(tempTarget));
         String absolutePath = new File(tempTarget, "master.zip").getAbsolutePath();
         Assert.assertTrue( "expecting [" + absolutePath + "] to exist" , new File(absolutePath).exists() );
         Assert.assertTrue( new File( tempTarget, "gs-ui-infra-master").exists() );
+    }
+
+
+    @Test
+    public void testLastModified() throws IOException {
+        File tempFolder = new File(System.getProperty("java.io.tmpdir"),"testFreshCopyDir");
+        File tempTarget = new File(tempFolder, "testFreshCopy" );
+        FileUtils.deleteDirectory( tempFolder );
+
+        WidgetResourcesUtils.ResourceManager manager = new WidgetResourcesUtils.ResourceManager();
+
+
+        manager.setUrl("https://github.com/guy-mograbi-at-gigaspaces/gs-ui-infra/archive/master.zip");
+        String resourceUuid = UUID.randomUUID().toString();
+        manager.setUid(resourceUuid);
+
+        manager.copyFromCache(tempTarget );
+
+        logger.info("last modified [{}] , [{}] ", manager.lastModified(), new Date(manager.lastModified()));
+
+        // the assertion is that no error is thrown.
     }
 }
