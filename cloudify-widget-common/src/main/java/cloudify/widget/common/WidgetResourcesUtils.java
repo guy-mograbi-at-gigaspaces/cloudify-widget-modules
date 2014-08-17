@@ -128,6 +128,44 @@ public class WidgetResourcesUtils {
             return getDestDir().exists();
         }
 
+        /**
+         * A complex function that checks if cache exists or not,
+         * if cache exists, simply copies to target. otherwise downloads to cache, extracts and copies.
+         *
+         * @param target
+         *
+         * @return true iff download was performed
+         */
+        public boolean copyFromCache( File target ){
+            boolean performedDownload = false;
+            if ( ! isExtracted()  ) {
+                performedDownload = true;
+                download();
+                extract();
+            }
+            copy(target);
+            return performedDownload;
+        }
+
+        /**
+         * This function ignores the cache altogether.
+         * it downloads a new copy of the resource every single time.
+         *
+         * eventually it will delete the temp folder
+         *
+         *
+         * use if resource is really small
+         *
+         * @param target
+         */
+        public void copyFresh(File target) {
+            baseDir = new File(System.getProperty("java.io.tmpdir"), "cloudifyWidget" + System.currentTimeMillis() ).getAbsolutePath();
+            download();
+            extract();
+            copy(target);
+            deleteDir(new File(baseDir));
+        }
+
         // deletes the dest dir
         public void delete(){
             logger.info("deleting [{}]", getDestDir());
