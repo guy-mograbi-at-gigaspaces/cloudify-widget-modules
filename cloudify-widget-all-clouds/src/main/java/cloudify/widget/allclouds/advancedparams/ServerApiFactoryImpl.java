@@ -2,6 +2,9 @@ package cloudify.widget.allclouds.advancedparams;
 
 import cloudify.widget.api.clouds.CloudProvider;
 import cloudify.widget.api.clouds.CloudServerApi;
+import cloudify.widget.api.clouds.IConnectDetails;
+import cloudify.widget.cli.ICloudBootstrapDetails;
+import cloudify.widget.cli.softlayer.SoftlayerCloudBootstrapDetails;
 import cloudify.widget.softlayer.SoftlayerCloudServerApi;
 import cloudify.widget.softlayer.SoftlayerConnectDetails;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -22,6 +25,48 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
     @Override
     public CloudServerApi advancedParamsToServerApi( CloudProvider cloudProvider, String advancedData ){
         logger.info("creating cloud server api from advanced params");
+        CloudServerApi cloudServerApi = create(cloudProvider);
+        IConnectDetails iConnectDetails = advancedParamsToConnectDetails(cloudProvider, advancedData);
+        initialize(cloudServerApi, iConnectDetails);
+        return cloudServerApi;
+    }
+
+    private CloudServerApi create( CloudProvider  provider ){
+        switch(provider){
+            case SOFTLAYER: {
+                return new SoftlayerCloudServerApi();
+            }
+            default: {
+                throw new UnsupportedOperationException("provider [" + provider + "] is unsupported");
+            }
+        }
+
+    }
+
+    public CloudServerApi initialize( CloudServerApi cloudServerApi, IConnectDetails connectDetails ){
+        cloudServerApi.connect( connectDetails );
+        return cloudServerApi;
+    }
+
+    public IConnectDetails createSoftlayerConnectDetails( AdvancedParams advancedParams ){
+        SoftlayerConnectDetails connectDetails = new SoftlayerConnectDetails();
+        connectDetails.setKey( advancedParams.params.get("apiKey"));
+        connectDetails.setUsername(advancedParams.params.get("username"));
+        connectDetails.setNetworkId("274");
+        connectDetails.isApiKey = true;
+        return connectDetails;
+    }
+
+    public CloudServerApi createHpcloudServerApi( AdvancedParams advancedParams ){
+        throw new UnsupportedOperationException("we stopped supporting hp cloud for now");
+    }
+
+    public CloudServerApi createEc2CloudServerApi( AdvancedParams advancedParams ){
+        throw new UnsupportedOperationException("this feature is still being developed");
+    }
+
+    @Override
+    public IConnectDetails advancedParamsToConnectDetails(CloudProvider cloudProvider, String advancedData) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         AdvancedParams advancedParams = null;
@@ -37,44 +82,29 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
             throw new RuntimeException("cloudProvider does not match advancedParams.type. This probably means the widget and its display are not sychronized. please fix widget configuration");
         }
 
-        switch( cloudProviderByLabel ){
 
-            case HP: {
-                return createHpcloudServerApi(advancedParams);
-            }
-            case AWS_EC2: {
-                return createEc2CloudServerApi(advancedParams);
-            }
+        switch(cloudProvider){
             case SOFTLAYER: {
-                return createSoftlayerServerapi(advancedParams);
+                return createSoftlayerConnectDetails( advancedParams );
             }
-            case NA: {
-                throw new RuntimeException("cloud provider NA is unsupported. ");
-            }
-            default: {
-                throw new RuntimeException("it seems we forgot to add support for this cloud provider.. :( ");
+
+            default:{
+                throw new UnsupportedOperationException("cloud provider [" + cloudProvider + "] is not supported");
             }
         }
-
     }
 
-
-    public CloudServerApi createSoftlayerServerapi( AdvancedParams advancedParams ){
-        CloudServerApi cloudServerApi = new SoftlayerCloudServerApi();
-        SoftlayerConnectDetails connectDetails = new SoftlayerConnectDetails();
-        connectDetails.setKey( advancedParams.params.get("apiKey"));
-        connectDetails.setUsername(advancedParams.params.get("username"));
-        connectDetails.setNetworkId("274");
-        connectDetails.isApiKey = true;
-        cloudServerApi.connect( connectDetails );
-        return cloudServerApi;
-    }
-
-    public CloudServerApi createHpcloudServerApi( AdvancedParams advancedParams ){
-        throw new UnsupportedOperationException("we stopped supporting hp cloud for now");
-    }
-
-    public CloudServerApi createEc2CloudServerApi( AdvancedParams advancedParams ){
-        throw new UnsupportedOperationException("this feature is still being developed");
+    @Override
+    public ICloudBootstrapDetails createCloudBootstrapDetails(CloudProvider cloudProvider) {
+            ICloudBootstrapDetails result = null;
+            switch( cloudProvider ){
+                case SOFTLAYER: {
+                    result = new SoftlayerCloudBootstrapDetails();
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("cloud provider [" + cloudProvider + "] is not supported ");
+            }
+            return result;
     }
 }

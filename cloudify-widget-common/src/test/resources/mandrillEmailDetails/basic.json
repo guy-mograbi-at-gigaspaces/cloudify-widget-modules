@@ -1,0 +1,12 @@
+{
+    "templateName" : "guy",
+    "templateContent" : {
+        "key1" : "value1",
+        "key2" : "value2"
+    },
+    "mandrillMessage" : {
+        "subject" : "my subject",
+        "to":[{"email":"me@email.com","name":"my name","type":"TO"}]
+    },
+    "async":true
+}
