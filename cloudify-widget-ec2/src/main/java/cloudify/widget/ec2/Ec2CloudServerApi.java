@@ -8,6 +8,7 @@ import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.api.clouds.ISecurityGroupDetails;
 import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.api.clouds.ISshOutputHandler;
 import cloudify.widget.api.clouds.MachineOptions;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
@@ -240,6 +241,11 @@ public class Ec2CloudServerApi implements CloudServerApi {
         }
 
         return new CloudExecResponseImpl( execResponse );
+    }
+
+    @Override
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails, ISshOutputHandler sshOutputHandler) {
+        return null;
     }
 
 

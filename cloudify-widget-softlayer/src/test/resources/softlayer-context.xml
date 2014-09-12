@@ -19,6 +19,8 @@
     <bean id="cloudServer" class="cloudify.widget.softlayer.SoftlayerCloudServerApi">
 
     </bean>
+    
+
 
 
     <bean id="machineOptions" class="cloudify.widget.softlayer.SoftlayerMachineOptions">

@@ -53,13 +53,16 @@ public class MandrillSender {
         public String toString() {
             try {
                 return "MandrillEmailDetails{" +
-                        "templateName='" + templateName + '\'' +
+                        "mandrillApiKey='" + mandrillApiKey + '\'' +
+                        ", templateName='" + templateName + '\'' +
+                        ", templateContent=" + templateContent +
+                        ", mandrillMessage=" + mandrillMessage +
                         ", async=" + async +
                         '}';
             }catch(Exception e){
-                logger.error("unable to transform to string",e);
-                return "ERROR :: " + e.getMessage() ;
+                logger.error("unable to transform to string :: ",e);
             }
+            return "NA";
         }
     }
 }

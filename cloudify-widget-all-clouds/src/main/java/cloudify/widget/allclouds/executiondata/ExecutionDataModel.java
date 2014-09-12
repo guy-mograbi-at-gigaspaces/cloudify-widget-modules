@@ -78,7 +78,8 @@ public class ExecutionDataModel {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readTree(toParse);
 
-        }catch(Exception e){
+        }
+        catch (Exception e){
             throw new RuntimeException("unable to read execution data",e);
         }
     }
@@ -121,7 +122,10 @@ public class ExecutionDataModel {
             ObjectMapper mapper = new ObjectMapper();
             mapper.readerForUpdating(cloudBootstrapDetails).readValue(asJson().get(JsonKeys.ADVANCED_DATA.value).get("params"));
             return cloudBootstrapDetails;
+        }catch(UnsupportedOperationException e){
+            throw e;
         }catch(Exception e){
+            logger.info("unable to parse json [{}]", asJson().get(JsonKeys.ADVANCED_DATA.value));
             throw new RuntimeException("unable to get cloud bootstrap details",e);
         }
     }

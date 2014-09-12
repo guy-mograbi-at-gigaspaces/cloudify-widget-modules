@@ -8,6 +8,7 @@ import cloudify.widget.api.clouds.CloudServerCreated;
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.api.clouds.ISecurityGroupDetails;
 import cloudify.widget.api.clouds.ISshDetails;
+import cloudify.widget.api.clouds.ISshOutputHandler;
 import cloudify.widget.api.clouds.MachineOptions;
 import cloudify.widget.api.clouds.RunNodesException;
 import cloudify.widget.common.CloudExecResponseImpl;
@@ -197,6 +198,11 @@ public class HpCloudServerApi implements CloudServerApi {
         }catch(Exception e){
             throw new RuntimeException("unable to run SSH on " + serverIp,e);
         }
+    }
+
+    @Override
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails, ISshOutputHandler sshOutputHandler) {
+        return null;
     }
 
 }

@@ -32,23 +32,30 @@ private static Logger logger = LoggerFactory.getLogger(Ec2KeyPairGenerator.class
     String keyPrefix = "cloudify-widget-";
 
     //todo : add region support
-    public String  generate(String user, String apiKey ) {
+    public Data  generate(String user, String apiKey ) {
         logger.info("generating private key");
         final AWSCredentials credentials = new BasicAWSCredentials(user, apiKey);
         AmazonEC2 ec2 = new AmazonEC2Client(credentials);
 
         CreateKeyPairRequest createKeyPairRequest = new CreateKeyPairRequest();
         // setting the key name. Important: must be unique!
-        createKeyPairRequest.withKeyName("cloudify-widget-" + System.currentTimeMillis());
+        String name = "cloudify-widget-" + System.currentTimeMillis();
+        createKeyPairRequest.withKeyName(name);
         CreateKeyPairResult createKeyPairResult = ec2.createKeyPair(createKeyPairRequest);
 
+
+
         // Getting the unencrypted PEM-encoded private key
-        KeyPair keyPair = new KeyPair();
-        keyPair = createKeyPairResult.getKeyPair();
+        KeyPair keyPair = createKeyPairResult.getKeyPair();
         String privateKey = keyPair.getKeyMaterial();
 
+
+        Data data = new Data();
+        data.setName(name);
+        data.setContent(privateKey);
+
         logger.info("success");
-        return privateKey;
+        return data;
 
     }
 
@@ -58,5 +65,35 @@ private static Logger logger = LoggerFactory.getLogger(Ec2KeyPairGenerator.class
 
     public void setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
+    }
+
+
+    public static class Data{
+        String name;
+        String content;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        @Override
+        public String toString() {
+            return "Data{" +
+                    "name='" + name + '\'' +
+                    ", content='" + content + '\'' +
+                    '}';
+        }
     }
 }

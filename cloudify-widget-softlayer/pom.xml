@@ -34,11 +34,7 @@
             <artifactId>jclouds-compute</artifactId>
             <version>1.6.2-incubating</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.jclouds.driver</groupId>
-            <artifactId>jclouds-sshj</artifactId>
-            <version>${jCloudsVersion}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
             <artifactId>softlayer-all</artifactId>
