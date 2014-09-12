@@ -12,9 +12,11 @@ import cloudify.widget.api.clouds.MachineOptions;
 import cloudify.widget.common.CloudExecResponseImpl;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeService;
@@ -28,6 +30,7 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import org.slf4j.Logger;
@@ -170,7 +173,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
         ComputeServiceContext context = ContextBuilder.newBuilder(cloudProvider)
                 .overrides(overrides)
                 .credentials(accessId, secretAccessKey)
-//                .modules(ImmutableSet.<Module>of(new Log4JLoggingModule(),new SshjSshClientModule()))
+                .modules(ImmutableSet.<Module>of(new SLF4JLoggingModule()))
                 .buildView(ComputeServiceContext.class);
 
         return context;

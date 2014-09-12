@@ -21,6 +21,7 @@ import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.logging.config.NullLoggingModule;
 
 
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.softlayer.compute.functions.guest.VirtualGuestToReducedNodeMetaDataLocal;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 import org.jclouds.ssh.SshClient;
@@ -145,6 +146,8 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
                 bind(org.jclouds.softlayer.compute.functions.guest.VirtualGuestToNodeMetadata.class).to(VirtualGuestToReducedNodeMetaDataLocal.class);
             }
         });
+
+        modules.add(new SLF4JLoggingModule());
 
         ComputeServiceContext context;
         Properties overrides = new Properties();
