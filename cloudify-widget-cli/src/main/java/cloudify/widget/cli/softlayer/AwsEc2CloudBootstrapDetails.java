@@ -53,9 +53,9 @@ public class AwsEc2CloudBootstrapDetails extends AbstractCloudBootstrapDetails {
         public Collection<String> getProperties() {
             Collection<String> newLines = new LinkedList<String>();
             newLines.add("user=" + StringUtils.wrapWithQuotes(key));
-            newLines.add("secretKey" + StringUtils.wrapWithQuotes(secretKey));
-            newLines.add("keyFile" + StringUtils.wrapWithQuotes(keyFile));
-            newLines.add("keyPair" + StringUtils.wrapWithQuotes(keyPair));
+            newLines.add("secretKey=" + StringUtils.wrapWithQuotes(secretKey));
+            newLines.add("keyFile=" + StringUtils.wrapWithQuotes(keyFile));
+            newLines.add("keyPair=" + StringUtils.wrapWithQuotes(keyPair));
             return newLines;
         }
 
