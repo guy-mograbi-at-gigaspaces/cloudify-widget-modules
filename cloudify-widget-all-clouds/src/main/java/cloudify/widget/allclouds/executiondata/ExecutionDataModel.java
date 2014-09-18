@@ -6,6 +6,7 @@ import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.cli.ICloudBootstrapDetails;
 import cloudify.widget.common.StringUtils;
+import cloudify.widget.ec2.executiondata.AwsEc2ExecutionModel;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jasypt.util.text.BasicTextEncryptor;
@@ -30,7 +31,7 @@ public class ExecutionDataModel {
         ADVANCED_DATA("advancedData"),
         RECIPE_PROPERTIES("recipeProperties"),
         LOGIN_DETAILS("loginDetails"),
-        PREBOOTSTRAP_ACTIONS("prebootstrapActions");
+        AWS_EC2_EXECUTION_DETAILS("ec2ExecutionDetails");
 
         public String value;
 
@@ -85,6 +86,8 @@ public class ExecutionDataModel {
     }
 
 
+
+
     private boolean hasKey( JsonNode jsonNode, String keyName ){
         return jsonNode != null && jsonNode.has(keyName) && !StringUtils.isEmptyOrSpaces(jsonNode.get(keyName).toString());
     }
@@ -92,12 +95,28 @@ public class ExecutionDataModel {
 
     public boolean has( JsonKeys key ){ return hasKey( asJson(), key.value ); }
 
+    public AwsEc2ExecutionModel getAwsEc2ExecutionModel(){
+        if ( has ( JsonKeys.AWS_EC2_EXECUTION_DETAILS) ){
+            return getFieldAsClass(JsonKeys.AWS_EC2_EXECUTION_DETAILS,AwsEc2ExecutionModel.class);
+        }else{
+            return null;
+        }
+    }
+
 
     public String getFieldAsString( JsonKeys jsonKey ){
         return getFieldAsJson(jsonKey).toString();
     }
 
     public JsonNode getFieldAsJson ( JsonKeys jsonKey ){ return asJson().get(jsonKey.value); }
+
+    private <T> T getFieldAsClass( JsonKeys jsonKey, Class<T> clzz ){
+        try{
+            return new ObjectMapper().readValue( getFieldAsString(jsonKey), clzz);
+        }catch(Exception e){
+            throw new RuntimeException("unable to read execution data for class [" + clzz +"]", e );
+        }
+    }
 
     public IConnectDetails advancedDataToConnectDetails( CloudProvider cloudProvider ){
         return serverApiFactory.advancedParamsToConnectDetails( cloudProvider, getFieldAsString(JsonKeys.ADVANCED_DATA));
@@ -133,6 +152,8 @@ public class ExecutionDataModel {
     public IServerApiFactory getServerApiFactory() {
         return serverApiFactory;
     }
+
+
 
     public void setServerApiFactory(IServerApiFactory serverApiFactory) {
         this.serverApiFactory = serverApiFactory;
