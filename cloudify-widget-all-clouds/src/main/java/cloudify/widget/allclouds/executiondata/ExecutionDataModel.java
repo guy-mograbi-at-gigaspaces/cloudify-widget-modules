@@ -31,6 +31,7 @@ public class ExecutionDataModel {
         ADVANCED_DATA("advancedData"),
         RECIPE_PROPERTIES("recipeProperties"),
         LOGIN_DETAILS("loginDetails"),
+        LEAD_DETAILS("leadDetails"),
         AWS_EC2_EXECUTION_DETAILS("ec2ExecutionDetails");
 
         public String value;
