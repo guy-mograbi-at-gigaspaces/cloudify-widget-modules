@@ -2,13 +2,11 @@ package cloudify.widget.cli.softlayer;
 
 import cloudify.widget.cli.ICloudBootstrapDetails;
 import cloudify.widget.cli.ICloudifyCliHandler;
-import cloudify.widget.common.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -18,17 +16,13 @@ import java.util.LinkedList;
  * Date: 2/13/14
  * Time: 1:00 PM
  */
-public class SoftlayerCloudifyCliHandler implements ICloudifyCliHandler {
+public class CloudifyCliHandlerImpl implements ICloudifyCliHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(SoftlayerCloudifyCliHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(CloudifyCliHandlerImpl.class);
 
     @Override
     public void writeBootstrapProperties(ICloudBootstrapDetails details) {
         logger.info("creating new cloud for [{}]", details);
-        if ( ! ( details instanceof SoftlayerCloudBootstrapDetails ) ){
-            throw new RuntimeException("expected SoftlayerBootstrapDetails implementation");
-        }
-
         try {
             File propertiesFile = details.getCloudPropertiesFile();
 

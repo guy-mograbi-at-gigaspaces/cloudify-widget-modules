@@ -4,6 +4,7 @@ import static com.google.common.collect.Collections2.*;
 
 import cloudify.widget.api.clouds.*;
 import cloudify.widget.common.CloudExecResponseImpl;
+import cloudify.widget.common.ssh.MachineScriptRunner;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.net.HostAndPort;
@@ -227,6 +228,26 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+//    @Override
+//    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
+//
+//        SoftlayerSshDetails softlayerSshDetails = getMachineCredentialsByIp( serverIp );
+//        //retrieve missing ssh details
+//        String user = softlayerSshDetails.user();
+//        String password = softlayerSshDetails.password();
+//        int port = softlayerSshDetails.port();
+//
+//        logger.debug("Run ssh on server: {} script: {}" , serverIp, script );
+//
+//
+//        LoginCredentials loginCredentials = LoginCredentials.builder().user(user).password(password).build();
+//        //.privateKey(Strings2.toStringAndClose(new FileInputStream(conf.server.bootstrap.ssh.privateKey)))
+//
+//        MachineScriptRunner scriptRunner = new MachineScriptRunner();
+//        return scriptRunner.runScriptOnMachine(HostAndPort.fromParts(serverIp, port), loginCredentials, script, null );
+//    }
+
+
     @Override
     public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails) {
 
@@ -259,6 +280,10 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         return new CloudExecResponseImpl( execResponse );
     }
 
+    @Override
+    public CloudExecResponse runScriptOnMachine(String script, String serverIp, ISshDetails sshDetails, ISshOutputHandler sshOutputHandler) {
+        return null;
+    }
 
     private SoftlayerSshDetails getMachineCredentialsByIp( final String ip ){
 

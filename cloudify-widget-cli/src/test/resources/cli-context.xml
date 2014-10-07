@@ -13,7 +13,7 @@
         <property name="apiKey" value="${apiKey}"></property>
     </bean>
 
-    <bean id="cliHandler" class="cloudify.widget.cli.softlayer.SoftlayerCloudifyCliHandler">
+    <bean id="cliHandler" class="cloudify.widget.cli.softlayer.CloudifyCliHandlerImpl">
         <property name="cloudifyCloudFoldername" value="softlayer"></property>
         <property name="cloudifyHomeDir" value="${cloudifyHomedir}"></property>
         <property name="cloudifyCloudsFolderRelativePath" value="clouds"></property>

@@ -21,6 +21,9 @@ public class TestKeyPairGenerator {
     public static class TestDetails{
         String key;
         String secretKey;
+        String imageId;
+        String accountId;
+        String endpoint;
 
         public String getKey() {
             return key;
@@ -37,6 +40,30 @@ public class TestKeyPairGenerator {
         public void setSecretKey(String secretKey) {
             this.secretKey = secretKey;
         }
+
+        public String getImageId() {
+            return imageId;
+        }
+
+        public void setImageId(String imageId) {
+            this.imageId = imageId;
+        }
+
+        public String getAccountId() {
+            return accountId;
+        }
+
+        public void setAccountId(String accountId) {
+            this.accountId = accountId;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
     }
 
     @Autowired
@@ -47,8 +74,8 @@ public class TestKeyPairGenerator {
     @Test
     public void testKeyPairGenerator(){
         Ec2KeyPairGenerator gen = new Ec2KeyPairGenerator();
-         String output = gen.generate( testDetails.getKey(), testDetails.getSecretKey() );
-         logger.info(output);
+         Ec2KeyPairGenerator.Data data = gen.generate( testDetails.getKey(), testDetails.getSecretKey() );
+         logger.info("[{}]",data);
     }
 
     public void setTestDetails(TestDetails testDetails) {

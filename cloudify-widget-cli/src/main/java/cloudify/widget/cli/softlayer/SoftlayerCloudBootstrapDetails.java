@@ -14,7 +14,6 @@ import java.util.LinkedList;
  */
 public class SoftlayerCloudBootstrapDetails extends AbstractCloudBootstrapDetails{
     private String username;
-
     private String apiKey;
 
 

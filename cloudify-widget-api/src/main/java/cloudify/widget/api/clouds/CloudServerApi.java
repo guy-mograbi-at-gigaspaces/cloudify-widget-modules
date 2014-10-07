@@ -76,4 +76,6 @@ public interface CloudServerApi {
 
     public CloudExecResponse runScriptOnMachine( String script, String serverIp, ISshDetails sshDetails );
 
+    public CloudExecResponse runScriptOnMachine( String script, String serverIp, ISshDetails sshDetails, ISshOutputHandler sshOutputHandler );
+
 }

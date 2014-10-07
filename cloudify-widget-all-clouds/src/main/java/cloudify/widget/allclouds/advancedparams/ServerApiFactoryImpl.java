@@ -4,6 +4,7 @@ import cloudify.widget.api.clouds.CloudProvider;
 import cloudify.widget.api.clouds.CloudServerApi;
 import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.cli.ICloudBootstrapDetails;
+import cloudify.widget.cli.softlayer.AwsEc2CloudBootstrapDetails;
 import cloudify.widget.cli.softlayer.SoftlayerCloudBootstrapDetails;
 import cloudify.widget.softlayer.SoftlayerCloudServerApi;
 import cloudify.widget.softlayer.SoftlayerConnectDetails;
@@ -100,6 +101,10 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
             switch( cloudProvider ){
                 case SOFTLAYER: {
                     result = new SoftlayerCloudBootstrapDetails();
+                    break;
+                }
+                case AWS_EC2: {
+                    result = new AwsEc2CloudBootstrapDetails();
                     break;
                 }
                 default:

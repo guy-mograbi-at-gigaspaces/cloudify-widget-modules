@@ -8,6 +8,8 @@
 
     <context:property-placeholder location="conf/dev/me.conf"/>
 
+    <import resource="classpath:conf/dev/me-context.xml"/>
+
     <bean id="ec2ConnectDetails" class="cloudify.widget.ec2.Ec2ConnectDetails">
         <constructor-arg index="0" value="${ec2_access_id}"/>
         <constructor-arg index="1" value="${ec2_secret_access_key}"/>
@@ -16,6 +18,9 @@
     <bean id="testDetails" class="cloudify.widget.ec2.TestKeyPairGenerator$TestDetails">
         <property name="key" value="${ec2_access_id}"/>
         <property name="secretKey" value="${ec2_secret_access_key}"/>
+        <property name="imageId" value="ami-13c85029"/>
+        <property name="endpoint" value="ec2.us-west-2.amazonaws.com"/>
+        <property name="accountId"  value="547507846372"/>
     </bean>
     <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi"/>
 
