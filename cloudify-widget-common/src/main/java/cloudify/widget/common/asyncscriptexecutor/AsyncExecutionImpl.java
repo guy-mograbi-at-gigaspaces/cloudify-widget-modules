@@ -81,7 +81,7 @@ public class AsyncExecutionImpl implements IAsyncExecution {
 
     @Override
     public List<String> getOutputAsList(){
-        return Arrays.asList(getOutput().split(","));
+        return Arrays.asList(getOutput().split("\n"));
     }
 
 
