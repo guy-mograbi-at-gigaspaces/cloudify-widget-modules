@@ -2,9 +2,12 @@ package cloudify.widget.ec2;
 
 import cloudify.widget.api.clouds.CloudServer;
 import cloudify.widget.api.clouds.ServerIp;
+import cloudify.widget.common.CollectionUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: evgeny
@@ -15,6 +18,8 @@ public class Ec2CloudServer implements CloudServer {
 
     private final ComputeMetadata computeMetadata;
     private final ComputeService computeService;
+
+    private static Logger logger = LoggerFactory.getLogger(Ec2CloudServer.class);
 
     public Ec2CloudServer(ComputeService computeService, ComputeMetadata computeMetadata) {
         this.computeService = computeService;
@@ -53,7 +58,17 @@ public class Ec2CloudServer implements CloudServer {
     @Override
     public ServerIp getServerIp() {
         ServerIp serverIp = new ServerIp();
-        serverIp.privateIp = computeMetadata.getProviderId();
+        try {
+            serverIp.publicIp = CollectionUtils.first(((NodeMetadata) computeMetadata).getPublicAddresses());
+        }catch(Exception e){
+            logger.error("unable to read public ip",e);
+        }
+
+        try {
+            serverIp.privateIp = CollectionUtils.first(((NodeMetadata) computeMetadata).getPrivateAddresses());
+        }catch(Exception e){
+            logger.error("unable to read private ip",e);
+        }
         return serverIp;
     }
 }
