@@ -9,7 +9,7 @@ package cloudify.widget.api.clouds;
  */
 public enum CloudProvider {
     HP("hpcloud-compute"),
-    AWS_EC2("aws-ec2"),
+    AWS_EC2("aws_ec2"),
     SOFTLAYER("softlayer"),
     NA("na");
 
