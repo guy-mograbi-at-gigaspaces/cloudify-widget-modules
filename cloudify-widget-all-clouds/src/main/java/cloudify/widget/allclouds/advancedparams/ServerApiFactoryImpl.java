@@ -6,6 +6,8 @@ import cloudify.widget.api.clouds.IConnectDetails;
 import cloudify.widget.cli.ICloudBootstrapDetails;
 import cloudify.widget.cli.softlayer.AwsEc2CloudBootstrapDetails;
 import cloudify.widget.cli.softlayer.SoftlayerCloudBootstrapDetails;
+import cloudify.widget.ec2.Ec2CloudServerApi;
+import cloudify.widget.ec2.Ec2ConnectDetails;
 import cloudify.widget.softlayer.SoftlayerCloudServerApi;
 import cloudify.widget.softlayer.SoftlayerConnectDetails;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -37,6 +39,9 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
             case SOFTLAYER: {
                 return new SoftlayerCloudServerApi();
             }
+            case AWS_EC2:{
+                return new Ec2CloudServerApi();
+            }
             default: {
                 throw new UnsupportedOperationException("provider [" + provider + "] is unsupported");
             }
@@ -62,8 +67,11 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
         throw new UnsupportedOperationException("we stopped supporting hp cloud for now");
     }
 
-    public CloudServerApi createEc2CloudServerApi( AdvancedParams advancedParams ){
-        throw new UnsupportedOperationException("this feature is still being developed");
+    public IConnectDetails createEc2ConnectDetails( AdvancedParams advancedParams ){
+        Ec2ConnectDetails connectDetails = new Ec2ConnectDetails();
+        connectDetails.setAccessId( advancedParams.params.get("key"));
+        connectDetails.setSecretAccessKey( advancedParams.params.get("secretKey"));
+        return connectDetails;
     }
 
     @Override
@@ -87,6 +95,9 @@ public class ServerApiFactoryImpl implements IServerApiFactory {
         switch(cloudProvider){
             case SOFTLAYER: {
                 return createSoftlayerConnectDetails( advancedParams );
+            }
+            case AWS_EC2:{
+                return createEc2ConnectDetails( advancedParams );
             }
 
             default:{
