@@ -69,7 +69,7 @@ public class Ec2CloudServerApi implements CloudServerApi {
             public boolean apply(@Nullable ComputeMetadata computeMetadata) {
                 NodeMetadata nodeMetadata = ( NodeMetadata )computeMetadata;
                 return nodeMetadata.getStatus() == NodeMetadata.Status.RUNNING &&
-                        ( tag == null ? true : computeMetadata.getTags().contains( tag ));
+                        ( tag == null ? true : computeMetadata.getName().contains( tag )); // aligning to cloudify's convention
             }
         });
 
