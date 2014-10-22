@@ -60,6 +60,7 @@ public class ExecuteData {
         public MandrillDataItem lastName = new MandrillDataItem("lastName");
         public MandrillDataItem link = new MandrillDataItem("link");
         public MandrillDataItem linkTitle = new MandrillDataItem("linkTitle");
+        public MandrillDataItem publicIp = new MandrillDataItem("publicIp");
 
     }
 
