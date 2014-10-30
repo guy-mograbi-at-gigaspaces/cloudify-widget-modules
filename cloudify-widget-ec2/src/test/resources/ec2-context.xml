@@ -22,7 +22,9 @@
         <property name="endpoint" value="ec2.us-west-2.amazonaws.com"/>
         <property name="accountId"  value="547507846372"/>
     </bean>
-    <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi"/>
+    <bean id="cloudServer" class="cloudify.widget.ec2.Ec2CloudServerApi" init-method="connect">
+        <property name="connectDetails" ref="ec2ConnectDetails"/>
+    </bean>
 
     <bean id="machineOptions" class="cloudify.widget.ec2.Ec2MachineOptions">
         <property name="name" value="testawsec2"/>

@@ -104,19 +104,18 @@ public class Ec2OperationsTest {
             logger.info("EC2 cloud server id [{}]", cloudServerCreated.getId());
         }
     }                                                        */
-                   /*
+
 
     @Test
     public void testGetAllMachinesWithTag() {
 
-        Ec2CloudServerApi softlayerCloudServerApi = new Ec2CloudServerApi(computeService, null);
-        Collection<CloudServer> machinesWithTag = softlayerCloudServerApi.getAllMachinesWithTag(TAGS[0]);
+        Collection<CloudServer> machinesWithTag = cloudServerApi.getAllMachinesWithTag("ec2blu-mngr");
         logger.info("machines returned, size is [{}]", machinesWithTag.size());
         for (CloudServer cloudServer : machinesWithTag) {
-            logger.info("cloud server name [{}]", cloudServer.getName());
+            logger.info("cloud server name [{}] ip [{}]", cloudServer.getName(), cloudServer.getServerIp().publicIp);
         }
     }
-                 */
+
     /*
     @Ignore
     public void runScriptOnNodeTest(){

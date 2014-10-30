@@ -84,6 +84,23 @@ public class SoftlayerNonDestructiveOperationsTest {
         Assert.assertNull(cloudServer);
     }
 
+
+    @Test
+    public void testCreateMachine(){
+        cloudServerApi.connect(connectDetails);
+        logger.info("Start test create softlayer machine");
+
+        logger.info("softlayerCloudServerApi created");
+        logger.info("creating machines");
+        Collection<? extends CloudServerCreated> cloudServerCreatedCollection = cloudServerApi.create( machineOptions );
+        assertNotNull("cloud server created collection should not be null", cloudServerCreatedCollection);
+        logger.info( "machine(s) created, count=" + cloudServerCreatedCollection.size() );
+        Assert.assertEquals( "should create number of machines specified", machineOptions.machinesCount(), CollectionUtils.size(cloudServerCreatedCollection) );
+
+
+        logger.info("Start test create softlayer machine, completed");
+    }
+
     @Test
     public void testSoftlayerDriver() {
 
