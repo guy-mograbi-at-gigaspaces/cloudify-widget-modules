@@ -31,29 +31,18 @@ public class Ec2SecurityGroup {
         this.ec2ConnectDetails = ec2ConnectDetails;
     }
 
+
+
+
+
     /**
      * Check if the security group is opened according to the given security group data
      * @param data
      * @return
      */
-    public boolean isSecurityGroupOpen(WidgetSecurityGroupData data) {
+    public boolean isSecurityGroupOpen(WidgetSecurityGroupData data, List<SecurityGroup> securityGroups ) {
 
-        // Connect to ec2
-        final AWSCredentials credentials = new BasicAWSCredentials(ec2ConnectDetails.getAccessId(), ec2ConnectDetails.getSecretAccessKey());
-        AmazonEC2 ec2 = new AmazonEC2Client(credentials);
 
-        // Build the query request (according to group name)
-        DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
-
-        List<String> groupNames = new ArrayList<String>();
-        groupNames.add(data.getName());
-        describeSecurityGroupsRequest.setGroupNames(groupNames);
-
-        // Get the group(s) data
-        DescribeSecurityGroupsResult describeSecurityGroupsResult = ec2.describeSecurityGroups(describeSecurityGroupsRequest);
-
-        List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
-        logger.info("Found securityGroups [{}] for name {}", securityGroups.size(),data.getName());
 
         // Check all groups with this name (if possible)
         for (SecurityGroup securityGroup : securityGroups) {
@@ -81,6 +70,26 @@ public class Ec2SecurityGroup {
 
         }
         return false;
+    }
+
+    public List<SecurityGroup> getSecurityGroups(WidgetSecurityGroupData data) throws AmazonServiceException {
+        // Connect to ec2
+        final AWSCredentials credentials = new BasicAWSCredentials(ec2ConnectDetails.getAccessId(), ec2ConnectDetails.getSecretAccessKey());
+        AmazonEC2 ec2 = new AmazonEC2Client(credentials);
+
+        // Build the query request (according to group name)
+        DescribeSecurityGroupsRequest describeSecurityGroupsRequest = new DescribeSecurityGroupsRequest();
+
+        List<String> groupNames = new ArrayList<String>();
+        groupNames.add(data.getName());
+        describeSecurityGroupsRequest.setGroupNames(groupNames);
+
+        // Get the group(s) data
+        DescribeSecurityGroupsResult describeSecurityGroupsResult = ec2.describeSecurityGroups(describeSecurityGroupsRequest);
+
+        List<SecurityGroup> securityGroups = describeSecurityGroupsResult.getSecurityGroups();
+        logger.info("Found securityGroups [{}] for name {}", securityGroups.size(),data.getName());
+        return securityGroups;
     }
 
     /**

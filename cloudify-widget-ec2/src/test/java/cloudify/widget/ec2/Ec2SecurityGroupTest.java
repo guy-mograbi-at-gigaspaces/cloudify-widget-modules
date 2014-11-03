@@ -6,17 +6,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
-import org.apache.commons.net.util.SubnetUtils;
-import org.jclouds.aws.ec2.compute.AWSEC2ComputeService;
-import org.jclouds.aws.ec2.features.AWSSecurityGroupApi;
-import org.jclouds.aws.ec2.options.CreateSecurityGroupOptions;
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.ec2.domain.IpPermission;
-import org.jclouds.ec2.domain.IpProtocol;
-import org.jclouds.ec2.domain.SecurityGroup;
-import org.jclouds.ec2.domain.UserIdGroupPair;
-import org.jclouds.javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,10 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,6 +34,77 @@ public class Ec2SecurityGroupTest {
 
     private static Logger logger = LoggerFactory.getLogger(Ec2SecurityGroupTest.class);
 
+
+
+    @Test
+    public void testGetSecurityGroups(){
+        Ec2SecurityGroup sg = new Ec2SecurityGroup( ec2ConnectDetails );
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData();
+        data.setName("default");
+        List<SecurityGroup> securityGroups = sg.getSecurityGroups(data);
+        logger.info("found security groups [{}]", securityGroups);
+    }
+
+    public boolean isSecurityGroupOpen( Ec2SecurityGroup sg,  WidgetSecurityGroupData data ){
+        List<SecurityGroup> securityGroups = sg.getSecurityGroups( data );
+        return sg.isSecurityGroupOpen( data, securityGroups );
+    }
+
+
+    @Test
+    public void testSecurityGroupNotOpenPort(){
+        Ec2SecurityGroup sg = new Ec2SecurityGroup( ec2ConnectDetails );
+
+
+        List<String> ips = new LinkedList<String>();
+        ips.add("0.0.0.0");
+        ips.add("255.255.255.255");
+
+
+
+        List<Integer> ports = new  LinkedList<Integer>();
+        ports.add(500);
+        ports.add(443);
+
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData(  );
+        data.setPorts( ports );
+        data.setName("guy");
+        data.setIps(ips);
+
+        boolean securityGroupOpen = isSecurityGroupOpen(sg, data);
+        Assert.isTrue( securityGroupOpen, "security group should be open" );
+    }
+
+    @Test
+    public void testSecurityGroupNotOpenIp(){
+        Ec2SecurityGroup sg = new Ec2SecurityGroup( ec2ConnectDetails );
+
+
+        List<String> ips = new LinkedList<String>();
+        ips.add("0.0.0.0");
+        ips.add("255.255.255.255");
+
+
+
+        List<Integer> ports = new  LinkedList<Integer>();
+        ports.add(500);
+        ports.add(443);
+
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData(  );
+        data.setPorts( ports );
+        data.setName("guy");
+        data.setIps(ips);
+
+        boolean securityGroupOpen = isSecurityGroupOpen(sg, data);
+        Assert.isTrue( securityGroupOpen, "security group should be open" );
+    }
+
+    @Test
+    public void testSecurityGroupHandler(){
+
+
+    }
+
     @Test
     public void checkCreateSecurityGroup() {
         Ec2SecurityGroup sg = new Ec2SecurityGroup(ec2ConnectDetails);
@@ -56,9 +117,20 @@ public class Ec2SecurityGroupTest {
         ports.add(100);
         ports.add(200);
 
-        WidgetSecurityGroupData data = new WidgetSecurityGroupData("test-group",ips,ports);
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData();
+        data.setName("test-group");
+        data.setIps(ips);
+        data.setPorts(ports);
 
         sg.createSecurityGroup(data);
+    }
+
+    private WidgetSecurityGroupData getSecurityGroupData( String name, List<String> ips, List<Integer> ports ){
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData();
+        data.setName(name);
+        data.setIps(ips);
+        data.setPorts(ports);
+        return data;
     }
 
     @Test
@@ -74,9 +146,9 @@ public class Ec2SecurityGroupTest {
         ports.add(100);
         ports.add(200);
 
-        WidgetSecurityGroupData data = new WidgetSecurityGroupData("default",ips,ports);
+        WidgetSecurityGroupData data = getSecurityGroupData("default", ips, ports);
 
-        boolean sgOpened = sg.isSecurityGroupOpen(data);
+        boolean sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be true) "+sgOpened);
         if (!sgOpened) throw new AssertionError("Expected group to be opened");
@@ -85,8 +157,8 @@ public class Ec2SecurityGroupTest {
         ports.clear();
         ports.add(22);
         ports.add(33);
-        data = new WidgetSecurityGroupData("launch-wizard-2",ips,ports);
-        sgOpened = sg.isSecurityGroupOpen(data);
+        data = getSecurityGroupData("launch-wizard-2",ips,ports);
+        sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be false) "+sgOpened);
         if (sgOpened) throw new AssertionError("Expected group to not be opened");
@@ -94,15 +166,15 @@ public class Ec2SecurityGroupTest {
         // Check when one port exist, and this one only
         ports.clear();
         ports.add(22);
-        data = new WidgetSecurityGroupData("launch-wizard-2",ips,ports);
-        sgOpened = sg.isSecurityGroupOpen(data);
+        data = getSecurityGroupData("launch-wizard-2",ips,ports);
+        sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be true) "+sgOpened);
         if (!sgOpened) throw new AssertionError("Expected group to be opened");
 
         // Check no data exists in security group
-        data = new WidgetSecurityGroupData("jclouds#ec2blu-mngr-1",ips,ports);
-        sgOpened = sg.isSecurityGroupOpen(data);
+        data = getSecurityGroupData("jclouds#ec2blu-mngr-1",ips,ports);
+        sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be false) "+sgOpened);
         if (sgOpened) throw new AssertionError("Expected group to not be opened");
@@ -111,8 +183,8 @@ public class Ec2SecurityGroupTest {
         ports.clear();
         ports.add(100);
         ports.add(200);
-        data = new WidgetSecurityGroupData("name",ips,ports);
-        sgOpened = sg.isSecurityGroupOpen(data);
+        data = getSecurityGroupData("name", ips, ports);
+        sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be false) "+sgOpened);
         if (sgOpened) throw new AssertionError("Expected group to not be opened");
@@ -122,8 +194,8 @@ public class Ec2SecurityGroupTest {
         ips.add("1.1.1.1");
         ips.add("1.1.1.12");
 
-        data = new WidgetSecurityGroupData("name",ips,ports);
-        sgOpened = sg.isSecurityGroupOpen(data);
+        data = getSecurityGroupData("name",ips,ports);
+        sgOpened = isSecurityGroupOpen(sg, data);
 
         logger.info("Security group is opened? (should be true) "+sgOpened);
 

@@ -11,10 +11,8 @@ public class WidgetSecurityGroupData {
     private List<Integer>ports;
     private String name;
 
-    public WidgetSecurityGroupData(String name, List<String> ips, List<Integer> ports) {
-        this.name = name;
-        this.ips = ips;
-        this.ports = ports;
+    public WidgetSecurityGroupData() {
+
     }
 
     public List<String> getIps() {
