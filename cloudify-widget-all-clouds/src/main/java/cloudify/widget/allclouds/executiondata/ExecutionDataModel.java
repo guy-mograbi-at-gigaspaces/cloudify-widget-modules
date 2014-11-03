@@ -126,7 +126,11 @@ public class ExecutionDataModel {
 
     public LoginDetails getLoginDetails(){
         try {
-            return new ObjectMapper().readValue(getFieldAsString(JsonKeys.LOGIN_DETAILS), LoginDetails.class);
+            String fieldAsString = getFieldAsString(JsonKeys.LOGIN_DETAILS);
+            logger.debug("reading logindetails value [{}]", fieldAsString );
+            LoginDetails loginDetails = new ObjectMapper().readValue(fieldAsString, LoginDetails.class);
+            logger.debug("login details is [{}]", loginDetails);
+            return loginDetails;
         }catch(Exception e){
             throw new RuntimeException("unable to get login details",e);
         }
@@ -165,5 +169,37 @@ public class ExecutionDataModel {
         public String email;
         public String name;
         public String lastName;
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
     }
 }
