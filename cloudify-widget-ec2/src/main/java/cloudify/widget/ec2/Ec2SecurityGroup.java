@@ -116,7 +116,7 @@ public class Ec2SecurityGroup {
 
     /**
      * Check if ALL the requested ips are in range
-     * @param ips
+     * @param ips - list of string that might be single ip ("1.1.1.1" or cidr representation "1.1.1.1/32" )
      * @param ipRanges
      * @return
      */

@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,39 @@ public class Ec2SecurityGroupTest {
     private static Logger logger = LoggerFactory.getLogger(Ec2SecurityGroupTest.class);
 
 
+    @Test
+    public void testCidrUtils(){
+        try {
+            CidrUtils cidrUtils = new CidrUtils("0.0.0.0");
+
+        }catch(Exception e){
+            throw new RuntimeException("unable to test cidr utils",e);
+        }
+
+    }
+
+    @Test
+    public void testParseJson() throws IOException {
+        WidgetSecurityGroupData data = new WidgetSecurityGroupData();
+
+        data.setName("guy");
+        List<Integer> ports = new LinkedList<Integer>();
+        ports.add(10);
+        data.setPorts( ports );
+
+        List<String> ips = new LinkedList<String>();
+        ips.add("1.1.1.1");
+         data.setIps(ips);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String s = mapper.writeValueAsString(data);
+        logger.info(s);
+
+
+        String value = "{\"name\":\"guy\",\"ips\":null,\"ports\":[\"10\"]}";
+        WidgetSecurityGroupData newData = mapper.readValue(value, WidgetSecurityGroupData.class);
+        logger.info( "[{}]",newData );
+    }
 
     @Test
     public void testGetSecurityGroups(){

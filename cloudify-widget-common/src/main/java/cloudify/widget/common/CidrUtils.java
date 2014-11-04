@@ -120,14 +120,26 @@ public class CidrUtils {
         return this.endAddress.getHostAddress();
     }
 
+    /**
+     *
+     * checks if range of ipAddress is contained inside my range
+     *
+     * @param ipAddress - cidr representation or single ip
+     * @return
+     * @throws UnknownHostException
+     */
     public boolean isInRange(String ipAddress) throws UnknownHostException {
-        InetAddress address = InetAddress.getByName(ipAddress);
+
+        CidrUtils target = new CidrUtils(ipAddress);
+
         BigInteger start = new BigInteger(1, this.startAddress.getAddress());
         BigInteger end = new BigInteger(1, this.endAddress.getAddress());
-        BigInteger target = new BigInteger(1, address.getAddress());
 
-        int st = start.compareTo(target);
-        int te = target.compareTo(end);
+        BigInteger targetStart = new BigInteger(1, target.getStartAddress().getAddress());
+        BigInteger targetEnd = new BigInteger(1, target.getEndAddress().getAddress());
+
+        int st = start.compareTo(targetStart);
+        int te = targetEnd.compareTo(end);
 
         return (st == -1 || st == 0) && (te == -1 || te == 0);
     }
