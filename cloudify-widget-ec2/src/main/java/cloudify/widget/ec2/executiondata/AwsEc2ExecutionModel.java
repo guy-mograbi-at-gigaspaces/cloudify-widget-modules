@@ -7,11 +7,22 @@ package cloudify.widget.ec2.executiondata;
  * Time: 10:25 AM
  */
 public class AwsEc2ExecutionModel {
+
     public String imageId;
     public String endpoint;
 
     public String keyPairName;
     public String keyPairContent;
+
+    public String securityGroupName;
+
+    public String getSecurityGroupName() {
+        return securityGroupName;
+    }
+
+    public void setSecurityGroupName(String securityGroupName) {
+        this.securityGroupName = securityGroupName;
+    }
 
     public String getImageId() {
         return imageId;

@@ -30,21 +30,22 @@ public class CidrUtils {
 
     public CidrUtils(String cidr) throws UnknownHostException {
 
-        this.cidr = cidr;
+        // guy - add support to single ip
+        if ( !cidr.contains("/")){
+            this.cidr = cidr + "/32"; // single ip representation in
+        }else{
+            this.cidr = cidr;
+        }
 
         /* split CIDR to address and prefix part */
-        if (this.cidr.contains("/")) {
-            int index = this.cidr.indexOf("/");
-            String addressPart = this.cidr.substring(0, index);
-            String networkPart = this.cidr.substring(index + 1);
+        int index = this.cidr.indexOf("/");
+        String addressPart = this.cidr.substring(0, index);
+        String networkPart = this.cidr.substring(index + 1);
 
-            inetAddress = InetAddress.getByName(addressPart);
-            prefixLength = Integer.parseInt(networkPart);
+        inetAddress = InetAddress.getByName(addressPart);
+        prefixLength = Integer.parseInt(networkPart);
 
-            calculate();
-        } else {
-            throw new IllegalArgumentException("not an valid CIDR format!");
-        }
+        calculate();
     }
 
 
@@ -105,6 +106,14 @@ public class CidrUtils {
     public String getNetworkAddress() {
 
         return this.startAddress.getHostAddress();
+    }
+
+    public InetAddress getStartAddress() {
+        return startAddress;
+    }
+
+    public InetAddress getEndAddress() {
+        return endAddress;
     }
 
     public String getBroadcastAddress() {
