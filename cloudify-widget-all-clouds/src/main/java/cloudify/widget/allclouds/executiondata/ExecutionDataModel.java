@@ -115,7 +115,7 @@ public class ExecutionDataModel {
         try{
             return new ObjectMapper().readValue( getFieldAsString(jsonKey), clzz);
         }catch(Exception e){
-            throw new RuntimeException("unable to read execution data for class [" + clzz +"]", e );
+            throw new RuntimeException("unable to read execution data for class [" + clzz +"]. " + e.getMessage() , e );
         }
     }
 
