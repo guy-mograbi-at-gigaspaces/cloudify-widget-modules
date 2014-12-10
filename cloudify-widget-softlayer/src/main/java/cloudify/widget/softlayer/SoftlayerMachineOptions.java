@@ -14,6 +14,7 @@ public class SoftlayerMachineOptions implements MachineOptions {
     public OsFamily osFamily;
     public String locationId;
     public String hardwareId;
+    public String versionRegex = null;
 
 
 
@@ -88,6 +89,14 @@ public class SoftlayerMachineOptions implements MachineOptions {
 
     public String getHardwareId() {
         return hardwareId;
+    }
+
+    public String getVersionRegex() {
+        return versionRegex;
+    }
+
+    public void setVersionRegex(String versionRegex) {
+        this.versionRegex = versionRegex;
     }
 
     @Override

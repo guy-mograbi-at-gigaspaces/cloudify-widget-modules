@@ -28,6 +28,7 @@
         <property name="hardwareId" value="860,1155,3876,188,439"/>
         <property name="locationId" value="#{testConf.locationId}"/>
         <property name="osFamily" value="CENTOS"/>
+        <property name="versionRegex" value=".*6.*"/>
         <property name="machinesCount" value="1"/>
     </bean>
 

@@ -203,6 +203,9 @@ public class SoftlayerCloudServerApi implements CloudServerApi {
         String hardwareId = machineOptions.hardwareId();
         String locationId = machineOptions.locationId();
         OsFamily osFamily = machineOptions.osFamily();
+        if ( !StringUtils.isEmpty(machineOptions.getVersionRegex())) {
+            templateBuilder.osVersionMatches(machineOptions.getVersionRegex());
+        }
         if( osFamily != null ){
             templateBuilder.osFamily(osFamily);
         }
