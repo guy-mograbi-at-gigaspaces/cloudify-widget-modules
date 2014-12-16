@@ -36,6 +36,10 @@ public class ExecuteData {
 
     public String action;
 
+    public String privateKey; // in case there's a private key
+
+    public String bcc;
+
 
     public MandrillDetails mandrill = new MandrillDetails();
 
