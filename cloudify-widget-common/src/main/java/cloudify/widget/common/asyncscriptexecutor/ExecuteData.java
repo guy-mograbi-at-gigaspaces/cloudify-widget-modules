@@ -1,7 +1,9 @@
 package cloudify.widget.common.asyncscriptexecutor;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +41,20 @@ public class ExecuteData {
     public String privateKey; // in case there's a private key
 
     public String bcc;
+
+    /**
+     * Use this hash map by populating it with
+     *
+     *   {
+     *       "enabled" : "true", // use - a string..
+     *       "username" : "the username",
+     *       "apiKey" : "the api key",
+     *       "serverIp" : "the ip of the server we need credentials for"
+     *
+     *   }
+     *
+     */
+    public Map<String,String> softlayerIncludePasswordDetails = new HashMap<String, String>();
 
 
     public MandrillDetails mandrill = new MandrillDetails();
